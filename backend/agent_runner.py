@@ -182,12 +182,6 @@ def run_agent_chat(agent_config: dict = None, user_message: str = "", history: l
     tone = agent_config.get("tone") or "Friendly & Professional"
     tagline = agent_config.get("tagline") or ""
     description = agent_config.get("description") or ""
-    knowledge_base = (
-        agent_config.get("knowledgeBase") or
-        agent_config.get("productsServices") or
-        description or
-        ""
-    )
     instructions = agent_config.get("instructions") or agent_config.get("promptRules") or ""
     
     contact_info = agent_config.get("contactInfo") or {}
@@ -198,16 +192,24 @@ def run_agent_chat(agent_config: dict = None, user_message: str = "", history: l
     is_english = "english" in dialect.lower() or agent_config.get("language") == "English"
     currency_label = "EGP" if is_english else "جنيه مصري"
 
-    # Include structured menu items in knowledge base if present
     menu_items = agent_config.get("menuItems") or []
     if menu_items:
-        menu_text = "\nStructured Catalog & Official Prices:\n"
+        catalog_lines = ["Official Catalog of Services & Products with Exact Pricing:"]
         for item in menu_items:
             i_name = item.get("name") if isinstance(item, dict) else getattr(item, "name", "")
             i_price = item.get("price") if isinstance(item, dict) else getattr(item, "price", 0)
             i_cat = item.get("category") if isinstance(item, dict) else getattr(item, "category", "")
-            menu_text += f"- {i_name}: {i_price} {currency_label} ({i_cat})\n"
-        knowledge_base = f"{knowledge_base}\n{menu_text}".strip()
+            i_desc = item.get("description") if isinstance(item, dict) else getattr(item, "description", "")
+            desc_str = f" - {i_desc}" if i_desc else ""
+            catalog_lines.append(f"- **{i_name}**: {i_price} {currency_label} ({i_cat}){desc_str}")
+        knowledge_base = "\n".join(catalog_lines)
+    else:
+        knowledge_base = (
+            agent_config.get("knowledgeBase") or
+            agent_config.get("productsServices") or
+            description or
+            ""
+        )
 
     dialect_directive = get_dialect_prompt_instruction(dialect, name)
     tone_directive = get_tone_prompt_instruction(tone)
