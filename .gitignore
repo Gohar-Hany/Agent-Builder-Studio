@@ -1,0 +1,33 @@
+# Node & Frontend Build Artifacts
+node_modules/
+**/node_modules/
+dist/
+dist-ssr/
+.output/
+.nitro/
+.vite/
+*.local
+
+# Python & Backend Artifacts
+venv/
+**/venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+**/.env
+.pytest_cache/
+
+# Database (local SQLite runtime)
+*.db-journal
+*.db-wal
+*.db-shm
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
