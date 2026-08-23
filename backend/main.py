@@ -44,6 +44,14 @@ app.add_middleware(
 def on_startup():
     init_db()
 
+@app.get("/")
+def root():
+    return {"status": "ok", "service": "Kayanova Enterprise Agent API", "version": "2.5.0"}
+
+@app.get("/health")
+def health():
+    return {"status": "healthy"}
+
 # ─── Pydantic Data Models ───
 
 class MenuItemModel(BaseModel):
@@ -778,4 +786,5 @@ Respond ONLY with a valid JSON object matching this schema:
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
