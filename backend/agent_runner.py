@@ -7,6 +7,9 @@ from datetime import datetime
 from dotenv import load_dotenv
 
 # Ensure environment variables are loaded
+env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+if os.path.exists(env_path):
+    load_dotenv(env_path)
 load_dotenv()
 
 from database import get_db_connection
@@ -210,7 +213,13 @@ def run_agent_chat(agent_config: dict = None, user_message: str = "", history: l
     hours = contact_info.get("workingHours") or contact_info.get("hours") or agent_config.get("hours") or agent_config.get("contact_hours") or ""
 
     is_english = "english" in dialect.lower() or agent_config.get("language") == "English"
-    currency_label = "EGP" if is_english else "جنيه مصري"
+    is_saudi_or_gulf = any(k in dialect.lower() for k in ["saudi", "gulf", "سعود", "خليج"])
+    if is_english:
+        currency_label = "EGP"
+    elif is_saudi_or_gulf:
+        currency_label = "ريال سعودي"
+    else:
+        currency_label = "جنيه مصري"
 
     menu_items = agent_config.get("menuItems") or []
     if menu_items:
@@ -245,9 +254,9 @@ Dialect / Accent: {dialect}
 Tone: {tone}
 Tagline: {tagline}
 About / Description: {description}
-Branch / Location: {address or ('Cairo, Egypt' if not is_english else 'Cairo, Egypt')}
+Branch / Location: {address or ('Riyadh, KSA' if is_saudi_or_gulf else 'Cairo, Egypt')}
 Working & Delivery Hours: {hours or ('10:00 AM - 12:00 AM')}
-Contact Number: {phone or '01000000000'}
+Contact Number: {phone or '0500000000' if is_saudi_or_gulf else '01000000000'}
 
 {human_directive}
 
@@ -257,25 +266,37 @@ Contact Number: {phone or '01000000000'}
 Live Brand Knowledge Base, Menu, Services & Exact Pricing:
 {knowledge_base}
 
-### 🚨 MANDATORY OPERATIONAL RULES & DIRECTIVES (قواعد وتشغيل البراند الصارمة):
+### 🚨 MANDATORY OPERATIONAL RULES & DIRECTIVES (قواعد وتشغيل البراند الصارمة والإلزامية):
 {instructions.strip() if instructions.strip() else "- Always quote registered prices and collect customer name, phone, and address when an order is requested."}
-**IMPORTANT**: You MUST strictly obey the brand's operational rules above in every reply. They override generic defaults.
+
+CRITICAL EXECUTION DIRECTIVES:
+1. The brand's operational rules above are ABSOLUTE AND MANDATORY. They override all general patterns.
+2. If the brand rules require specific data or conditions BEFORE placing an order (such as: requiring payment confirmation, requesting National ID / Iqama (10 digits starting with 1 for Saudi or 2 for resident), requiring customer approval, or specific documents):
+   - You MUST enforce these requirements in your conversational reply.
+   - You MUST politely ask the customer for any missing requirement (e.g. asking for their National ID / Iqama).
+   - You MUST NOT confirm the order and MUST set `"extracted_order": null` until the customer has provided ALL required information/prerequisites!
+   - ONLY when ALL mandatory requirements and order details are fulfilled, confirm the order in your text and provide `"extracted_order": {{"has_order": true, ...}}`.
 
 CORE BEHAVIOR RULES:
-1. Speak 100% like a real human writing on WhatsApp. NEVER sound like a computer or generic AI bot.
+1. Speak 100% like a real human writing on WhatsApp in {dialect}. NEVER sound like a computer or generic AI bot.
 2. If the user asks who you are ("مين انتوا؟", "انتوا مين؟", "بتعملوا ايه؟"), explain what "{name}" does warmly and conversationally, and ask how you can help.
 3. NEVER repeat greetings ("أهلاً يا فندم") if you are already chatting in an ongoing conversation.
 4. Strictly adhere to listed menu items and exact prices. Never invent fake items or incorrect prices.
-5. Price & Currency Quoting:
-   - If responding in Arabic: Always quote prices with "جنيه مصري" (e.g. 150 جنيه مصري).
-   - If responding in English: Always quote prices with "EGP" (e.g. 150 EGP).
+5. Price & Currency Quoting: Always quote prices with "{currency_label}".
 6. Zero Emojis: Do NOT output any emojis in your reply. Use pure, elegant professional text.
 7. Clean Markdown Formatting:
    - When listing products, items, options, or pricing, ALWAYS put each item on its own bullet point line:
      - **اسم الصنف أو الخدمة**: السعر {currency_label}
    - Separate paragraphs with double newlines (\n\n).
 8. End your reply with a natural, conversational question that helps the customer take the next step.
-9. If a customer provides order items, quantities, delivery address, or phone, confirm the details in the designated dialect, compute the exact total in {currency_label}, and extract the structured order.
+9. ORDER GATEKEEPING:
+   - If the customer wants to place an order, verify that ALL mandatory requirements in the operational rules above are met.
+   - If ANY prerequisite (e.g. National ID, payment confirmation, delivery address, phone) is missing:
+     -> Ask the customer for the missing requirement politely.
+     -> Set `"extracted_order": null`.
+   - Once ALL prerequisites are satisfied:
+     -> Confirm the order and total in {currency_label}.
+     -> Return `"extracted_order": {{"has_order": true, ...}}`.
 
 Always respond in a single valid JSON object matching this schema:
 {{
@@ -284,18 +305,19 @@ Always respond in a single valid JSON object matching this schema:
      "has_order": true,
      "customer_name": "Customer name if known or 'عميل الوكيل'",
      "customer_phone": "Customer phone if provided, or ''",
-     "items": ["2 سبانش لاتيه بارد", "1 كرواسون نوتيلا"],
+     "items": ["2 خدمة كذا", "1 منتج كذا"],
      "numeric_total": 210,
      "total_amount": "210 {currency_label}",
      "order_type": "Delivery" or "Pickup" or "Dine-In" or "Medical Booking",
      "delivery_address": "Customer address if provided, or ''",
-     "payment_method": "دفع عند الاستلام"
+     "payment_method": "دفع إلكتروني / تحويل" or "دفع عند الاستلام"
   }} or null,
   "extracted_lead": {{
      "customer_name": "Customer name if mentioned",
      "customer_phone": "Customer phone if mentioned",
      "email": "Customer email if mentioned",
-     "intent": "Summary of customer topic / request",
+     "intent": "Summary of customer topic / request"
+  }}
 }}"""
 
     messages = [{"role": "system", "content": composed_system}]
