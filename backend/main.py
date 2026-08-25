@@ -139,6 +139,14 @@ class GenerateProfileRequest(BaseModel):
     currentWelcome: Optional[str] = None
     currentInstructions: Optional[str] = None
 
+class EnhanceRulesRequest(BaseModel):
+    currentRules: Optional[str] = ""
+    brandName: Optional[str] = ""
+    category: Optional[str] = ""
+    language: Optional[str] = "Arabic"
+    dialect: Optional[str] = "Egyptian Arabic"
+    tone: Optional[str] = "Friendly"
+
 # ─── Helper Functions ───
 
 def row_to_brand_dict(row, menu_items=None):
@@ -900,6 +908,100 @@ Respond ONLY with a valid JSON object matching this schema:
         "welcomeMessage": f"Welcome to {brand_name}! How can I assist you today?" if is_english else f"أهلاً بحضرتك في {brand_name}! يسعدني خدمتك ومساعدتك في أي استفسار أو طلب.",
         "instructions": "1. Greet customer politely.\n2. Accurately provide pricing.\n3. Collect phone and address.\n4. Confirm delivery details." if is_english else "1. الترحيب الودود بالعميل.\n2. توضيح تفاصيل الأصناف والأسعار بدقة.\n3. تسجيل بيانات التوصيل ورقم الهاتف.\n4. الالتزام بالأصناف المسجلة فقط.",
         "menuItems": fallback_items
+    }
+
+@app.post("/api/enhance-rules")
+def enhance_rules(req: EnhanceRulesRequest):
+    api_key = os.getenv("OPENROUTER_API_KEY")
+    brand_name = req.brandName.strip() if req.brandName and req.brandName.strip() else "البراند"
+    category = req.category or "General"
+    is_english = req.dialect == "English" or req.language == "English"
+    language_label = "English" if is_english else "Arabic"
+    current_rules = (req.currentRules or "").strip()
+
+    if not api_key:
+        if current_rules:
+            # Clean fallback formatting
+            lines = [l.strip() for l in current_rules.split("\n") if l.strip()]
+            numbered = "\n".join(f"{i+1}. {re.sub(r'^[0-9]+[.-]\s*', '', l)}" for i, l in enumerate(lines))
+            return {"enhancedRules": numbered}
+        return {
+            "enhancedRules": "1. Strictly quote official catalog prices.\n2. Collect delivery address and customer phone number.\n3. Zero emojis in responses." if is_english else "1. الترحيب بلباقة بالعميل وتوضيح الأسعار المسجلة فقط.\n2. تسجيل بيانات ورقم هاتف العميل وعنوان التوصيل.\n3. التأكيد على الشروط والسياسات الخاصة بالطلب قبل إتمامه."
+        }
+
+    if current_rules:
+        prompt = f"""You are a master AI Prompt Engineer and Customer Support Workflow Architect.
+Your task is to take the user's rough operational rules, conditions, and business policies, and rewrite & refine them into highly professional, crisp, unambiguous numbered operational directives for an AI conversational agent.
+
+Brand Context:
+- Brand Name: {brand_name}
+- Industry: {category}
+- Language: {language_label}
+
+User's Rough Notes / Input Rules:
+\"\"\"
+{current_rules}
+\"\"\"
+
+CRITICAL REWRITING DIRECTIVES:
+1. Preserve 100% of the user's business intent, conditions, constraints, validation rules, digits, policies, and prerequisites (e.g. ID requirements, payment steps, return periods, delivery terms).
+2. Rewrite each point clearly, authoritatively, and professionally in clean {language_label}.
+3. Format as a clean numbered list:
+1. Rule one
+2. Rule two
+3. Rule three
+4. ZERO EMOJIS: Do NOT output any emojis.
+5. Return ONLY a single valid JSON object:
+{{"enhancedRules": "1. First rule\\n2. Second rule\\n3. Third rule"}}"""
+    else:
+        prompt = f"""You are a master AI Prompt Engineer and Customer Support Workflow Architect.
+Generate 4 highly professional, strategic operational directives and business rules for an AI customer support and sales agent representing this brand:
+
+Brand Name: {brand_name}
+Industry: {category}
+Language: {language_label}
+
+CRITICAL DIRECTIVES:
+1. Formulate 4 clear, essential operational rules covering pricing fidelity, order data collection, polite qualification, and customer assistance.
+2. Format as a clean numbered list in {language_label}.
+3. ZERO EMOJIS: Do NOT output any emojis.
+4. Return ONLY a single valid JSON object:
+{{"enhancedRules": "1. First rule\\n2. Second rule\\n3. Third rule\\n4. Fourth rule"}}"""
+
+    models = ["openai/gpt-4o-mini", "qwen/qwen-2.5-72b-instruct", "google/gemini-3.7-flash"]
+    for model_name in models:
+        try:
+            req_data = {
+                "model": model_name,
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0.3,
+                "response_format": {"type": "json_object"}
+            }
+            req_body = json.dumps(req_data).encode("utf-8")
+            h_req = urllib.request.Request(
+                "https://openrouter.ai/api/v1/chat/completions",
+                data=req_body,
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {api_key}",
+                    "HTTP-Referer": "http://localhost:3000",
+                    "X-Title": "Kayanova AI Studio"
+                },
+                method="POST"
+            )
+            with urllib.request.urlopen(h_req, timeout=16) as response:
+                res_data = json.loads(response.read().decode("utf-8"))
+                content = res_data["choices"][0]["message"]["content"]
+                clean_json = re.sub(r"^```json\s*|\s*```$", "", content, flags=re.MULTILINE).strip()
+                parsed = json.loads(clean_json)
+                if parsed.get("enhancedRules"):
+                    return parsed
+        except Exception as e:
+            print(f"[Enhance Rules] Model {model_name} failed: {e}")
+            continue
+
+    return {
+        "enhancedRules": current_rules or ("1. Strictly quote official catalog prices.\n2. Collect delivery address and customer phone number." if is_english else "1. الالتزام بأسعار المنيو والخدمات الرسمية بدقة.\n2. تسجيل بيانات العميل ورقم الهاتف عند الطلب.")
     }
 
 if __name__ == "__main__":

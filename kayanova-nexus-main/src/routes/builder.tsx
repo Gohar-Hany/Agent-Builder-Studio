@@ -56,8 +56,7 @@ import {
   uid,
 } from "@/lib/kayanova/presets";
 import { egp, useKayanova } from "@/lib/kayanova/store";
-import type { BrandProfile, MenuItem } from "@/lib/kayanova/types";
-import { generateProfileApi } from "@/lib/kayanova/api";
+import { generateProfileApi, enhanceRulesApi } from "@/lib/kayanova/api";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 type StepKey = "identity" | "knowledge" | "behavior" | "preview";
@@ -1493,36 +1492,44 @@ function BehaviorStep({
 
   const craftAiRules = async () => {
     setIsCraftingRules(true);
-    const bName = draft.name.trim() || (lang === "ar" ? "براند جديد" : "My Brand");
+    const bName = draft.name.trim() || (lang === "ar" ? "البراند" : "My Brand");
+    const rawInput = (draft.promptRules || draft.instructions || "").trim();
+
     toast.info(
       lang === "ar"
-        ? `جاري صياغة توجيهات وقواعد المحادثة لـ "${bName}" بالذكاء الاصطناعي...`
-        : `AI crafting dialogue rules for "${bName}"...`,
+        ? (rawInput ? "جاري تحسين وإعادة صياغة القواعد بالذكاء الاصطناعي..." : `جاري صياغة قواعد ذكية لـ "${bName}" بالذكاء الاصطناعي...`)
+        : (rawInput ? "AI enhancing and structuring rules..." : `AI crafting operational rules for "${bName}"...`),
     );
     try {
-      const res = await generateProfileApi({
-        name: bName,
-        category: draft.category || "Restaurant",
+      const res = await enhanceRulesApi({
+        currentRules: rawInput,
+        brandName: bName,
+        category: draft.category || "General",
         dialect: draft.dialect,
         tone: draft.tone,
-        currentTagline: draft.tagline,
-        currentRole: draft.role,
-        currentWelcome: draft.welcomeMessage,
+        language: lang === "ar" ? "Arabic" : "English",
       });
 
-      if (res.instructions) {
-        patch({ promptRules: res.instructions, instructions: res.instructions });
+      if (res.enhancedRules) {
+        patch({ promptRules: res.enhancedRules, instructions: res.enhancedRules });
         toast.success(
           lang === "ar"
-            ? "تمت صياغة توجيهات وقواعد المحادثة بنجاح!"
-            : "AI prompt rules generated successfully!",
+            ? (rawInput ? "تمت إعادة صياغة وتحسين القواعد بأسلوب احترافي!" : "تمت صياغة توجيهات وقواعد المحادثة بنجاح!")
+            : (rawInput ? "Rules professionally enhanced and structured!" : "AI prompt rules generated successfully!"),
         );
       }
     } catch {
-      const preset = CATEGORY_PRESETS.find((p) => p.key === draft.category) ?? CATEGORY_PRESETS[0]!;
-      const fallbackRules = lang === "ar" ? preset.rulesAr : preset.rules;
-      patch({ promptRules: fallbackRules, instructions: fallbackRules });
-      toast.success(lang === "ar" ? "تم تطبيق القواعد الاستراتيجية" : "Blueprint rules applied");
+      if (rawInput) {
+        const lines = rawInput.split("\n").map((l) => l.trim()).filter(Boolean);
+        const formatted = lines.map((l, i) => `${i + 1}. ${l.replace(/^[0-9]+[.-]\s*/, "")}`).join("\n");
+        patch({ promptRules: formatted, instructions: formatted });
+        toast.success(lang === "ar" ? "تم تنظيم وترقيم القواعد" : "Rules structured and numbered");
+      } else {
+        const preset = CATEGORY_PRESETS.find((p) => p.key === draft.category) ?? CATEGORY_PRESETS[0]!;
+        const fallbackRules = lang === "ar" ? preset.rulesAr : preset.rules;
+        patch({ promptRules: fallbackRules, instructions: fallbackRules });
+        toast.success(lang === "ar" ? "تم تطبيق القواعد الاستراتيجية" : "Blueprint rules applied");
+      }
     } finally {
       setIsCraftingRules(false);
     }
@@ -1557,11 +1564,11 @@ function BehaviorStep({
             <AiActionButton
               onClick={craftAiRules}
               isLoading={isCraftingRules}
-              label={lang === "ar" ? "صياغة القواعد بالذكاء الاصطناعي" : "AI Rules Craft"}
-              loadingLabel={lang === "ar" ? "جاري الصياغة..." : "Crafting..."}
+              label={lang === "ar" ? "تحسين وصياغة القواعد بالـ AI" : "AI Rules Enhance & Craft"}
+              loadingLabel={lang === "ar" ? "جاري التحسين..." : "Enhancing..."}
             />
           }
-          hint={lang === "ar" ? "قواعد صارمة تتحكم في سلوك الوكيل وردود فعله" : "Strict rules controlling the agent's behavior and responses"}
+          hint={lang === "ar" ? "اكتب أفكارك أو شروطك واضغط على الزر لتحسينها وصياغتها باحترافية" : "Type your rough rules or policies and click the button to professionally structure them"}
         >
           <Textarea
             id="rules"

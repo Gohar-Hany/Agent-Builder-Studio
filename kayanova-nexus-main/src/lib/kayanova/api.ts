@@ -185,3 +185,17 @@ export async function generateProfileApi(payload: {
     body: JSON.stringify(payload),
   });
 }
+
+export async function enhanceRulesApi(payload: {
+  currentRules?: string;
+  brandName?: string;
+  category?: string;
+  language?: string;
+  dialect?: string;
+  tone?: string;
+}): Promise<{ enhancedRules: string }> {
+  return request<{ enhancedRules: string }>("/enhance-rules", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
