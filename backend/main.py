@@ -168,6 +168,7 @@ def row_to_brand_dict(row, menu_items=None):
         "knowledgeBase": row["products_services"] if "products_services" in keys and row["products_services"] else "",
         "welcomeMessage": row["welcome_message"] if "welcome_message" in keys and row["welcome_message"] else "",
         "instructions": row["instructions"] if "instructions" in keys and row["instructions"] else "",
+        "promptRules": row["instructions"] if "instructions" in keys and row["instructions"] else "",
         "creativity": row["creativity"] if "creativity" in keys and row["creativity"] else 50,
         "guardrails": guardrails,
         "menuItems": menu_items or [],
@@ -293,6 +294,8 @@ def create_brand(brand: BrandModel):
     except Exception:
         guardrails_json = '["strict_pricing"]'
 
+    instructions_val = str(brand.instructions or brand.promptRules or "").strip()
+
     try:
         cursor.execute("SELECT id FROM brands WHERE id = ?", (brand_id,))
         exists = cursor.fetchone() is not None
@@ -309,7 +312,7 @@ def create_brand(brand: BrandModel):
                 brand.name, brand.iconType, brand.tagline, brand.category, brand.role,
                 brand.tone, brand.language, brand.dialect, brand.llmModel or "google/gemini-3.7-flash",
                 brand.description, brand.productsServices,
-                brand.welcomeMessage, brand.instructions,
+                brand.welcomeMessage, instructions_val,
                 c_phone, c_address, c_hours,
                 brand.creativity or 50, guardrails_json, now_iso, brand_id
             ))
@@ -325,7 +328,7 @@ def create_brand(brand: BrandModel):
                 brand_id, brand.name, brand.iconType, brand.tagline, brand.category, brand.role,
                 brand.tone, brand.language, brand.dialect, brand.llmModel or "google/gemini-3.7-flash",
                 brand.description, brand.productsServices,
-                brand.welcomeMessage, brand.instructions,
+                brand.welcomeMessage, instructions_val,
                 c_phone, c_address, c_hours,
                 brand.creativity or 50, guardrails_json, now_iso, now_iso
             ))
@@ -374,6 +377,8 @@ def update_brand(brand_id: str, brand: BrandModel):
     except Exception:
         guardrails_json = '["strict_pricing"]'
 
+    instructions_val = str(brand.instructions or brand.promptRules or "").strip()
+
     try:
         cursor.execute("SELECT id FROM brands WHERE id = ?", (brand_id,))
         exists = cursor.fetchone() is not None
@@ -390,7 +395,7 @@ def update_brand(brand_id: str, brand: BrandModel):
                 brand.name, brand.iconType, brand.tagline, brand.category, brand.role, brand.tone,
                 brand.language, brand.dialect, brand.llmModel or "google/gemini-3.7-flash",
                 brand.description, brand.productsServices,
-                brand.welcomeMessage, brand.instructions,
+                brand.welcomeMessage, instructions_val,
                 c_phone, c_address, c_hours,
                 brand.creativity or 50, guardrails_json, now_iso, brand_id
             ))
@@ -406,7 +411,7 @@ def update_brand(brand_id: str, brand: BrandModel):
                 brand_id, brand.name, brand.iconType, brand.tagline, brand.category, brand.role,
                 brand.tone, brand.language, brand.dialect, brand.llmModel or "google/gemini-3.7-flash",
                 brand.description, brand.productsServices,
-                brand.welcomeMessage, brand.instructions,
+                brand.welcomeMessage, instructions_val,
                 c_phone, c_address, c_hours,
                 brand.creativity or 50, guardrails_json, now_iso, now_iso
             ))

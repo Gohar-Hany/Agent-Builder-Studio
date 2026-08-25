@@ -1520,7 +1520,8 @@ function BehaviorStep({
       }
     } catch {
       const preset = CATEGORY_PRESETS.find((p) => p.key === draft.category) ?? CATEGORY_PRESETS[0]!;
-      patch({ promptRules: lang === "ar" ? preset.rulesAr : preset.rules });
+      const fallbackRules = lang === "ar" ? preset.rulesAr : preset.rules;
+      patch({ promptRules: fallbackRules, instructions: fallbackRules });
       toast.success(lang === "ar" ? "تم تطبيق القواعد الاستراتيجية" : "Blueprint rules applied");
     } finally {
       setIsCraftingRules(false);
@@ -1565,8 +1566,8 @@ function BehaviorStep({
           <Textarea
             id="rules"
             rows={7}
-            value={draft.promptRules ?? ""}
-            onChange={(e) => patch({ promptRules: e.target.value })}
+            value={draft.promptRules || draft.instructions || ""}
+            onChange={(e) => patch({ promptRules: e.target.value, instructions: e.target.value })}
             placeholder={t.builder.instructionsPlaceholder}
             className="text-sm resize-none bg-card font-mono text-xs leading-relaxed"
           />
