@@ -167,32 +167,42 @@ def run_agent_chat(agent_config: dict = None, user_message: str = "", history: l
 
     target_brand_id = brand_id or agent_config.get("id") or agent_config.get("brandId")
 
-    # If config lacks name, try loading from DB using target_brand_id
-    if (not agent_config.get("name")) and target_brand_id:
+    # If config lacks name or menuItems, try loading from DB using target_brand_id
+    if target_brand_id and (not agent_config.get("name") or not agent_config.get("menuItems")):
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM brands WHERE id = ?", (target_brand_id,))
-            row = cursor.fetchone()
-            if row:
-                row_dict = dict(row)
-                contact_info = {
-                    "phone": row_dict.get("contact_phone", ""),
-                    "address": row_dict.get("contact_address", ""),
-                    "workingHours": row_dict.get("contact_hours", "")
-                }
-                agent_config = {
-                    "id": row_dict.get("id"),
-                    "name": row_dict.get("name"),
-                    "category": row_dict.get("category"),
-                    "role": row_dict.get("role"),
-                    "tone": row_dict.get("tone"),
-                    "dialect": row_dict.get("dialect"),
-                    "description": row_dict.get("description"),
-                    "productsServices": row_dict.get("products_services"),
-                    "instructions": row_dict.get("instructions"),
-                    "contactInfo": contact_info
-                }
+            if not agent_config.get("name"):
+                cursor.execute("SELECT * FROM brands WHERE id = ?", (target_brand_id,))
+                row = cursor.fetchone()
+                if row:
+                    row_dict = dict(row)
+                    contact_info = {
+                        "phone": row_dict.get("contact_phone", ""),
+                        "address": row_dict.get("contact_address", ""),
+                        "workingHours": row_dict.get("contact_hours", "")
+                    }
+                    agent_config = {
+                        "id": row_dict.get("id"),
+                        "name": row_dict.get("name"),
+                        "category": row_dict.get("category"),
+                        "role": row_dict.get("role"),
+                        "tone": row_dict.get("tone"),
+                        "dialect": row_dict.get("dialect"),
+                        "llmModel": row_dict.get("llm_model"),
+                        "description": row_dict.get("description"),
+                        "productsServices": row_dict.get("products_services"),
+                        "instructions": row_dict.get("instructions"),
+                        "contactInfo": contact_info
+                    }
+            if not agent_config.get("menuItems"):
+                cursor.execute("SELECT * FROM menu_items WHERE brand_id = ?", (target_brand_id,))
+                m_rows = cursor.fetchall()
+                if m_rows:
+                    agent_config["menuItems"] = [
+                        {"id": m["id"], "name": m["name"], "price": float(m["price"]), "category": m["category"], "description": m["description"], "available": bool(m["available"])}
+                        for m in m_rows
+                    ]
             conn.close()
         except Exception as e:
             print(f"[Agent Runner] DB load error: {e}")
