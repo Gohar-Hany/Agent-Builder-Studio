@@ -923,7 +923,8 @@ def enhance_rules(req: EnhanceRulesRequest):
         if current_rules:
             # Clean fallback formatting
             lines = [l.strip() for l in current_rules.split("\n") if l.strip()]
-            numbered = "\n".join(f"{i+1}. {re.sub(r'^[0-9]+[.-]\s*', '', l)}" for i, l in enumerate(lines))
+            clean_lines = [re.sub(r'^[0-9]+[.-]\s*', '', l) for l in lines]
+            numbered = "\n".join(f"{i+1}. {cl}" for i, cl in enumerate(clean_lines))
             return {"enhancedRules": numbered}
         return {
             "enhancedRules": "1. Strictly quote official catalog prices.\n2. Collect delivery address and customer phone number.\n3. Zero emojis in responses." if is_english else "1. الترحيب بلباقة بالعميل وتوضيح الأسعار المسجلة فقط.\n2. تسجيل بيانات ورقم هاتف العميل وعنوان التوصيل.\n3. التأكيد على الشروط والسياسات الخاصة بالطلب قبل إتمامه."
