@@ -266,14 +266,14 @@ function Simulator() {
       )}
     >
       {/* Chat Header */}
-      <div className="shrink-0 flex items-center justify-between border-b border-border/70 bg-secondary/50 px-3 py-2.5 sm:px-5 sm:py-3.5">
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+      <div className="shrink-0 flex items-center justify-between gap-3 border-b border-border/70 bg-secondary/40 px-3.5 py-2.5 sm:px-5 sm:py-3 min-w-0">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
           <div className="relative shrink-0">
-            <BrandGlyph brand={activeBrand} className="size-8 sm:size-10 rounded-xl ring-2 ring-primary/20" />
-            <span className="absolute end-0 bottom-0 size-2 sm:size-2.5 rounded-full bg-emerald-500 ring-2 ring-background" />
+            <BrandGlyph brand={activeBrand} className="size-8 sm:size-10 rounded-xl ring-2 ring-primary/20 shadow-2xs" />
+            <span className="absolute -bottom-0.5 -end-0.5 size-2.5 sm:size-3 rounded-full bg-emerald-500 ring-2 ring-background" />
           </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-1.5">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 min-w-0">
               <h2 className="text-xs sm:text-sm md:text-base font-bold text-foreground truncate">
                 {activeBrand?.name ?? (lang === "ar" ? "الوكيل الذكي" : "AI Assistant")}
               </h2>
@@ -282,39 +282,35 @@ function Simulator() {
                 {lang === "ar" ? "متصل" : "Online"}
               </span>
             </div>
-            <div className="hidden sm:flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground truncate">
-              <span>{activeBrand?.role ?? "Senior Business Agent"}</span>
-              <span>·</span>
-              <span>{t.dialects[activeBrand?.dialect as keyof typeof t.dialects] ?? activeBrand?.dialect ?? "Egyptian Arabic"}</span>
-              <span>·</span>
-              <span className="font-semibold text-primary/90 flex items-center gap-1 bg-primary/10 px-1.5 py-0.2 rounded-md">
-                <Sparkles className="size-2.5 text-primary" />
-                {AVAILABLE_LLM_MODELS.find((m) => m.id === activeBrand?.llmModel)?.name || "Gemini 3.7 Flash"}
-              </span>
+            <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground truncate">
+              <span className="truncate">{activeBrand?.role ?? "Senior Business Agent"}</span>
+              <span className="shrink-0">·</span>
+              <span className="shrink-0 font-medium">{t.dialects[activeBrand?.dialect as keyof typeof t.dialects] ?? activeBrand?.dialect ?? "Egyptian Arabic"}</span>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* TTS Audio Toggle */}
-          <button
-            type="button"
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => setTts((v) => !v)}
             className={cn(
-              "flex size-8 sm:size-auto sm:px-3 sm:py-1.5 items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition-all shadow-2xs",
-              tts ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground hover:text-foreground",
+              "h-8 sm:h-9 px-2 sm:px-3 text-xs font-semibold gap-1.5 border-border shadow-2xs",
+              tts ? "bg-primary text-primary-foreground border-primary" : "bg-card text-muted-foreground hover:text-foreground",
             )}
             title={tts ? "Voice On" : "Voice Off"}
           >
             {tts ? <Volume2 className="size-3.5" /> : <VolumeX className="size-3.5" />}
             <span className="hidden md:inline">{tts ? (lang === "ar" ? "الصوت مفعل" : "Voice On") : (lang === "ar" ? "الصوت معطل" : "Voice Off")}</span>
-          </button>
+          </Button>
 
           {/* Reset Chat */}
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8 sm:h-9 sm:w-9 border-border bg-card text-foreground/80 hover:text-foreground"
+            className="h-8 w-8 sm:h-9 sm:w-9 border-border bg-card text-muted-foreground hover:text-foreground shadow-2xs"
             onClick={() => { reset(); toast.info(lang === "ar" ? "تمت إعادة ضبط المحادثة." : "Chat session reset."); }}
             title={t.simulator.reset}
           >
@@ -326,18 +322,17 @@ function Simulator() {
             <Button
               size="sm"
               onClick={() => setIsFocusMode(false)}
-              className="h-8 sm:h-9 gap-1 px-2.5 sm:px-4 text-xs font-bold brand-gradient text-primary-foreground shadow-md hover:shadow-lg"
+              className="h-8 sm:h-9 gap-1.5 px-3 text-xs font-bold brand-gradient text-primary-foreground shadow-sm"
             >
               <Minimize2 className="size-3.5 sm:size-4" />
-              <span className="hidden sm:inline">{lang === "ar" ? "الخروج من التركيز" : "Exit Focus"}</span>
-              <span className="sm:hidden">{lang === "ar" ? "خروج" : "Exit"}</span>
+              <span>{lang === "ar" ? "خروج من التركيز" : "Exit Focus"}</span>
             </Button>
           ) : (
             <Button
               variant="outline"
               size="sm"
               onClick={() => setIsFocusMode(true)}
-              className="h-8 sm:h-9 gap-1 px-2 sm:px-3 text-xs font-bold border-primary/30 bg-primary/5 text-primary hover:bg-primary hover:text-primary-foreground shadow-2xs"
+              className="h-8 sm:h-9 gap-1.5 px-2.5 sm:px-3 text-xs font-bold border-primary/30 bg-primary/5 text-primary hover:bg-primary hover:text-primary-foreground shadow-2xs"
               title={lang === "ar" ? "تكبير وتركيز كامل الشاشة" : "Full Screen Focus Mode"}
             >
               <Maximize2 className="size-3.5" />
@@ -647,14 +642,14 @@ function Simulator() {
                 : "Select an agent to test"
           }
           actions={
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               <Select value={activeBrand?.id ?? ""} onValueChange={setActiveBrandId}>
-                <SelectTrigger className="h-9 w-32 sm:w-48 border-border bg-card text-xs font-semibold text-foreground sm:text-sm">
+                <SelectTrigger className="h-9 w-36 sm:w-48 border-border bg-card text-xs font-semibold text-foreground">
                   <SelectValue placeholder={t.dashboard.directoryTitle} />
                 </SelectTrigger>
                 <SelectContent className="border-border bg-card">
                   {brands.map((b) => (
-                    <SelectItem key={b.id} value={b.id} className="text-foreground">
+                    <SelectItem key={b.id} value={b.id} className="text-foreground text-xs">
                       {b.name}
                     </SelectItem>
                   ))}
@@ -696,38 +691,15 @@ function Simulator() {
                 </SelectContent>
               </Select>
 
-              {/* Full Focus Mode Toggle */}
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9 gap-1.5 border-primary/30 bg-primary/5 text-xs font-bold text-primary hover:bg-primary hover:text-primary-foreground shadow-2xs"
-                onClick={() => setIsFocusMode(true)}
-                title={lang === "ar" ? "الدخول في وضع التركيز الكامل" : "Enter Full Focus Mode"}
-              >
-                <Maximize2 className="size-3.5" />
-                <span className="hidden sm:inline">{lang === "ar" ? "وضع التركيز" : "Focus Mode"}</span>
-              </Button>
-
               {/* Toggle Inspector Desktop */}
               <Button
                 variant="outline"
                 size="icon"
-                className="hidden lg:flex h-9 w-9 border-border bg-card text-foreground/80 hover:text-foreground shadow-2xs"
+                className="hidden lg:flex h-9 w-9 border-border bg-card text-foreground/80 hover:text-foreground shadow-2xs shrink-0"
                 onClick={() => setShowInspector((v) => !v)}
                 title={showInspector ? "Hide Inspector" : "Show Inspector"}
               >
                 {showInspector ? <PanelLeftClose className="size-4" /> : <PanelLeftOpen className="size-4" />}
-              </Button>
-
-              {/* Reset Session */}
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-9 w-9 border-border bg-card text-foreground/80 hover:text-foreground shadow-2xs"
-                onClick={() => { reset(); toast.info(lang === "ar" ? "تمت إعادة ضبط المحادثة." : "Chat session reset."); }}
-                title={t.simulator.reset}
-              >
-                <RotateCcw className="size-4" />
               </Button>
             </div>
           }

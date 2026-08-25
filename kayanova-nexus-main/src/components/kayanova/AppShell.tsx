@@ -91,7 +91,7 @@ export function AppShell({
   }, []);
 
   return (
-    <div className="min-h-screen bg-background text-foreground" dir={dir}>
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden w-full max-w-full" dir={dir}>
       {/* ========================================================================= */}
       {/* DESKTOP COLLAPSIBLE SIDEBAR                                               */}
       {/* ========================================================================= */}
@@ -209,8 +209,8 @@ export function AppShell({
       {/* ========================================================================= */}
       {/* MAIN CONTENT WRAPPER                                                      */}
       {/* ========================================================================= */}
-      <div className={cn("min-h-screen flex flex-col transition-all duration-300", collapsed ? "lg:ps-18" : "lg:ps-64")}>
-        <header className="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur-md shadow-[0_1px_0_0_var(--color-border),0_2px_8px_oklch(0.15_0.03_255/0.06)]">
+      <div className={cn("min-h-screen flex flex-col transition-all duration-300 w-full max-w-full overflow-x-hidden", collapsed ? "lg:ps-18" : "lg:ps-64")}>
+        <header className="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur-md shadow-[0_1px_0_0_var(--color-border),0_2px_8px_oklch(0.15_0.03_255/0.06)] w-full max-w-full overflow-x-hidden">
           {/* Top Bar on Mobile */}
           <div className="flex items-center justify-between border-b border-border/50 px-4 py-2.5 lg:hidden">
             <Link to="/" className="flex items-center gap-2.5">
@@ -237,7 +237,7 @@ export function AppShell({
           </div>
 
           {/* Main Header Title & Actions */}
-          <div className="flex flex-col gap-2 px-3 py-2.5 sm:px-4 sm:py-3.5 xl:flex-row xl:items-center xl:justify-between md:px-8">
+          <div className="flex flex-col gap-2 px-3 py-2.5 sm:px-4 sm:py-3.5 xl:flex-row xl:items-center xl:justify-between md:px-8 max-w-full">
             <div className="flex items-center gap-3 min-w-0">
               {/* Desktop Toggle Button in Header if Collapsed */}
               <Button
@@ -263,7 +263,7 @@ export function AppShell({
             </div>
 
             {/* Structured Executive Toolbar */}
-            <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto no-scrollbar py-0.5 xl:py-0 w-full xl:w-auto justify-start xl:justify-end shrink-0">
+            <div className="flex items-center gap-2 sm:gap-2.5 py-0.5 xl:py-0 w-full xl:w-auto justify-start xl:justify-end shrink-0 max-w-full">
               {/* Language Switcher in Top Bar (Desktop/Tablet) */}
               <Button
                 variant="outline"
@@ -303,7 +303,7 @@ export function AppShell({
           </nav>
         </header>
 
-        <main className="flex-1 px-3 py-4 sm:px-6 sm:py-5 md:px-8 md:py-6">{children}</main>
+        <main className="flex-1 px-3 py-4 sm:px-6 sm:py-5 md:px-8 md:py-6 w-full max-w-full overflow-x-hidden">{children}</main>
       </div>
 
       <CommandDialog open={open} onOpenChange={setOpen}>

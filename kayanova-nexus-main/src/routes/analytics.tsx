@@ -320,9 +320,9 @@ function DualCrmPage() {
       }
     >
       {/* Top Segmented Dual CRM Switcher Tabs & Brand Filters */}
-      <div className="mb-5 flex flex-col gap-3.5 lg:flex-row lg:items-center lg:justify-between">
+      <div className="mb-5 flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between w-full max-w-full">
         {/* Sleek Segmented Switcher */}
-        <div className="grid grid-cols-2 w-full lg:w-auto rounded-xl border border-border bg-card p-1 shadow-2xs">
+        <div className="grid grid-cols-2 w-full sm:w-auto rounded-xl border border-border bg-card p-1 shadow-2xs shrink-0">
           <button
             onClick={() => setActiveTab("orders")}
             className={cn(
@@ -368,36 +368,29 @@ function DualCrmPage() {
           </button>
         </div>
 
-        {/* Global Brand Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-          <span className="shrink-0 text-xs font-semibold text-muted-foreground me-1">
+        {/* Global Brand Filter Dropdown */}
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-start sm:justify-end shrink-0">
+          <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap hidden md:inline">
             {t.crm.filterByBrand}:
           </span>
-          <button
-            onClick={() => setBrandFilter("all")}
-            className={cn(
-              "shrink-0 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors",
-              brandFilter === "all"
-                ? "border-primary bg-accent text-accent-foreground shadow-2xs"
-                : "border-border bg-card text-muted-foreground hover:border-ring",
-            )}
-          >
-            {t.all}
-          </button>
-          {brands.map((b) => (
-            <button
-              key={b.id}
-              onClick={() => setBrandFilter(b.id)}
-              className={cn(
-                "shrink-0 whitespace-nowrap rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors",
-                brandFilter === b.id
-                  ? "border-primary bg-accent text-accent-foreground shadow-2xs"
-                  : "border-border bg-card text-muted-foreground hover:border-ring",
-              )}
-            >
-              {b.name}
-            </button>
-          ))}
+          <Select value={brandFilter} onValueChange={setBrandFilter}>
+            <SelectTrigger className="h-9.5 w-full sm:w-64 border-border bg-card text-xs font-semibold text-foreground shadow-2xs">
+              <div className="flex items-center gap-2 truncate">
+                <Building2 className="size-3.5 text-primary shrink-0" />
+                <SelectValue placeholder={t.crm.all} />
+              </div>
+            </SelectTrigger>
+            <SelectContent className="border-border bg-card">
+              <SelectItem value="all" className="text-xs font-semibold">
+                {lang === "ar" ? "جميع البراندات والوكلاء (الكل)" : "All Brands & Agents (All)"}
+              </SelectItem>
+              {brands.map((b) => (
+                <SelectItem key={b.id} value={b.id} className="text-xs">
+                  {b.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
