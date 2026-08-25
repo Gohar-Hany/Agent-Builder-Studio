@@ -122,14 +122,16 @@ function DualCrmPage() {
     notes: "",
   });
 
-  const brandName = (id: string) => brands.find((b) => b.id === id || b.name === id)?.name ?? id ?? "Global";
+  const brandName = (id: string) =>
+    brands.find((b) => b.id === id || b.name === id)?.name ?? id ?? "Global";
 
   // Filtered Orders
   const filteredOrders = useMemo(() => {
     const q = orderQuery.trim().toLowerCase();
     const activeBrandObj = brands.find((b) => b.id === brandFilter);
     return leads.filter((l) => {
-      if (brandFilter !== "all" && l.brandId !== brandFilter && l.brandId !== activeBrandObj?.name) return false;
+      if (brandFilter !== "all" && l.brandId !== brandFilter && l.brandId !== activeBrandObj?.name)
+        return false;
       if (orderStatus !== "all" && l.status !== orderStatus) return false;
       if (!q) return true;
       return [l.customerName, l.customerPhone, l.deliveryAddress, ...(l.items ?? [])]
@@ -144,7 +146,8 @@ function DualCrmPage() {
     const q = contactQuery.trim().toLowerCase();
     const activeBrandObj = brands.find((b) => b.id === brandFilter);
     return contacts.filter((c) => {
-      if (brandFilter !== "all" && c.brandId !== brandFilter && c.brandId !== activeBrandObj?.name) return false;
+      if (brandFilter !== "all" && c.brandId !== brandFilter && c.brandId !== activeBrandObj?.name)
+        return false;
       if (contactStage !== "all" && c.stage !== contactStage) return false;
       if (contactChannel !== "all" && c.channel !== contactChannel) return false;
       if (!q) return true;
@@ -377,7 +380,7 @@ function DualCrmPage() {
             <SelectTrigger className="h-9.5 w-full sm:w-64 border-border bg-card text-xs font-semibold text-foreground shadow-2xs">
               <div className="flex items-center gap-2 truncate">
                 <Building2 className="size-3.5 text-primary shrink-0" />
-                <SelectValue placeholder={t.crm.all} />
+                <SelectValue placeholder={t.all} />
               </div>
             </SelectTrigger>
             <SelectContent className="border-border bg-card">
@@ -856,9 +859,7 @@ function DualCrmPage() {
                 <p className="mt-2 text-xl font-bold tracking-tight text-foreground sm:text-2xl">
                   {lang === "ar" ? "3 قنوات تواصل" : "3 Channels"}
                 </p>
-                <p className="mt-0.5 text-[11px] text-muted-foreground">
-                  WhatsApp, Instagram, Web
-                </p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">WhatsApp, Instagram, Web</p>
               </div>
             </div>
           </div>

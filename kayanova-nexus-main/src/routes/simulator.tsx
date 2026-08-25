@@ -78,54 +78,78 @@ function Simulator() {
   // Dynamic universal suggestions tailored to the active brand's identity and services
   const brandName = activeBrand?.name || (lang === "ar" ? "الشركة" : "the business");
   const firstItem = activeBrand?.menuItems?.[0]?.name;
-  const isRestaurant = activeBrand?.category === "Restaurant" || /قهوة|مطعم|كافيه|coffee|cafe|restaurant|food/i.test(activeBrand?.name || "");
-  const isMedical = activeBrand?.category === "Medical" || /عيادة|طبي|أسنان|dental|clinic|medical|doctor/i.test(activeBrand?.name || "");
+  const isRestaurant =
+    activeBrand?.category === "Restaurant" ||
+    /قهوة|مطعم|كافيه|coffee|cafe|restaurant|food/i.test(activeBrand?.name || "");
+  const isMedical =
+    activeBrand?.category === "Medical" ||
+    /عيادة|طبي|أسنان|dental|clinic|medical|doctor/i.test(activeBrand?.name || "");
 
   const quickSuggestions = [
     {
       icon: FileText,
       label: isRestaurant
-        ? (lang === "ar" ? "المنيو والأسعار" : "Menu & Prices")
+        ? lang === "ar"
+          ? "المنيو والأسعار"
+          : "Menu & Prices"
         : isMedical
-        ? (lang === "ar" ? "الخدمات الطبية" : "Services & Prices")
-        : (lang === "ar" ? "الخدمات والأسعار" : "Services & Pricing"),
+          ? lang === "ar"
+            ? "الخدمات الطبية"
+            : "Services & Prices"
+          : lang === "ar"
+            ? "الخدمات والأسعار"
+            : "Services & Pricing",
       prompt: isRestaurant
-        ? (lang === "ar" ? "ممكن أعرف قائمة المنيو والأسعار المتاحة عندكم؟" : "What is on your menu and what are your prices?")
+        ? lang === "ar"
+          ? "ممكن أعرف قائمة المنيو والأسعار المتاحة عندكم؟"
+          : "What is on your menu and what are your prices?"
         : isMedical
-        ? (lang === "ar" ? "ما هي الخدمات والأسعار وجلسات العلاج المتوفرة؟" : "What medical services and consultations do you offer?")
-        : (lang === "ar" ? `ممكن توضحلي إيه أهم الخدمات والأسعار المتاحة لدى ${brandName}؟` : `Could you explain the services, products and pricing offered by ${brandName}?`),
+          ? lang === "ar"
+            ? "ما هي الخدمات والأسعار وجلسات العلاج المتوفرة؟"
+            : "What medical services and consultations do you offer?"
+          : lang === "ar"
+            ? `ممكن توضحلي إيه أهم الخدمات والأسعار المتاحة لدى ${brandName}؟`
+            : `Could you explain the services, products and pricing offered by ${brandName}?`,
       chipCls: "border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100",
     },
     {
       icon: isRestaurant ? Truck : isMedical ? Calendar : Sparkles,
       label: isRestaurant
-        ? (lang === "ar" ? "طلب دليفري" : "Quick Order")
+        ? lang === "ar"
+          ? "طلب دليفري"
+          : "Quick Order"
         : isMedical
-        ? (lang === "ar" ? "حجز موعد كشف" : "Book Appointment")
-        : (lang === "ar" ? "طلب خدمة أو تعاقد" : "Order / Inquire"),
+          ? lang === "ar"
+            ? "حجز موعد كشف"
+            : "Book Appointment"
+          : lang === "ar"
+            ? "طلب خدمة أو تعاقد"
+            : "Order / Inquire",
       prompt: firstItem
-        ? (lang === "ar"
-            ? `عايز أطلب ${firstItem}، اسمي أحمد وتليفوني 01012345678 والعنوان المعادي`
-            : `I would like to order ${firstItem}. Name: Ahmed, Phone: 01012345678, Address: Maadi`)
-        : (lang === "ar"
-            ? `أنا مهتم بالخدمة وعايز أطلبها، اسمي كريم وتليفوني 01012345678، إيه الخطوات؟`
-            : `I am interested in your services and would like to proceed. Name: Karim, Phone: 01012345678`),
+        ? lang === "ar"
+          ? `عايز أطلب ${firstItem}، اسمي أحمد وتليفوني 01012345678 والعنوان المعادي`
+          : `I would like to order ${firstItem}. Name: Ahmed, Phone: 01012345678, Address: Maadi`
+        : lang === "ar"
+          ? `أنا مهتم بالخدمة وعايز أطلبها، اسمي كريم وتليفوني 01012345678، إيه الخطوات؟`
+          : `I am interested in your services and would like to proceed. Name: Karim, Phone: 01012345678`,
       chipCls: "border-primary/25 bg-primary/8 text-primary hover:bg-primary/15",
     },
     {
       icon: MapPin,
       label: lang === "ar" ? "المواعيد والتواصل" : "Hours & Contact",
-      prompt: lang === "ar"
-        ? `أين يقع مقر أو فروع ${brandName} وما هي مواعيد العمل الرسمية؟`
-        : `Where are you located and what are your operating hours?`,
+      prompt:
+        lang === "ar"
+          ? `أين يقع مقر أو فروع ${brandName} وما هي مواعيد العمل الرسمية؟`
+          : `Where are you located and what are your operating hours?`,
       chipCls: "border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100",
     },
     {
       icon: Tag,
       label: lang === "ar" ? "العروض والاستشارة" : "Offers & Consultation",
-      prompt: lang === "ar"
-        ? "هل في أي عروض أو خصومات أو استشارة أولية متوفرة اليوم؟"
-        : "Are there any special offers, discounts, or initial consultations available?",
+      prompt:
+        lang === "ar"
+          ? "هل في أي عروض أو خصومات أو استشارة أولية متوفرة اليوم؟"
+          : "Are there any special offers, discounts, or initial consultations available?",
       chipCls: "border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100",
     },
   ];
@@ -133,41 +157,51 @@ function Simulator() {
   const scenarios = [
     {
       category: isRestaurant
-        ? (lang === "ar" ? "طلب مباشر (CRM Lead)" : "Order Direct Lead")
+        ? lang === "ar"
+          ? "طلب مباشر (CRM Lead)"
+          : "Order Direct Lead"
         : isMedical
-        ? (lang === "ar" ? "حجز موعد (CRM Lead)" : "Appointment Lead")
-        : (lang === "ar" ? "طلب تعاقد / خدمة (CRM)" : "Service Direct Lead"),
+          ? lang === "ar"
+            ? "حجز موعد (CRM Lead)"
+            : "Appointment Lead"
+          : lang === "ar"
+            ? "طلب تعاقد / خدمة (CRM)"
+            : "Service Direct Lead",
       prompt: firstItem
-        ? (lang === "ar"
-            ? `عايز أطلب ${firstItem} فوري، اسمي أحمد وتليفوني 01012345678 والعنوان شارع النصر`
-            : `I want to order ${firstItem} now, name Ahmed, phone 01012345678, El Nasr St`)
-        : (lang === "ar"
-            ? `حابب أطلب الخدمة وأتعاقد فوراً، اسمي كريم ورقمي 01098765432 والعنوان التجمع الخامس`
-            : `I would like to order your service immediately. Name: Karim, Phone: 01098765432, New Cairo`),
+        ? lang === "ar"
+          ? `عايز أطلب ${firstItem} فوري، اسمي أحمد وتليفوني 01012345678 والعنوان شارع النصر`
+          : `I want to order ${firstItem} now, name Ahmed, phone 01012345678, El Nasr St`
+        : lang === "ar"
+          ? `حابب أطلب الخدمة وأتعاقد فوراً، اسمي كريم ورقمي 01098765432 والعنوان التجمع الخامس`
+          : `I would like to order your service immediately. Name: Karim, Phone: 01098765432, New Cairo`,
       cardCls: "border-primary/30 bg-primary/5",
       tagCls: "bg-primary/15 text-primary",
     },
     {
       category: lang === "ar" ? "استفسار عن الأسعار والمواعيد" : "Pricing & Availability",
-      prompt: lang === "ar"
-        ? `ما هي مواعيد العمل لديكم وما هي خطة الأسعار المتاحة؟`
-        : `What are your business hours and pricing plans?`,
+      prompt:
+        lang === "ar"
+          ? `ما هي مواعيد العمل لديكم وما هي خطة الأسعار المتاحة؟`
+          : `What are your business hours and pricing plans?`,
       cardCls: "border-amber-400/30 bg-amber-50",
       tagCls: "bg-amber-100 text-amber-700",
     },
     {
       category: lang === "ar" ? "استشارة مخصصة وحجز" : "Consultation & Booking",
-      prompt: lang === "ar"
-        ? `عايز استشارة بخصوص احتياجات مشروعي يوم الأحد القادم الساعة 5 مساءً باسم م. طارق`
-        : `I want to schedule a consultation for next Sunday at 5 PM, name Tarek`,
+      prompt:
+        lang === "ar"
+          ? `عايز استشارة بخصوص احتياجات مشروعي يوم الأحد القادم الساعة 5 مساءً باسم م. طارق`
+          : `I want to schedule a consultation for next Sunday at 5 PM, name Tarek`,
       cardCls: "border-violet-400/30 bg-violet-50",
       tagCls: "bg-violet-100 text-violet-700",
     },
     {
-      category: lang === "ar" ? "اختبار حواجز الأمان (خارج النطاق)" : "Guardrail Test (Out of Scope)",
-      prompt: lang === "ar"
-        ? "هل بتبيعوا قطع غيار سيارات وبتعملوا صيانة محركات؟"
-        : "Do you sell car spare parts and do engine maintenance?",
+      category:
+        lang === "ar" ? "اختبار حواجز الأمان (خارج النطاق)" : "Guardrail Test (Out of Scope)",
+      prompt:
+        lang === "ar"
+          ? "هل بتبيعوا قطع غيار سيارات وبتعملوا صيانة محركات؟"
+          : "Do you sell car spare parts and do engine maintenance?",
       cardCls: "border-rose-400/30 bg-rose-50",
       tagCls: "bg-rose-100 text-rose-700",
     },
@@ -269,7 +303,10 @@ function Simulator() {
       <div className="shrink-0 flex items-center justify-between gap-3 border-b border-border/70 bg-secondary/40 px-3.5 py-2.5 sm:px-5 sm:py-3 min-w-0">
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
           <div className="relative shrink-0">
-            <BrandGlyph brand={activeBrand} className="size-8 sm:size-10 rounded-xl ring-2 ring-primary/20 shadow-2xs" />
+            <BrandGlyph
+              brand={activeBrand}
+              className="size-8 sm:size-10 rounded-xl ring-2 ring-primary/20 shadow-2xs"
+            />
             <span className="absolute -bottom-0.5 -end-0.5 size-2.5 sm:size-3 rounded-full bg-emerald-500 ring-2 ring-background" />
           </div>
           <div className="min-w-0 flex-1">
@@ -285,7 +322,11 @@ function Simulator() {
             <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground truncate">
               <span className="truncate">{activeBrand?.role ?? "Senior Business Agent"}</span>
               <span className="shrink-0">·</span>
-              <span className="shrink-0 font-medium">{t.dialects[activeBrand?.dialect as keyof typeof t.dialects] ?? activeBrand?.dialect ?? "Egyptian Arabic"}</span>
+              <span className="shrink-0 font-medium">
+                {t.dialects[activeBrand?.dialect as keyof typeof t.dialects] ??
+                  activeBrand?.dialect ??
+                  "Egyptian Arabic"}
+              </span>
             </div>
           </div>
         </div>
@@ -298,12 +339,22 @@ function Simulator() {
             onClick={() => setTts((v) => !v)}
             className={cn(
               "h-8 sm:h-9 px-2 sm:px-3 text-xs font-semibold gap-1.5 border-border shadow-2xs",
-              tts ? "bg-primary text-primary-foreground border-primary" : "bg-card text-muted-foreground hover:text-foreground",
+              tts
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-card text-muted-foreground hover:text-foreground",
             )}
             title={tts ? "Voice On" : "Voice Off"}
           >
             {tts ? <Volume2 className="size-3.5" /> : <VolumeX className="size-3.5" />}
-            <span className="hidden md:inline">{tts ? (lang === "ar" ? "الصوت مفعل" : "Voice On") : (lang === "ar" ? "الصوت معطل" : "Voice Off")}</span>
+            <span className="hidden md:inline">
+              {tts
+                ? lang === "ar"
+                  ? "الصوت مفعل"
+                  : "Voice On"
+                : lang === "ar"
+                  ? "الصوت معطل"
+                  : "Voice Off"}
+            </span>
           </Button>
 
           {/* Reset Chat */}
@@ -311,7 +362,10 @@ function Simulator() {
             variant="outline"
             size="icon"
             className="h-8 w-8 sm:h-9 sm:w-9 border-border bg-card text-muted-foreground hover:text-foreground shadow-2xs"
-            onClick={() => { reset(); toast.info(lang === "ar" ? "تمت إعادة ضبط المحادثة." : "Chat session reset."); }}
+            onClick={() => {
+              reset();
+              toast.info(lang === "ar" ? "تمت إعادة ضبط المحادثة." : "Chat session reset.");
+            }}
             title={t.simulator.reset}
           >
             <RotateCcw className="size-3.5 sm:size-4" />
@@ -336,14 +390,19 @@ function Simulator() {
               title={lang === "ar" ? "تكبير وتركيز كامل الشاشة" : "Full Screen Focus Mode"}
             >
               <Maximize2 className="size-3.5" />
-              <span className="hidden sm:inline">{lang === "ar" ? "وضع التركيز" : "Focus Mode"}</span>
+              <span className="hidden sm:inline">
+                {lang === "ar" ? "وضع التركيز" : "Focus Mode"}
+              </span>
             </Button>
           )}
         </div>
       </div>
 
       {/* Messages Stream */}
-      <div ref={scroller} className="flex-1 min-h-0 overflow-y-auto bg-background/60 p-2.5 sm:p-5 space-y-3.5 sm:space-y-4">
+      <div
+        ref={scroller}
+        className="flex-1 min-h-0 overflow-y-auto bg-background/60 p-2.5 sm:p-5 space-y-3.5 sm:space-y-4"
+      >
         {messages.length === 0 ? (
           <div className="flex min-h-full flex-col items-center justify-center py-2 sm:py-6 text-center my-auto">
             <div className="relative mb-2 sm:mb-3">
@@ -353,13 +412,20 @@ function Simulator() {
               <span className="absolute -top-1 -end-1 flex size-3 sm:size-3.5 items-center justify-center rounded-full bg-emerald-500 shadow">
                 <span className="size-1 sm:size-1.5 rounded-full bg-white" />
               </span>
-              <span className="absolute inset-0 -m-1.5 animate-ping rounded-2xl bg-primary/10" style={{ animationDuration: '2s' }} />
+              <span
+                className="absolute inset-0 -m-1.5 animate-ping rounded-2xl bg-primary/10"
+                style={{ animationDuration: "2s" }}
+              />
             </div>
             <h3 className="text-xs sm:text-base font-bold text-foreground">
-              {lang === "ar" ? `مرحباً! ابدأ محادثة مع ${activeBrand?.name ?? "الوكيل الذكي"}` : `Start a conversation with ${activeBrand?.name ?? "AI Assistant"}`}
+              {lang === "ar"
+                ? `مرحباً! ابدأ محادثة مع ${activeBrand?.name ?? "الوكيل الذكي"}`
+                : `Start a conversation with ${activeBrand?.name ?? "AI Assistant"}`}
             </h3>
             <p className="mt-1 max-w-xs text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
-              {lang === "ar" ? "اكتب سؤالاً أو اختر سيناريو لتجربة الوكيل واستخراج الطلبات فورياً." : "Type a question or select a scenario to test AI responses and live order extraction."}
+              {lang === "ar"
+                ? "اكتب سؤالاً أو اختر سيناريو لتجربة الوكيل واستخراج الطلبات فورياً."
+                : "Type a question or select a scenario to test AI responses and live order extraction."}
             </p>
             <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
               {quickSuggestions.map((q, idx) => {
@@ -386,18 +452,33 @@ function Simulator() {
             <div
               key={i}
               {...(i === lastAgentIndex ? { "data-last-agent": "true" } : {})}
-              className={cn("flex max-w-[92%] sm:max-w-[85%] gap-2 sm:gap-2.5", m.role === "user" ? "ms-auto flex-row-reverse" : "me-auto")}
+              className={cn(
+                "flex max-w-[92%] sm:max-w-[85%] gap-2 sm:gap-2.5",
+                m.role === "user" ? "ms-auto flex-row-reverse" : "me-auto",
+              )}
             >
-              <div className={cn(
-                "flex size-7 sm:size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold shadow-sm",
-                m.role === "user" ? "brand-gradient text-primary-foreground" : "border-2 border-border bg-card",
-              )}>
-                {m.role === "user" ? <span className="text-[9px] sm:text-[10px]">{lang === "ar" ? "أنت" : "You"}</span> : <Bot className="size-3 sm:size-3.5 text-primary" />}
+              <div
+                className={cn(
+                  "flex size-7 sm:size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold shadow-sm",
+                  m.role === "user"
+                    ? "brand-gradient text-primary-foreground"
+                    : "border-2 border-border bg-card",
+                )}
+              >
+                {m.role === "user" ? (
+                  <span className="text-[9px] sm:text-[10px]">{lang === "ar" ? "أنت" : "You"}</span>
+                ) : (
+                  <Bot className="size-3 sm:size-3.5 text-primary" />
+                )}
               </div>
-              <div className={cn(
-                "rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm leading-relaxed shadow-xs",
-                m.role === "user" ? "rounded-tr-sm brand-gradient text-primary-foreground font-medium" : "rounded-tl-sm border border-border/70 bg-card text-foreground",
-              )}>
+              <div
+                className={cn(
+                  "rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm leading-relaxed shadow-xs",
+                  m.role === "user"
+                    ? "rounded-tr-sm brand-gradient text-primary-foreground font-medium"
+                    : "rounded-tl-sm border border-border/70 bg-card text-foreground",
+                )}
+              >
                 <FormattedMessage content={m.content} isUser={m.role === "user"} />
               </div>
             </div>
@@ -415,7 +496,9 @@ function Simulator() {
                 <span className="size-1.5 animate-bounce rounded-full bg-primary [animation-delay:-0.15s]" />
                 <span className="size-1.5 animate-bounce rounded-full bg-primary" />
               </span>
-              <span className="text-xs font-medium text-muted-foreground">{t.simulator.typing}</span>
+              <span className="text-xs font-medium text-muted-foreground">
+                {t.simulator.typing}
+              </span>
             </div>
           </div>
         )}
@@ -424,7 +507,9 @@ function Simulator() {
       {/* Suggestion Chips - Only shown during active conversation */}
       {messages.length > 0 && (
         <div className="shrink-0 flex items-center gap-1.5 overflow-x-auto border-t border-border/60 bg-secondary/30 px-3 py-1.5 sm:py-2 scrollbar-none">
-          <span className="shrink-0 text-[10px] font-bold text-muted-foreground">{lang === "ar" ? "جرب:" : "Try:"}</span>
+          <span className="shrink-0 text-[10px] font-bold text-muted-foreground">
+            {lang === "ar" ? "جرب:" : "Try:"}
+          </span>
           {quickSuggestions.map((q, idx) => {
             const Ic = q.icon;
             return (
@@ -449,7 +534,10 @@ function Simulator() {
       {/* Input Form */}
       <form
         className="shrink-0 flex items-center gap-1.5 sm:gap-2 border-t-2 border-border bg-card p-2 sm:p-3"
-        onSubmit={(e) => { e.preventDefault(); void dispatch(input); }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          void dispatch(input);
+        }}
       >
         <button
           type="button"
@@ -457,7 +545,9 @@ function Simulator() {
           title={t.simulator.voiceInput}
           className={cn(
             "flex size-9 sm:size-10 shrink-0 items-center justify-center rounded-xl border-2 transition-all",
-            listening ? "border-primary bg-primary text-primary-foreground animate-pulse" : "border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-primary",
+            listening
+              ? "border-primary bg-primary text-primary-foreground animate-pulse"
+              : "border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-primary",
           )}
         >
           <Mic className="size-4" />
@@ -497,7 +587,9 @@ function Simulator() {
               <ShoppingBag className="size-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-foreground">{t.simulator.extractedOrderCard}</h2>
+              <h2 className="text-sm font-bold text-foreground">
+                {t.simulator.extractedOrderCard}
+              </h2>
               <p className="text-[11px] text-muted-foreground">
                 {lang === "ar" ? "استخراج وتأكيد الطلبات فورياً" : "Real-time order extraction"}
               </p>
@@ -525,10 +617,17 @@ function Simulator() {
               </div>
               {(lead.items ?? []).length > 0 && (
                 <div>
-                  <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{t.crm.orderedItems}</p>
+                  <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                    {t.crm.orderedItems}
+                  </p>
                   <div className="flex flex-wrap gap-1">
                     {(lead.items ?? []).map((item, idx) => (
-                      <span key={idx} className="rounded-lg border border-primary/20 bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">{item}</span>
+                      <span
+                        key={idx}
+                        className="rounded-lg border border-primary/20 bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary"
+                      >
+                        {item}
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -548,7 +647,9 @@ function Simulator() {
               </div>
               <p className="text-xs font-bold text-foreground">{t.simulator.noOrderExtracted}</p>
               <p className="mx-auto mt-1 max-w-[220px] text-[11px] text-muted-foreground leading-relaxed">
-                {lang === "ar" ? 'جرب: "عايز أطلب الخدمة والتعاقد 01099887766"' : 'Try: "Order service delivery 01099887766"'}
+                {lang === "ar"
+                  ? 'جرب: "عايز أطلب الخدمة والتعاقد 01099887766"'
+                  : 'Try: "Order service delivery 01099887766"'}
               </p>
             </div>
           )}
@@ -562,8 +663,12 @@ function Simulator() {
             <Zap className="size-4" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-foreground">{lang === "ar" ? "سيناريوهات اختبار سريعة" : "Quick Test Scenarios"}</h2>
-            <p className="text-[11px] text-muted-foreground">{lang === "ar" ? "اختبار جاهز بضغطة واحدة" : "One-click benchmark tests"}</p>
+            <h2 className="text-sm font-bold text-foreground">
+              {lang === "ar" ? "سيناريوهات اختبار سريعة" : "Quick Test Scenarios"}
+            </h2>
+            <p className="text-[11px] text-muted-foreground">
+              {lang === "ar" ? "اختبار جاهز بضغطة واحدة" : "One-click benchmark tests"}
+            </p>
           </div>
         </div>
         <div className="flex flex-col gap-2 p-3">
@@ -578,12 +683,16 @@ function Simulator() {
               )}
             >
               <div className="mb-1.5 flex items-center justify-between">
-                <span className={cn("rounded-full px-2.5 py-0.5 text-[10px] font-bold", s.tagCls)}>{s.category}</span>
+                <span className={cn("rounded-full px-2.5 py-0.5 text-[10px] font-bold", s.tagCls)}>
+                  {s.category}
+                </span>
                 <span className="text-[10px] font-semibold text-primary opacity-0 transition-opacity group-hover:opacity-100">
                   {lang === "ar" ? "تشغيل في الشات" : "Run in Chat"}
                 </span>
               </div>
-              <p className="leading-relaxed font-medium text-foreground/80 line-clamp-2">{s.prompt}</p>
+              <p className="leading-relaxed font-medium text-foreground/80 line-clamp-2">
+                {s.prompt}
+              </p>
             </button>
           ))}
         </div>
@@ -596,19 +705,45 @@ function Simulator() {
             <Layers className="size-4" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-foreground">{lang === "ar" ? "مواصفات الوكيل" : "Agent Persona"}</h2>
-            <p className="text-[11px] text-muted-foreground">{lang === "ar" ? "المواصفات النشطة" : "Active directives & dialect"}</p>
+            <h2 className="text-sm font-bold text-foreground">
+              {lang === "ar" ? "مواصفات الوكيل" : "Agent Persona"}
+            </h2>
+            <p className="text-[11px] text-muted-foreground">
+              {lang === "ar" ? "المواصفات النشطة" : "Active directives & dialect"}
+            </p>
           </div>
         </div>
         <div className="flex flex-wrap gap-2 p-4">
           {[
-            { label: activeBrand?.role ?? "Advisor", cls: "border-primary/20 bg-primary/8 text-primary" },
-            { label: activeBrand?.dialect ?? "Egyptian Arabic", cls: "border-violet-200 bg-violet-50 text-violet-700" },
-            { label: activeBrand?.tone ?? "Friendly", cls: "border-amber-200 bg-amber-50 text-amber-700" },
-            { label: AVAILABLE_LLM_MODELS.find((m) => m.id === activeBrand?.llmModel)?.name || "Gemini 3.7 Flash", cls: "border-primary/30 bg-primary/10 text-primary font-mono" },
-            { label: `${activeBrand?.menuItems?.length ?? 0} ${lang === "ar" ? "عنصر في القائمة" : "Catalog items"}`, cls: "border-emerald-200 bg-emerald-50 text-emerald-700" },
+            {
+              label: activeBrand?.role ?? "Advisor",
+              cls: "border-primary/20 bg-primary/8 text-primary",
+            },
+            {
+              label: activeBrand?.dialect ?? "Egyptian Arabic",
+              cls: "border-violet-200 bg-violet-50 text-violet-700",
+            },
+            {
+              label: activeBrand?.tone ?? "Friendly",
+              cls: "border-amber-200 bg-amber-50 text-amber-700",
+            },
+            {
+              label:
+                AVAILABLE_LLM_MODELS.find((m) => m.id === activeBrand?.llmModel)?.name ||
+                "Gemini 3.7 Flash",
+              cls: "border-primary/30 bg-primary/10 text-primary font-mono",
+            },
+            {
+              label: `${activeBrand?.menuItems?.length ?? 0} ${lang === "ar" ? "عنصر في القائمة" : "Catalog items"}`,
+              cls: "border-emerald-200 bg-emerald-50 text-emerald-700",
+            },
           ].map((b, i) => (
-            <span key={i} className={cn("rounded-full border px-3 py-1 text-[11px] font-bold", b.cls)}>{b.label}</span>
+            <span
+              key={i}
+              className={cn("rounded-full border px-3 py-1 text-[11px] font-bold", b.cls)}
+            >
+              {b.label}
+            </span>
           ))}
         </div>
       </div>
@@ -622,9 +757,7 @@ function Simulator() {
       {/* ======================================================================= */}
       {isFocusMode ? (
         <div className="fixed inset-0 z-50 flex flex-col bg-background/95 backdrop-blur-xl p-0 sm:p-4 md:p-6 animate-in fade-in zoom-in-95 duration-150">
-          <div className="mx-auto flex h-full w-full max-w-5xl flex-col">
-            {renderChatBox(true)}
-          </div>
+          <div className="mx-auto flex h-full w-full max-w-5xl flex-col">{renderChatBox(true)}</div>
         </div>
       ) : (
         /* ===================================================================== */
@@ -699,7 +832,11 @@ function Simulator() {
                 onClick={() => setShowInspector((v) => !v)}
                 title={showInspector ? "Hide Inspector" : "Show Inspector"}
               >
-                {showInspector ? <PanelLeftClose className="size-4" /> : <PanelLeftOpen className="size-4" />}
+                {showInspector ? (
+                  <PanelLeftClose className="size-4" />
+                ) : (
+                  <PanelLeftOpen className="size-4" />
+                )}
               </Button>
             </div>
           }
@@ -747,9 +884,7 @@ function Simulator() {
             {mobileTab === "chat" ? (
               renderChatBox(false)
             ) : (
-              <div className="overflow-y-auto min-h-0 pb-4">
-                {renderInspectorBox()}
-              </div>
+              <div className="overflow-y-auto min-h-0 pb-4">{renderInspectorBox()}</div>
             )}
           </div>
 
@@ -764,15 +899,9 @@ function Simulator() {
                 : "mx-auto w-full max-w-5xl grid-cols-1",
             )}
           >
-            {showInspector && (
-              <div className="order-1">
-                {renderInspectorBox()}
-              </div>
-            )}
+            {showInspector && <div className="order-1">{renderInspectorBox()}</div>}
 
-            <div className="order-2">
-              {renderChatBox(false)}
-            </div>
+            <div className="order-2">{renderChatBox(false)}</div>
           </div>
         </AppShell>
       )}
@@ -784,7 +913,14 @@ function Row({ k, v, isBold = false }: { k: string; v: string; isBold?: boolean 
   return (
     <div className="flex items-center justify-between gap-3 border-b border-border/50 pb-2 last:border-b-0 last:pb-0">
       <dt className="text-[11px] font-semibold text-muted-foreground shrink-0">{k}</dt>
-      <dd className={cn("text-end text-xs font-semibold text-foreground truncate", isBold && "font-bold text-primary text-sm")}>{v}</dd>
+      <dd
+        className={cn(
+          "text-end text-xs font-semibold text-foreground truncate",
+          isBold && "font-bold text-primary text-sm",
+        )}
+      >
+        {v}
+      </dd>
     </div>
   );
 }

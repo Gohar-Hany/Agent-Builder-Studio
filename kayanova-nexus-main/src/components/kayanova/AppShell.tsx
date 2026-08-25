@@ -91,7 +91,10 @@ export function AppShell({
   }, []);
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden w-full max-w-full" dir={dir}>
+    <div
+      className="min-h-screen bg-background text-foreground overflow-x-hidden w-full max-w-full"
+      dir={dir}
+    >
       {/* ========================================================================= */}
       {/* DESKTOP COLLAPSIBLE SIDEBAR                                               */}
       {/* ========================================================================= */}
@@ -166,7 +169,9 @@ export function AppShell({
                 <item.icon
                   className={cn(
                     "size-4 shrink-0 transition-colors",
-                    active ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground",
+                    active
+                      ? "text-primary-foreground"
+                      : "text-muted-foreground group-hover:text-foreground",
                   )}
                 />
                 {!collapsed && <span className="truncate">{item.label}</span>}
@@ -177,7 +182,6 @@ export function AppShell({
 
         {/* Sidebar Footer / Runtime Status Box */}
         <div className="mt-auto w-full flex flex-col gap-2">
-
           {/* AI Runtime Status Box */}
           {collapsed ? (
             <div
@@ -209,7 +213,12 @@ export function AppShell({
       {/* ========================================================================= */}
       {/* MAIN CONTENT WRAPPER                                                      */}
       {/* ========================================================================= */}
-      <div className={cn("min-h-screen flex flex-col transition-all duration-300 w-full max-w-full overflow-x-hidden", collapsed ? "lg:ps-18" : "lg:ps-64")}>
+      <div
+        className={cn(
+          "min-h-screen flex flex-col transition-all duration-300 w-full max-w-full overflow-x-hidden",
+          collapsed ? "lg:ps-18" : "lg:ps-64",
+        )}
+      >
         <header className="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur-md shadow-[0_1px_0_0_var(--color-border),0_2px_8px_oklch(0.15_0.03_255/0.06)] w-full max-w-full overflow-x-hidden">
           {/* Top Bar on Mobile */}
           <div className="flex items-center justify-between border-b border-border/50 px-4 py-2.5 lg:hidden">
@@ -303,7 +312,9 @@ export function AppShell({
           </nav>
         </header>
 
-        <main className="flex-1 px-3 py-4 sm:px-6 sm:py-5 md:px-8 md:py-6 w-full max-w-full overflow-x-hidden">{children}</main>
+        <main className="flex-1 px-3 py-4 sm:px-6 sm:py-5 md:px-8 md:py-6 w-full max-w-full overflow-x-hidden">
+          {children}
+        </main>
       </div>
 
       <CommandDialog open={open} onOpenChange={setOpen}>

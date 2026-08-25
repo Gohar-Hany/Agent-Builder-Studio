@@ -63,22 +63,29 @@ function Kpi({
 }) {
   const colorMap = {
     primary: "bg-primary/12 text-primary border-primary/20",
-    blue:    "bg-blue-500/12 text-blue-600 border-blue-500/20",
-    amber:   "bg-amber-500/12 text-amber-600 border-amber-500/20",
-    violet:  "bg-violet-500/12 text-violet-600 border-violet-500/20",
+    blue: "bg-blue-500/12 text-blue-600 border-blue-500/20",
+    amber: "bg-amber-500/12 text-amber-600 border-amber-500/20",
+    violet: "bg-violet-500/12 text-violet-600 border-violet-500/20",
   };
   const iconColors = colorMap[accentColor];
   return (
     <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
       {/* subtle top gradient accent line */}
-      <div className={`absolute inset-x-0 top-0 h-[3px] rounded-t-2xl ${
-        accentColor === "primary" ? "brand-gradient" :
-        accentColor === "blue" ? "bg-gradient-to-r from-blue-500 to-cyan-500" :
-        accentColor === "amber" ? "bg-gradient-to-r from-amber-500 to-orange-500" :
-        "bg-gradient-to-r from-violet-500 to-purple-500"
-      }`} />
+      <div
+        className={`absolute inset-x-0 top-0 h-[3px] rounded-t-2xl ${
+          accentColor === "primary"
+            ? "brand-gradient"
+            : accentColor === "blue"
+              ? "bg-gradient-to-r from-blue-500 to-cyan-500"
+              : accentColor === "amber"
+                ? "bg-gradient-to-r from-amber-500 to-orange-500"
+                : "bg-gradient-to-r from-violet-500 to-purple-500"
+        }`}
+      />
       <div className="flex items-start justify-between gap-3 pt-1">
-        <div className={`flex size-10 shrink-0 items-center justify-center rounded-xl border ${iconColors}`}>
+        <div
+          className={`flex size-10 shrink-0 items-center justify-center rounded-xl border ${iconColors}`}
+        >
           <Icon className="size-4.5" />
         </div>
         {badge ? (
@@ -87,8 +94,12 @@ function Kpi({
           </span>
         ) : null}
       </div>
-      <p className="mt-3 text-[28px] font-extrabold tracking-tight text-foreground leading-none">{value}</p>
-      <p className="mt-1.5 text-xs font-semibold uppercase tracking-widest text-muted-foreground">{label}</p>
+      <p className="mt-3 text-[28px] font-extrabold tracking-tight text-foreground leading-none">
+        {value}
+      </p>
+      <p className="mt-1.5 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+        {label}
+      </p>
       {subtitle ? <p className="mt-1 text-[11px] text-muted-foreground/80">{subtitle}</p> : null}
     </div>
   );
@@ -193,12 +204,16 @@ function Dashboard() {
                   <span className="size-1.5 animate-pulse rounded-full bg-primary" />{" "}
                   {t.dashboard.aiActive}
                 </span>
-                <Badge variant="outline" className="border-primary/30 text-primary">{t.dashboard.trainingComplete}</Badge>
+                <Badge variant="outline" className="border-primary/30 text-primary">
+                  {t.dashboard.trainingComplete}
+                </Badge>
                 {activeBrand.guardrails?.bookingMode ? (
                   <Badge variant="outline">{t.dashboard.bookingsEnabled}</Badge>
                 ) : null}
               </div>
-              <p className="mt-1.5 text-sm font-medium text-muted-foreground">{activeBrand.tagline}</p>
+              <p className="mt-1.5 text-sm font-medium text-muted-foreground">
+                {activeBrand.tagline}
+              </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <Button size="sm" asChild>
                   <Link to="/simulator">{t.dashboard.liveSimulator}</Link>
@@ -251,7 +266,9 @@ function Dashboard() {
           <div>
             <h2 className="text-lg font-bold tracking-tight">{t.dashboard.directoryTitle}</h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {lang === "ar" ? `${brands.length} وكيل مسجل في المنصة` : `${brands.length} registered agent${brands.length !== 1 ? "s" : ""} on platform`}
+              {lang === "ar"
+                ? `${brands.length} وكيل مسجل في المنصة`
+                : `${brands.length} registered agent${brands.length !== 1 ? "s" : ""} on platform`}
             </p>
           </div>
           <Select value={filter} onValueChange={setFilter}>
@@ -314,7 +331,9 @@ function Dashboard() {
                       <dd className="mt-0.5 font-bold text-foreground">{orders}</dd>
                     </div>
                     <div className="rounded-xl bg-secondary/50 px-3 py-2">
-                      <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{t.dashboard.dialect}</dt>
+                      <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                        {t.dashboard.dialect}
+                      </dt>
                       <dd className="mt-0.5 font-bold text-foreground truncate">
                         {t.dialects[brand.dialect as keyof typeof t.dialects] ?? brand.dialect}
                       </dd>
@@ -326,7 +345,9 @@ function Dashboard() {
                       className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-border bg-secondary/50 px-3 py-2 text-sm transition-colors hover:bg-accent hover:border-primary/20"
                     >
                       <Phone className="size-3.5 shrink-0 text-muted-foreground" />
-                      <span className="truncate font-medium">{brand.contactInfo?.phone ?? "—"}</span>
+                      <span className="truncate font-medium">
+                        {brand.contactInfo?.phone ?? "—"}
+                      </span>
                       <Copy className="ms-auto size-3.5 shrink-0 text-muted-foreground" />
                     </button>
                     <Button

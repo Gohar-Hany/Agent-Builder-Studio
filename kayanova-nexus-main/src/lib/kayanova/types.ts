@@ -22,7 +22,8 @@ export interface BrandProfile {
   role: string;
   tone: "Professional" | "Friendly" | "Casual" | "Luxury" | string;
   language: string;
-  dialect: "Egyptian Arabic" | "Gulf Arabic" | "Modern Standard Arabic" | "English" | "Bilingual" | string;
+  dialect:
+    "Egyptian Arabic" | "Gulf Arabic" | "Modern Standard Arabic" | "English" | "Bilingual" | string;
   llmModel?: string;
   description?: string;
   productsServices?: string;

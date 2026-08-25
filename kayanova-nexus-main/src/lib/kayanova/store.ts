@@ -60,7 +60,10 @@ function deduplicateContacts(list: CustomerContact[]): CustomerContact[] {
     const existingIdx = deduped.findIndex(
       (d) =>
         d.id === c.id ||
-        (p && d.customerPhone && d.customerPhone.trim() === p && (d.brandId === c.brandId || !d.brandId || !c.brandId)),
+        (p &&
+          d.customerPhone &&
+          d.customerPhone.trim() === p &&
+          (d.brandId === c.brandId || !d.brandId || !c.brandId)),
     );
     if (existingIdx !== -1) {
       const ex = deduped[existingIdx]!;
@@ -70,7 +73,10 @@ function deduplicateContacts(list: CustomerContact[]): CustomerContact[] {
         totalOrdersCount: Math.max(ex.totalOrdersCount ?? 1, c.totalOrdersCount ?? 1),
         totalSpent: Math.max(ex.totalSpent ?? 0, c.totalSpent ?? 0),
         lastContactAt: c.lastContactAt || ex.lastContactAt,
-        stage: ex.stage === "Converted" || c.stage === "Converted" ? "Converted" : (ex.stage || c.stage || "New Lead"),
+        stage:
+          ex.stage === "Converted" || c.stage === "Converted"
+            ? "Converted"
+            : ex.stage || c.stage || "New Lead",
       };
     } else {
       deduped.push(c);
@@ -163,7 +169,14 @@ export function useKayanova() {
 
             // Sync any local contacts not yet on backend
             for (const mc of mergedContacts) {
-              if (!cData.some((bc) => bc.id === mc.id || ((mc.customerPhone || "").trim() && (bc.customerPhone || "").trim() === (mc.customerPhone || "").trim()))) {
+              if (
+                !cData.some(
+                  (bc) =>
+                    bc.id === mc.id ||
+                    ((mc.customerPhone || "").trim() &&
+                      (bc.customerPhone || "").trim() === (mc.customerPhone || "").trim()),
+                )
+              ) {
                 createContactApi(mc).catch(() => {});
               }
             }

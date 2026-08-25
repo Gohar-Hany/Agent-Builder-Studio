@@ -264,7 +264,10 @@ function Builder() {
               <SelectValue placeholder={lang === "ar" ? "اختر وكيلاً..." : "Select Agent..."} />
             </SelectTrigger>
             <SelectContent className="bg-card border-border shadow-xl z-50 min-w-[200px]">
-              <SelectItem value="new" className="text-xs sm:text-sm font-bold text-primary focus:bg-primary/10">
+              <SelectItem
+                value="new"
+                className="text-xs sm:text-sm font-bold text-primary focus:bg-primary/10"
+              >
                 + {lang === "ar" ? "إنشاء وكيل جديد" : "Create New Agent"}
               </SelectItem>
               {brands.map((b) => (
@@ -420,7 +423,11 @@ function Builder() {
                   <span
                     className={cn(
                       "block text-[11px] sm:text-xs font-semibold truncate max-w-[70px] sm:max-w-none",
-                      isActive ? "text-foreground" : isPassed ? "text-foreground/70" : "text-muted-foreground",
+                      isActive
+                        ? "text-foreground"
+                        : isPassed
+                          ? "text-foreground/70"
+                          : "text-muted-foreground",
                     )}
                   >
                     <span className="inline sm:hidden">{s.label}</span>
@@ -521,7 +528,9 @@ function Section({
       {/* Section header with gradient accent */}
       <div className="flex items-start gap-3.5 border-b border-border bg-secondary/30 px-5 py-4">
         {SectionIcon && (
-          <div className={`flex size-9 shrink-0 items-center justify-center rounded-xl border ${colorMap[accentColor]}`}>
+          <div
+            className={`flex size-9 shrink-0 items-center justify-center rounded-xl border ${colorMap[accentColor]}`}
+          >
             <SectionIcon className="size-4" />
           </div>
         )}
@@ -589,7 +598,7 @@ function AiActionButton({
       )}
     >
       <Sparkles className={cn("size-3.5 shrink-0", isLoading && "animate-spin")} />
-      <span>{isLoading ? (loadingLabel || label) : label}</span>
+      <span>{isLoading ? loadingLabel || label : label}</span>
     </button>
   );
 }
@@ -642,14 +651,13 @@ function IdentityStep({
       c.key === draft.category ||
       c.labelAr === draft.category ||
       c.labelEn === draft.category ||
-      (draft.category && (
-        c.key.toLowerCase().includes(draft.category.toLowerCase()) ||
-        draft.category.toLowerCase().includes(c.key.toLowerCase()) ||
-        (draft.category === "Restaurant" && c.key.includes("Restaurant")) ||
-        (draft.category === "E-Commerce" && c.key.includes("E-commerce")) ||
-        (draft.category === "RealEstate" && c.key.includes("Real Estate")) ||
-        (draft.category === "Clinic" && c.key.includes("Medical"))
-      ))
+      (draft.category &&
+        (c.key.toLowerCase().includes(draft.category.toLowerCase()) ||
+          draft.category.toLowerCase().includes(c.key.toLowerCase()) ||
+          (draft.category === "Restaurant" && c.key.includes("Restaurant")) ||
+          (draft.category === "E-Commerce" && c.key.includes("E-commerce")) ||
+          (draft.category === "RealEstate" && c.key.includes("Real Estate")) ||
+          (draft.category === "Clinic" && c.key.includes("Medical")))),
   );
 
   const suggestBrandIdentity = async () => {
@@ -722,9 +730,7 @@ function IdentityStep({
           />
         </FormField>
 
-        <FormField
-          label={lang === "ar" ? "مجال ونشاط العمل" : "Business Industry & Domain"}
-        >
+        <FormField label={lang === "ar" ? "مجال ونشاط العمل" : "Business Industry & Domain"}>
           <Select
             value={matchedCategory ? matchedCategory.key : draft.category ? "other" : "other"}
             onValueChange={(val) => {
@@ -738,7 +744,9 @@ function IdentityStep({
           >
             <SelectTrigger id="business-category" className="h-10">
               <SelectValue
-                placeholder={lang === "ar" ? "اختر مجال ونشاط العمل..." : "Select industry & domain..."}
+                placeholder={
+                  lang === "ar" ? "اختر مجال ونشاط العمل..." : "Select industry & domain..."
+                }
               />
             </SelectTrigger>
             <SelectContent className="max-h-64">
@@ -780,7 +788,8 @@ function IdentityStep({
             onValueChange={(val) => {
               if (val === "other") {
                 const isPreset = COMMON_ROLES.some(
-                  (r) => r.key === draft.role || r.labelAr === draft.role || r.labelEn === draft.role,
+                  (r) =>
+                    r.key === draft.role || r.labelAr === draft.role || r.labelEn === draft.role,
                 );
                 if (isPreset) patch({ role: "" });
               } else {
@@ -791,7 +800,9 @@ function IdentityStep({
           >
             <SelectTrigger id="agent-role-select" className="h-10">
               <SelectValue
-                placeholder={lang === "ar" ? "اختر المسمى الوظيفي للوكيل..." : "Select agent role..."}
+                placeholder={
+                  lang === "ar" ? "اختر المسمى الوظيفي للوكيل..." : "Select agent role..."
+                }
               />
             </SelectTrigger>
             <SelectContent>
@@ -828,7 +839,11 @@ function IdentityStep({
 
         <FormField
           label={t.builder.taglineLabel}
-          hint={lang === "ar" ? "جملة قصيرة تصف ميزة العلامة ورؤيتها" : "A short sentence describing your brand's unique value"}
+          hint={
+            lang === "ar"
+              ? "جملة قصيرة تصف ميزة العلامة ورؤيتها"
+              : "A short sentence describing your brand's unique value"
+          }
         >
           <Input
             id="tagline"
@@ -879,15 +894,27 @@ function IdentityStep({
 
         {/* AI LLM Model Selector */}
         <FormField
-          label={lang === "ar" ? "محرك الذكاء الاصطناعي (AI Model Engine)" : "AI Intelligence Engine (LLM)"}
-          hint={lang === "ar" ? "اختر الموديل الذي يدير عقل ومحادثات الوكيل" : "Select the AI model powering your agent's brain"}
+          label={
+            lang === "ar"
+              ? "محرك الذكاء الاصطناعي (AI Model Engine)"
+              : "AI Intelligence Engine (LLM)"
+          }
+          hint={
+            lang === "ar"
+              ? "اختر الموديل الذي يدير عقل ومحادثات الوكيل"
+              : "Select the AI model powering your agent's brain"
+          }
         >
           <Select
             value={draft.llmModel || "google/gemini-3.7-flash"}
             onValueChange={(val) => patch({ llmModel: val })}
           >
             <SelectTrigger id="model-select" className="h-11">
-              <SelectValue placeholder={lang === "ar" ? "اختر موديل الذكاء الاصطناعي..." : "Select AI Model..."} />
+              <SelectValue
+                placeholder={
+                  lang === "ar" ? "اختر موديل الذكاء الاصطناعي..." : "Select AI Model..."
+                }
+              />
             </SelectTrigger>
             <SelectContent>
               {AVAILABLE_LLM_MODELS.map((m) => (
@@ -917,7 +944,9 @@ function IdentityStep({
                     {lang === "ar" ? currentModel?.badge : currentModel?.badgeEn}
                   </span>
                   <span className="text-[11px] font-mono text-muted-foreground">
-                    {lang === "ar" ? `سياق ${currentModel?.contextLength}` : `Context ${currentModel?.contextLength}`}
+                    {lang === "ar"
+                      ? `سياق ${currentModel?.contextLength}`
+                      : `Context ${currentModel?.contextLength}`}
                   </span>
                 </div>
                 <p className="mt-1 text-[11px] text-muted-foreground leading-relaxed">
@@ -932,7 +961,11 @@ function IdentityStep({
       {/* Right Column: Live Agent Persona Preview */}
       <Section
         title={lang === "ar" ? "معاينة هوية الوكيل المباشرة" : "Live Agent Persona Preview"}
-        subtitle={lang === "ar" ? "تحديث فوري لبطاقة وهوية الوكيل أثناء الإدخال" : "Real-time persona card updating as you configure"}
+        subtitle={
+          lang === "ar"
+            ? "تحديث فوري لبطاقة وهوية الوكيل أثناء الإدخال"
+            : "Real-time persona card updating as you configure"
+        }
         icon={Bot}
         accentColor="violet"
       >
@@ -958,10 +991,16 @@ function IdentityStep({
                 </span>
               </div>
               <p className="mt-1.5 text-xs font-semibold text-primary">
-                {draft.role || (lang === "ar" ? "مستشار خدمة العملاء وتأكيد الطلبات" : "Customer Concierge & Order Specialist")}
+                {draft.role ||
+                  (lang === "ar"
+                    ? "مستشار خدمة العملاء وتأكيد الطلبات"
+                    : "Customer Concierge & Order Specialist")}
               </p>
               <p className="mt-1.5 text-xs text-muted-foreground italic leading-relaxed">
-                “{draft.tagline || (lang === "ar" ? "شعار البراند ورؤيته..." : "Brand tagline and vision...")}”
+                “
+                {draft.tagline ||
+                  (lang === "ar" ? "شعار البراند ورؤيته..." : "Brand tagline and vision...")}
+                ”
               </p>
             </div>
           </div>
@@ -989,7 +1028,8 @@ function IdentityStep({
                 {lang === "ar" ? "الموديل" : "Model"}
               </span>
               <span className="font-bold text-primary text-xs mt-0.5 block truncate">
-                {AVAILABLE_LLM_MODELS.find((m) => m.id === draft.llmModel)?.name || "Gemini 3.7 Flash"}
+                {AVAILABLE_LLM_MODELS.find((m) => m.id === draft.llmModel)?.name ||
+                  "Gemini 3.7 Flash"}
               </span>
             </div>
           </div>
@@ -997,7 +1037,9 @@ function IdentityStep({
           {/* Readiness Meter */}
           <div className="mx-5 mb-5 rounded-xl border border-border bg-card p-3.5">
             <div className="flex items-center justify-between text-xs font-semibold">
-              <span className="text-muted-foreground">{lang === "ar" ? "جاهزية الوكيل للإطلاق" : "Agent Launch Readiness"}</span>
+              <span className="text-muted-foreground">
+                {lang === "ar" ? "جاهزية الوكيل للإطلاق" : "Agent Launch Readiness"}
+              </span>
               <span className="text-primary font-bold">
                 {draft.name && draft.category && draft.role ? "100%" : draft.name ? "67%" : "33%"}
               </span>
@@ -1006,21 +1048,50 @@ function IdentityStep({
               <div
                 className="h-full brand-gradient transition-all duration-500 rounded-full"
                 style={{
-                  width: draft.name && draft.category && draft.role ? "100%" : draft.name ? "67%" : "33%",
+                  width:
+                    draft.name && draft.category && draft.role
+                      ? "100%"
+                      : draft.name
+                        ? "67%"
+                        : "33%",
                 }}
               />
             </div>
             <div className="mt-2 flex gap-3 text-[11px]">
-              <span className={cn("flex items-center gap-1", draft.name ? "text-primary font-semibold" : "text-muted-foreground")}>
-                <Check className={cn("size-3", draft.name ? "text-primary" : "text-muted-foreground/40")} />
+              <span
+                className={cn(
+                  "flex items-center gap-1",
+                  draft.name ? "text-primary font-semibold" : "text-muted-foreground",
+                )}
+              >
+                <Check
+                  className={cn("size-3", draft.name ? "text-primary" : "text-muted-foreground/40")}
+                />
                 {lang === "ar" ? "الاسم" : "Name"}
               </span>
-              <span className={cn("flex items-center gap-1", draft.category ? "text-primary font-semibold" : "text-muted-foreground")}>
-                <Check className={cn("size-3", draft.category ? "text-primary" : "text-muted-foreground/40")} />
+              <span
+                className={cn(
+                  "flex items-center gap-1",
+                  draft.category ? "text-primary font-semibold" : "text-muted-foreground",
+                )}
+              >
+                <Check
+                  className={cn(
+                    "size-3",
+                    draft.category ? "text-primary" : "text-muted-foreground/40",
+                  )}
+                />
                 {lang === "ar" ? "المجال" : "Industry"}
               </span>
-              <span className={cn("flex items-center gap-1", draft.role ? "text-primary font-semibold" : "text-muted-foreground")}>
-                <Check className={cn("size-3", draft.role ? "text-primary" : "text-muted-foreground/40")} />
+              <span
+                className={cn(
+                  "flex items-center gap-1",
+                  draft.role ? "text-primary font-semibold" : "text-muted-foreground",
+                )}
+              >
+                <Check
+                  className={cn("size-3", draft.role ? "text-primary" : "text-muted-foreground/40")}
+                />
                 {lang === "ar" ? "الدور" : "Role"}
               </span>
             </div>
@@ -1216,10 +1287,18 @@ function KnowledgeStep({
           <table className="w-full text-sm">
             <thead className="border-b border-border bg-secondary/40">
               <tr>
-                <th className="px-4 py-3 text-start text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{t.builder.itemName}</th>
-                <th className="px-4 py-3 text-start text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{t.builder.itemCategory}</th>
-                <th className="px-4 py-3 text-start text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{t.builder.itemPrice}</th>
-                <th className="px-4 py-3 text-end text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{t.actions}</th>
+                <th className="px-4 py-3 text-start text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                  {t.builder.itemName}
+                </th>
+                <th className="px-4 py-3 text-start text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                  {t.builder.itemCategory}
+                </th>
+                <th className="px-4 py-3 text-start text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                  {t.builder.itemPrice}
+                </th>
+                <th className="px-4 py-3 text-end text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                  {t.actions}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -1230,8 +1309,14 @@ function KnowledgeStep({
                       <div className="flex size-10 items-center justify-center rounded-full bg-secondary">
                         <Layers className="size-4 text-muted-foreground" />
                       </div>
-                      <p className="text-xs text-muted-foreground font-medium">{t.builder.emptyCatalog}</p>
-                      <p className="text-[11px] text-muted-foreground/60">{lang === "ar" ? "أضف الأصناف بدوياً أو استخدم التوليد الذكي" : "Add items manually or use AI generation below"}</p>
+                      <p className="text-xs text-muted-foreground font-medium">
+                        {t.builder.emptyCatalog}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground/60">
+                        {lang === "ar"
+                          ? "أضف الأصناف بدوياً أو استخدم التوليد الذكي"
+                          : "Add items manually or use AI generation below"}
+                      </p>
                     </div>
                   </td>
                 </tr>
@@ -1317,21 +1402,29 @@ function KnowledgeStep({
             <Sparkles className="size-4 text-primary" />
             <span className="text-sm font-semibold text-primary">
               {isAiGeneratingItems
-                ? lang === "ar" ? "جاري التوليد بالذكاء الاصطناعي..." : "Generating AI items..."
+                ? lang === "ar"
+                  ? "جاري التوليد بالذكاء الاصطناعي..."
+                  : "Generating AI items..."
                 : lang === "ar"
                   ? `توليد أصناف وخدمات ذكية لـ “${draft.name || "البراند"}”`
                   : `Generate Smart Catalog for "${draft.name || "Brand"}"`}
             </span>
           </div>
           <p className="mt-0.5 text-[11px] text-primary/60">
-            {lang === "ar" ? "سيتم توليد أسعار وأصناف مخصصة باستخدام الذكاء الاصطناعي" : "AI will generate custom items & real prices for your brand"}
+            {lang === "ar"
+              ? "سيتم توليد أسعار وأصناف مخصصة باستخدام الذكاء الاصطناعي"
+              : "AI will generate custom items & real prices for your brand"}
           </p>
         </button>
       </Section>
 
       <Section
         title={lang === "ar" ? "بيانات الفروع والتواصل" : "Branches & Contact Info"}
-        subtitle={lang === "ar" ? "ساعات العمل والتوصيل والمواقع الجغرافية" : "Operating hours and physical locations"}
+        subtitle={
+          lang === "ar"
+            ? "ساعات العمل والتوصيل والمواقع الجغرافية"
+            : "Operating hours and physical locations"
+        }
         icon={Building2}
         accentColor="amber"
       >
@@ -1347,9 +1440,7 @@ function KnowledgeStep({
           />
         </FormField>
 
-        <FormField
-          label={lang === "ar" ? "مواعيد العمل والتوصيل" : "Working & Delivery Hours"}
-        >
+        <FormField label={lang === "ar" ? "مواعيد العمل والتوصيل" : "Working & Delivery Hours"}>
           <Select
             value={
               SCHEDULE_PRESETS.find(
@@ -1390,7 +1481,9 @@ function KnowledgeStep({
           >
             <SelectTrigger id="hours" className="h-10">
               <SelectValue
-                placeholder={lang === "ar" ? "اختر جدول مواعيد العمل..." : "Select working hours..."}
+                placeholder={
+                  lang === "ar" ? "اختر جدول مواعيد العمل..." : "Select working hours..."
+                }
               />
             </SelectTrigger>
             <SelectContent>
@@ -1426,7 +1519,9 @@ function KnowledgeStep({
                     },
                   })
                 }
-                placeholder={lang === "ar" ? "اكتب مواعيد العمل المخصصة..." : "Type custom working hours..."}
+                placeholder={
+                  lang === "ar" ? "اكتب مواعيد العمل المخصصة..." : "Type custom working hours..."
+                }
                 className="h-10 text-sm"
               />
             </div>
@@ -1497,8 +1592,12 @@ function BehaviorStep({
 
     toast.info(
       lang === "ar"
-        ? (rawInput ? "جاري تحسين وإعادة صياغة القواعد بالذكاء الاصطناعي..." : `جاري صياغة قواعد ذكية لـ "${bName}" بالذكاء الاصطناعي...`)
-        : (rawInput ? "AI enhancing and structuring rules..." : `AI crafting operational rules for "${bName}"...`),
+        ? rawInput
+          ? "جاري تحسين وإعادة صياغة القواعد بالذكاء الاصطناعي..."
+          : `جاري صياغة قواعد ذكية لـ "${bName}" بالذكاء الاصطناعي...`
+        : rawInput
+          ? "AI enhancing and structuring rules..."
+          : `AI crafting operational rules for "${bName}"...`,
     );
     try {
       const res = await enhanceRulesApi({
@@ -1514,18 +1613,28 @@ function BehaviorStep({
         patch({ promptRules: res.enhancedRules, instructions: res.enhancedRules });
         toast.success(
           lang === "ar"
-            ? (rawInput ? "تمت إعادة صياغة وتحسين القواعد بأسلوب احترافي!" : "تمت صياغة توجيهات وقواعد المحادثة بنجاح!")
-            : (rawInput ? "Rules professionally enhanced and structured!" : "AI prompt rules generated successfully!"),
+            ? rawInput
+              ? "تمت إعادة صياغة وتحسين القواعد بأسلوب احترافي!"
+              : "تمت صياغة توجيهات وقواعد المحادثة بنجاح!"
+            : rawInput
+              ? "Rules professionally enhanced and structured!"
+              : "AI prompt rules generated successfully!",
         );
       }
     } catch {
       if (rawInput) {
-        const lines = rawInput.split("\n").map((l) => l.trim()).filter(Boolean);
-        const formatted = lines.map((l, i) => `${i + 1}. ${l.replace(/^[0-9]+[.-]\s*/, "")}`).join("\n");
+        const lines = rawInput
+          .split("\n")
+          .map((l) => l.trim())
+          .filter(Boolean);
+        const formatted = lines
+          .map((l, i) => `${i + 1}. ${l.replace(/^[0-9]+[.-]\s*/, "")}`)
+          .join("\n");
         patch({ promptRules: formatted, instructions: formatted });
         toast.success(lang === "ar" ? "تم تنظيم وترقيم القواعد" : "Rules structured and numbered");
       } else {
-        const preset = CATEGORY_PRESETS.find((p) => p.key === draft.category) ?? CATEGORY_PRESETS[0]!;
+        const preset =
+          CATEGORY_PRESETS.find((p) => p.key === draft.category) ?? CATEGORY_PRESETS[0]!;
         const fallbackRules = lang === "ar" ? preset.rulesAr : preset.rules;
         patch({ promptRules: fallbackRules, instructions: fallbackRules });
         toast.success(lang === "ar" ? "تم تطبيق القواعد الاستراتيجية" : "Blueprint rules applied");
@@ -1540,13 +1649,21 @@ function BehaviorStep({
       {/* Left: Welcome Message + Prompt Rules */}
       <Section
         title={t.builder.directivesTitle}
-        subtitle={lang === "ar" ? "تعليمات وقواعد التشغيل الصارمة" : "Strict operating rules and AI dialogue instructions"}
+        subtitle={
+          lang === "ar"
+            ? "تعليمات وقواعد التشغيل الصارمة"
+            : "Strict operating rules and AI dialogue instructions"
+        }
         icon={MessageSquare}
         accentColor="primary"
       >
         <FormField
           label={t.builder.welcomeMessageLabel}
-          hint={lang === "ar" ? "الرسالة التي يرسلها الوكيل فور بدء المحادثة" : "First message sent automatically when conversation starts"}
+          hint={
+            lang === "ar"
+              ? "الرسالة التي يرسلها الوكيل فور بدء المحادثة"
+              : "First message sent automatically when conversation starts"
+          }
         >
           <Textarea
             id="welcome"
@@ -1568,7 +1685,11 @@ function BehaviorStep({
               loadingLabel={lang === "ar" ? "جاري التحسين..." : "Enhancing..."}
             />
           }
-          hint={lang === "ar" ? "اكتب أفكارك أو شروطك واضغط على الزر لتحسينها وصياغتها باحترافية" : "Type your rough rules or policies and click the button to professionally structure them"}
+          hint={
+            lang === "ar"
+              ? "اكتب أفكارك أو شروطك واضغط على الزر لتحسينها وصياغتها باحترافية"
+              : "Type your rough rules or policies and click the button to professionally structure them"
+          }
         >
           <Textarea
             id="rules"
@@ -1584,7 +1705,11 @@ function BehaviorStep({
       {/* Right: Guardrail Toggles */}
       <Section
         title={lang === "ar" ? "التوجيهات وقواعد الأمان" : "Safety Guardrails & Features"}
-        subtitle={lang === "ar" ? "فعّل الميزات التي تحتاجها لبراندك" : "Enable the guardrail features your brand needs"}
+        subtitle={
+          lang === "ar"
+            ? "فعّل الميزات التي تحتاجها لبراندك"
+            : "Enable the guardrail features your brand needs"
+        }
         icon={ShieldCheck}
         accentColor="violet"
       >
@@ -1618,7 +1743,12 @@ function BehaviorStep({
                     <tg.icon className="size-4" />
                   </div>
                   <div>
-                    <p className={cn("text-sm font-bold", isOn ? "text-foreground" : "text-foreground/80")}>
+                    <p
+                      className={cn(
+                        "text-sm font-bold",
+                        isOn ? "text-foreground" : "text-foreground/80",
+                      )}
+                    >
                       {lang === "ar" ? tg.titleAr : tg.titleEn}
                     </p>
                     <p className="mt-0.5 text-[11px] text-muted-foreground leading-relaxed">
@@ -1718,10 +1848,14 @@ function PreviewStep({ draft, onSave }: { draft: BrandProfile; onSave: () => voi
               </div>
               <div>
                 <p className="text-sm font-semibold text-foreground">
-                  {lang === "ar" ? "ابدأ المحادثة مع وكيلك الذكي" : "Start chatting with your AI agent"}
+                  {lang === "ar"
+                    ? "ابدأ المحادثة مع وكيلك الذكي"
+                    : "Start chatting with your AI agent"}
                 </p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  {lang === "ar" ? "اكتب رسالتك أدناه لاختبار الوكيل" : "Type a message below to test your agent"}
+                  {lang === "ar"
+                    ? "اكتب رسالتك أدناه لاختبار الوكيل"
+                    : "Type a message below to test your agent"}
                 </p>
               </div>
             </div>
@@ -1729,10 +1863,7 @@ function PreviewStep({ draft, onSave }: { draft: BrandProfile; onSave: () => voi
           {messages.map((m, i) => (
             <div
               key={i}
-              className={cn(
-                "flex gap-2",
-                m.role === "user" ? "flex-row-reverse" : "flex-row",
-              )}
+              className={cn("flex gap-2", m.role === "user" ? "flex-row-reverse" : "flex-row")}
             >
               {m.role === "assistant" && (
                 <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary border border-primary/20">
@@ -1797,7 +1928,11 @@ function PreviewStep({ draft, onSave }: { draft: BrandProfile; onSave: () => voi
       {/* Right: Agent Scorecard */}
       <Section
         title={t.builder.agentScorecard}
-        subtitle={lang === "ar" ? "الوكيل جاهز لامتحان الإطلاق الفوري" : "Agent readiness check before going live"}
+        subtitle={
+          lang === "ar"
+            ? "الوكيل جاهز لامتحان الإطلاق الفوري"
+            : "Agent readiness check before going live"
+        }
         icon={Rocket}
         accentColor="amber"
       >
@@ -1843,11 +1978,7 @@ function PreviewStep({ draft, onSave }: { draft: BrandProfile; onSave: () => voi
             <Rocket className="size-4" />
             <span>{lang === "ar" ? "حفظ وإطلاق الوكيل" : "Save & Deploy Agent"}</span>
           </Button>
-          <Button
-            variant="outline"
-            asChild
-            className="h-10 text-sm gap-2 border-2"
-          >
+          <Button variant="outline" asChild className="h-10 text-sm gap-2 border-2">
             <Link to="/simulator">
               <MessageSquare className="size-4" />
               <span>{t.nav.simulator}</span>

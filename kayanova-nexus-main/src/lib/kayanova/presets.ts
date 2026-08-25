@@ -317,10 +317,26 @@ export const COMMON_ROLES = [
 ] as const;
 
 export const DIALECTS = [
-  { key: "Egyptian Arabic", label: "Egyptian Arabic (العامية المصرية)", labelAr: "اللهجة المصرية (عامية طبيعية)" },
-  { key: "Gulf Arabic", label: "Gulf / Saudi Arabic (الخليجية)", labelAr: "اللهجة الخليجية (السعودية والإمارات)" },
-  { key: "Modern Standard Arabic", label: "Modern Standard Arabic (الفصحى)", labelAr: "اللغة العربية الفصحى (رسمية)" },
-  { key: "Bilingual", label: "Bilingual (عربي + English)", labelAr: "مزدوج (عربي وإنجليزي / فرانكو)" },
+  {
+    key: "Egyptian Arabic",
+    label: "Egyptian Arabic (العامية المصرية)",
+    labelAr: "اللهجة المصرية (عامية طبيعية)",
+  },
+  {
+    key: "Gulf Arabic",
+    label: "Gulf / Saudi Arabic (الخليجية)",
+    labelAr: "اللهجة الخليجية (السعودية والإمارات)",
+  },
+  {
+    key: "Modern Standard Arabic",
+    label: "Modern Standard Arabic (الفصحى)",
+    labelAr: "اللغة العربية الفصحى (رسمية)",
+  },
+  {
+    key: "Bilingual",
+    label: "Bilingual (عربي + English)",
+    labelAr: "مزدوج (عربي وإنجليزي / فرانكو)",
+  },
   { key: "English", label: "English (Global Professional)", labelAr: "اللغة الإنجليزية (English)" },
 ] as const;
 
@@ -342,8 +358,10 @@ export const AVAILABLE_LLM_MODELS = [
     contextLength: "1M",
     pricePer1mPrompt: "$0.375",
     pricePer1mCompletion: "$1.875",
-    descriptionAr: "أحدث إصدار فلاش ذكي من Google، يتميز بالسرعة الفائقة والتفكير التحليلي وسياق مليون توكن.",
-    descriptionEn: "Google's latest intelligent Flash model with hybrid reasoning, high speed, and 1M context.",
+    descriptionAr:
+      "أحدث إصدار فلاش ذكي من Google، يتميز بالسرعة الفائقة والتفكير التحليلي وسياق مليون توكن.",
+    descriptionEn:
+      "Google's latest intelligent Flash model with hybrid reasoning, high speed, and 1M context.",
   },
   {
     id: "qwen/qwen3.7-plus",
@@ -356,7 +374,8 @@ export const AVAILABLE_LLM_MODELS = [
     pricePer1mPrompt: "$0.320",
     pricePer1mCompletion: "$1.280",
     descriptionAr: "الموديل الأقوى عالمياً في العامية المصرية والخليجية والتواصل البشري الطبيعي.",
-    descriptionEn: "World-class performance in Egyptian & Gulf Arabic dialects and authentic conversational phrasing.",
+    descriptionEn:
+      "World-class performance in Egyptian & Gulf Arabic dialects and authentic conversational phrasing.",
   },
   {
     id: "openai/gpt-4o-mini",
@@ -369,7 +388,8 @@ export const AVAILABLE_LLM_MODELS = [
     pricePer1mPrompt: "$0.150",
     pricePer1mCompletion: "$0.600",
     descriptionAr: "المعيار العالمي من OpenAI فائق الدقة في استخراج الطلبات وتنظيم بيانات العملاء.",
-    descriptionEn: "Industry benchmark from OpenAI with exceptional JSON extraction and order processing.",
+    descriptionEn:
+      "Industry benchmark from OpenAI with exceptional JSON extraction and order processing.",
   },
 ] as const;
 
