@@ -194,6 +194,7 @@ def run_agent_chat(agent_config: dict = None, user_message: str = "", history: l
         except Exception as e:
             print(f"[Agent Runner] DB load error: {e}")
 
+    brand_id = agent_config.get("id") or agent_config.get("brandId") or "brand-default"
     name = agent_config.get("name") or "الوكيل الذكي"
     category = agent_config.get("category") or "General Business"
     role = agent_config.get("role") or "Senior Business Consultant"
@@ -414,6 +415,23 @@ Always respond in a single valid JSON object matching this schema:
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
+            now_iso = datetime.now().isoformat()
+
+            # Ensure brand exists in SQLite brands table to satisfy foreign keys
+            cursor.execute("SELECT id FROM brands WHERE id = ?", (brand_id,))
+            if not cursor.fetchone():
+                cursor.execute("""
+                INSERT OR IGNORE INTO brands (
+                    id, name, category, role, tone, language, dialect, llm_model,
+                    description, welcome_message, instructions, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    brand_id, name, category, role, tone,
+                    "English" if is_english else "Arabic", dialect, chosen_model,
+                    description, tagline, instructions, now_iso, now_iso
+                ))
+                conn.commit()
+
             order_id = f"ord-{uuid.uuid4().hex[:6]}"
             cust_name = extracted_order.get("customer_name") or "عميل الوكيل"
             cust_phone = extracted_order.get("customer_phone") or "01000000000"
@@ -422,7 +440,6 @@ Always respond in a single valid JSON object matching this schema:
             tot_amount = extracted_order.get("total_amount") or f"{int(num_total)} ج.م"
             ord_type = extracted_order.get("order_type") or "Delivery"
             del_addr = extracted_order.get("delivery_address") or ""
-            now_iso = datetime.now().isoformat()
 
             cursor.execute("""
             INSERT INTO orders (id, brand_id, customer_name, customer_phone, items, numeric_total, total_amount, order_type, delivery_address, status, timestamp, created_at)

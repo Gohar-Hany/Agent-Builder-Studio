@@ -89,10 +89,10 @@ class BrandModel(BaseModel):
 
 class OrderModel(BaseModel):
     id: Optional[str] = None
-    brandId: str
-    customerName: str
-    customerPhone: str
-    items: List[str] = []
+    brandId: Optional[str] = "brand-default"
+    customerName: Optional[str] = "عميل الوكيل"
+    customerPhone: Optional[str] = ""
+    items: Optional[List[str]] = []
     numericTotal: Optional[float] = 0
     totalAmount: Optional[str] = "قيد المراجعة"
     orderType: Optional[str] = "Delivery"
@@ -103,9 +103,9 @@ class OrderModel(BaseModel):
 
 class ContactModel(BaseModel):
     id: Optional[str] = None
-    brandId: str
-    customerName: str
-    customerPhone: str
+    brandId: Optional[str] = "brand-default"
+    customerName: Optional[str] = "عميل الوكيل"
+    customerPhone: Optional[str] = ""
     email: Optional[str] = None
     channel: Optional[str] = "whatsapp"
     intent: Optional[str] = "Inquiry"
@@ -375,23 +375,43 @@ def update_brand(brand_id: str, brand: BrandModel):
         guardrails_json = '["strict_pricing"]'
 
     try:
-        cursor.execute("""
-        UPDATE brands SET
-            name = ?, icon_type = ?, tagline = ?, category = ?, role = ?, tone = ?,
-            language = ?, dialect = ?, description = ?, products_services = ?,
-            welcome_message = ?, instructions = ?, contact_phone = ?, contact_address = ?,
-            contact_hours = ?, creativity = ?, guardrails = ?, updated_at = ?
-        WHERE id = ?
-        """, (
-            brand.name, brand.iconType, brand.tagline, brand.category, brand.role, brand.tone,
-            brand.language, brand.dialect, brand.description, brand.productsServices,
-            brand.welcomeMessage, brand.instructions,
-            c_phone, c_address, c_hours,
-            brand.creativity or 50, guardrails_json, now_iso, brand_id
-        ))
+        cursor.execute("SELECT id FROM brands WHERE id = ?", (brand_id,))
+        exists = cursor.fetchone() is not None
+
+        if exists:
+            cursor.execute("""
+            UPDATE brands SET
+                name = ?, icon_type = ?, tagline = ?, category = ?, role = ?, tone = ?,
+                language = ?, dialect = ?, llm_model = ?, description = ?, products_services = ?,
+                welcome_message = ?, instructions = ?, contact_phone = ?, contact_address = ?,
+                contact_hours = ?, creativity = ?, guardrails = ?, updated_at = ?
+            WHERE id = ?
+            """, (
+                brand.name, brand.iconType, brand.tagline, brand.category, brand.role, brand.tone,
+                brand.language, brand.dialect, brand.llmModel or "google/gemini-3.7-flash",
+                brand.description, brand.productsServices,
+                brand.welcomeMessage, brand.instructions,
+                c_phone, c_address, c_hours,
+                brand.creativity or 50, guardrails_json, now_iso, brand_id
+            ))
+            cursor.execute("DELETE FROM menu_items WHERE brand_id = ?", (brand_id,))
+        else:
+            cursor.execute("""
+            INSERT INTO brands (
+                id, name, icon_type, tagline, category, role, tone, language, dialect, llm_model,
+                description, products_services, welcome_message, instructions,
+                contact_phone, contact_address, contact_hours, creativity, guardrails, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                brand_id, brand.name, brand.iconType, brand.tagline, brand.category, brand.role,
+                brand.tone, brand.language, brand.dialect, brand.llmModel or "google/gemini-3.7-flash",
+                brand.description, brand.productsServices,
+                brand.welcomeMessage, brand.instructions,
+                c_phone, c_address, c_hours,
+                brand.creativity or 50, guardrails_json, now_iso, now_iso
+            ))
 
         if brand.menuItems is not None:
-            cursor.execute("DELETE FROM menu_items WHERE brand_id = ?", (brand_id,))
             for item in brand.menuItems:
                 m_id = item.id or f"item-{uuid.uuid4().hex[:6]}"
                 cursor.execute("""
@@ -442,19 +462,59 @@ def create_order(order: OrderModel):
     conn = get_db_connection()
     cursor = conn.cursor()
     order_id = order.id or f"ord-{uuid.uuid4().hex[:6]}"
+    brand_id = order.brandId or "brand-default"
     now_iso = datetime.now().isoformat()
 
-    cursor.execute("""
-    INSERT INTO orders (id, brand_id, customer_name, customer_phone, items, numeric_total, total_amount, order_type, delivery_address, payment_method, status, notes, timestamp, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'الآن', ?)
-    """, (
-        order_id, order.brandId, order.customerName, order.customerPhone,
-        json.dumps(order.items, ensure_ascii=False), order.numericTotal or 0,
-        order.totalAmount, order.orderType, order.deliveryAddress,
-        order.paymentMethod, order.status or "New", order.notes or "", now_iso
-    ))
-    conn.commit()
-    conn.close()
+    try:
+        # Ensure brand exists in brands table to satisfy foreign keys
+        cursor.execute("SELECT id FROM brands WHERE id = ?", (brand_id,))
+        if not cursor.fetchone():
+            cursor.execute("""
+            INSERT OR IGNORE INTO brands (id, name, created_at, updated_at)
+            VALUES (?, ?, ?, ?)
+            """, (brand_id, "Custom Agent Brand", now_iso, now_iso))
+            conn.commit()
+
+        # Check if order already exists (upsert)
+        cursor.execute("SELECT id FROM orders WHERE id = ?", (order_id,))
+        exists = cursor.fetchone() is not None
+
+        items_json = json.dumps(order.items or [], ensure_ascii=False)
+        num_total = float(order.numericTotal or 0)
+        tot_amount = order.totalAmount or f"{int(num_total)} ج.م"
+
+        if exists:
+            cursor.execute("""
+            UPDATE orders SET
+                brand_id = ?, customer_name = ?, customer_phone = ?, items = ?,
+                numeric_total = ?, total_amount = ?, order_type = ?, delivery_address = ?,
+                payment_method = ?, status = ?, notes = ?
+            WHERE id = ?
+            """, (
+                brand_id, order.customerName or "عميل الوكيل", order.customerPhone or "",
+                items_json, num_total, tot_amount, order.orderType or "Delivery",
+                order.deliveryAddress or "", order.paymentMethod or "دفع عند الاستلام",
+                order.status or "New", order.notes or "", order_id
+            ))
+        else:
+            cursor.execute("""
+            INSERT INTO orders (id, brand_id, customer_name, customer_phone, items, numeric_total, total_amount, order_type, delivery_address, payment_method, status, notes, timestamp, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'الآن', ?)
+            """, (
+                order_id, brand_id, order.customerName or "عميل الوكيل", order.customerPhone or "",
+                items_json, num_total, tot_amount, order.orderType or "Delivery",
+                order.deliveryAddress or "", order.paymentMethod or "دفع عند الاستلام",
+                order.status or "New", order.notes or "", now_iso
+            ))
+
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        print(f"Error in create_order: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
     return {"message": "Order created successfully", "orderId": order_id}
 
 @app.patch("/api/orders/{order_id}/status")
@@ -495,19 +555,54 @@ def create_contact(contact: ContactModel):
     conn = get_db_connection()
     cursor = conn.cursor()
     contact_id = contact.id or f"cont-{uuid.uuid4().hex[:6]}"
+    brand_id = contact.brandId or "brand-default"
     now_iso = datetime.now().isoformat()
 
-    cursor.execute("""
-    INSERT INTO contacts (id, brand_id, customer_name, customer_phone, email, channel, intent, stage, notes, total_orders_count, total_spent, last_contact_at, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        contact_id, contact.brandId, contact.customerName, contact.customerPhone,
-        contact.email, contact.channel or "whatsapp", contact.intent or "Manual Lead",
-        contact.stage or "New Lead", contact.notes or "",
-        contact.totalOrdersCount or 0, contact.totalSpent or 0, now_iso, now_iso
-    ))
-    conn.commit()
-    conn.close()
+    try:
+        # Ensure brand exists
+        cursor.execute("SELECT id FROM brands WHERE id = ?", (brand_id,))
+        if not cursor.fetchone():
+            cursor.execute("""
+            INSERT OR IGNORE INTO brands (id, name, created_at, updated_at)
+            VALUES (?, ?, ?, ?)
+            """, (brand_id, "Custom Agent Brand", now_iso, now_iso))
+            conn.commit()
+
+        cursor.execute("SELECT id FROM contacts WHERE id = ?", (contact_id,))
+        exists = cursor.fetchone() is not None
+
+        if exists:
+            cursor.execute("""
+            UPDATE contacts SET
+                brand_id = ?, customer_name = ?, customer_phone = ?, email = ?,
+                channel = ?, intent = ?, stage = ?, notes = ?,
+                total_orders_count = ?, total_spent = ?, last_contact_at = ?
+            WHERE id = ?
+            """, (
+                brand_id, contact.customerName or "عميل الوكيل", contact.customerPhone or "",
+                contact.email, contact.channel or "whatsapp", contact.intent or "Manual Lead",
+                contact.stage or "New Lead", contact.notes or "",
+                contact.totalOrdersCount or 0, contact.totalSpent or 0, now_iso, contact_id
+            ))
+        else:
+            cursor.execute("""
+            INSERT INTO contacts (id, brand_id, customer_name, customer_phone, email, channel, intent, stage, notes, total_orders_count, total_spent, last_contact_at, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                contact_id, brand_id, contact.customerName or "عميل الوكيل", contact.customerPhone or "",
+                contact.email, contact.channel or "whatsapp", contact.intent or "Manual Lead",
+                contact.stage or "New Lead", contact.notes or "",
+                contact.totalOrdersCount or 0, contact.totalSpent or 0, now_iso, now_iso
+            ))
+
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        print(f"Error in create_contact: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
     return {"message": "Contact created successfully", "contactId": contact_id}
 
 @app.patch("/api/contacts/{contact_id}")

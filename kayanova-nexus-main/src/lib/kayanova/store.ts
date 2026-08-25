@@ -72,7 +72,7 @@ export function useKayanova() {
 
   const [isLoadingBackend, setIsLoadingBackend] = useState(false);
 
-  // Sync initial state from real FastAPI Backend on mount
+  // Sync initial state from real FastAPI Backend on mount with intelligent non-destructive merge
   useEffect(() => {
     let mounted = true;
     async function loadBackendData() {
@@ -85,27 +85,72 @@ export function useKayanova() {
         ]);
 
         if (mounted) {
+          // 1. Merge Brands
           if (bData !== null && Array.isArray(bData)) {
-            setBrands(bData);
-            writeStorage(BRANDS_KEY, bData);
-            if (bData.length > 0 && bData[0]) {
+            const localBrands = readStorage<BrandProfile[]>(BRANDS_KEY, []);
+            const mergedBrands = [...bData];
+
+            // Retain any local brands not present on the backend and sync them
+            for (const lb of localBrands) {
+              if (!mergedBrands.some((mb) => mb.id === lb.id)) {
+                mergedBrands.push(lb);
+                createBrandApi(lb).catch(() => {});
+              }
+            }
+
+            setBrands(mergedBrands);
+            writeStorage(BRANDS_KEY, mergedBrands);
+
+            if (mergedBrands.length > 0) {
               const currentActive = readStorage<string>(ACTIVE_KEY, "");
-              if (!bData.some((b) => b.id === currentActive)) {
-                setActiveBrandIdState(bData[0].id);
-                writeStorage(ACTIVE_KEY, bData[0].id);
+              if (!mergedBrands.some((b) => b.id === currentActive)) {
+                setActiveBrandIdState(mergedBrands[0]!.id);
+                writeStorage(ACTIVE_KEY, mergedBrands[0]!.id);
               }
             } else {
               setActiveBrandIdState("");
               writeStorage(ACTIVE_KEY, "");
             }
           }
+
+          // 2. Merge Orders (Leads)
           if (oData !== null && Array.isArray(oData)) {
-            setLeads(oData);
-            writeStorage(LEADS_KEY, oData);
+            const localLeads = readStorage<ExtractedLead[]>(LEADS_KEY, []);
+            const mergedLeads = [...oData];
+
+            // Retain any local leads not present on the backend and sync them
+            for (const ll of localLeads) {
+              if (!mergedLeads.some((ml) => ml.id === ll.id)) {
+                mergedLeads.push(ll);
+                createOrderApi(ll).catch(() => {});
+              }
+            }
+
+            setLeads(mergedLeads);
+            writeStorage(LEADS_KEY, mergedLeads);
           }
+
+          // 3. Merge Customer Contacts
           if (cData !== null && Array.isArray(cData)) {
-            setContacts(cData);
-            writeStorage(CONTACTS_KEY, cData);
+            const localContacts = readStorage<CustomerContact[]>(CONTACTS_KEY, []);
+            const mergedContacts = [...cData];
+
+            // Retain any local contacts not present on the backend and sync them
+            for (const lc of localContacts) {
+              if (
+                !mergedContacts.some(
+                  (mc) =>
+                    mc.id === lc.id ||
+                    (lc.customerPhone && mc.customerPhone === lc.customerPhone),
+                )
+              ) {
+                mergedContacts.push(lc);
+                createContactApi(lc).catch(() => {});
+              }
+            }
+
+            setContacts(mergedContacts);
+            writeStorage(CONTACTS_KEY, mergedContacts);
           }
         }
       } catch (err) {
@@ -141,11 +186,14 @@ export function useKayanova() {
 
   const saveBrand = useCallback(
     async (brand: BrandProfile) => {
-      const idx = brands.findIndex((b) => b.id === brand.id);
-      const isNew = idx === -1;
-      const next = isNew ? [brand, ...brands] : brands.map((b) => (b.id === brand.id ? brand : b));
-      setBrands(next);
-      writeStorage(BRANDS_KEY, next);
+      let isNew = false;
+      setBrands((prev) => {
+        const idx = prev.findIndex((b) => b.id === brand.id);
+        isNew = idx === -1;
+        const next = isNew ? [brand, ...prev] : prev.map((b) => (b.id === brand.id ? brand : b));
+        writeStorage(BRANDS_KEY, next);
+        return next;
+      });
       setActiveBrandId(brand.id);
 
       // Persist to FastAPI Backend
@@ -159,16 +207,19 @@ export function useKayanova() {
         console.warn("Backend brand save error:", err);
       }
     },
-    [brands, setActiveBrandId],
+    [setActiveBrandId],
   );
 
   const deleteBrand = useCallback(
     async (id: string) => {
-      const next = brands.filter((b) => b.id !== id);
-      setBrands(next);
-      writeStorage(BRANDS_KEY, next);
+      setBrands((prev) => {
+        const next = prev.filter((b) => b.id !== id);
+        writeStorage(BRANDS_KEY, next);
+        return next;
+      });
       if (activeBrandId === id) {
-        setActiveBrandId(next[0]?.id ?? "");
+        const remaining = readStorage<BrandProfile[]>(BRANDS_KEY, []);
+        setActiveBrandId(remaining[0]?.id ?? "");
       }
       try {
         await deleteBrandApi(id);
@@ -176,23 +227,25 @@ export function useKayanova() {
         console.warn("Backend brand delete error:", err);
       }
     },
-    [brands, activeBrandId, setActiveBrandId],
+    [activeBrandId, setActiveBrandId],
   );
 
   const addLead = useCallback(async (lead: ExtractedLead) => {
+    // 1. Immediately prepend to leads state & local storage
     setLeads((prev) => {
-      const next = [lead, ...prev];
+      const filtered = prev.filter((p) => p.id !== lead.id);
+      const next = [lead, ...filtered];
       writeStorage(LEADS_KEY, next);
       return next;
     });
 
-    // Auto-upsert into customer contacts directory
+    // 2. Auto-upsert into customer contacts directory
     if (lead.customerName || lead.customerPhone) {
       setContacts((prev) => {
         const existingIdx = prev.findIndex(
           (c) =>
-            (lead.customerPhone && c.customerPhone === lead.customerPhone) ||
-            (lead.customerName && c.customerName === lead.customerName),
+            (lead.customerPhone && c.customerPhone && c.customerPhone === lead.customerPhone) ||
+            (lead.customerName && c.customerName && c.customerName === lead.customerName),
         );
 
         let updated: CustomerContact[];
@@ -200,9 +253,10 @@ export function useKayanova() {
           const existing = prev[existingIdx]!;
           const nextContact: CustomerContact = {
             ...existing,
+            brandId: lead.brandId || existing.brandId,
             totalOrdersCount: (existing.totalOrdersCount ?? 0) + 1,
             totalSpent: (existing.totalSpent ?? 0) + (lead.numericTotal ?? 0),
-            lastContactAt: lead.timestamp,
+            lastContactAt: lead.timestamp || new Date().toISOString(),
             stage: "Converted",
           };
           updated = [...prev];
@@ -226,7 +280,7 @@ export function useKayanova() {
             stage: "Converted",
             totalOrdersCount: 1,
             totalSpent: lead.numericTotal ?? 0,
-            lastContactAt: lead.timestamp,
+            lastContactAt: lead.timestamp || new Date().toISOString(),
             createdAt: new Date().toISOString(),
           };
           updated = [newContact, ...prev];
@@ -237,7 +291,7 @@ export function useKayanova() {
       });
     }
 
-    // Persist order to FastAPI
+    // 3. Persist order to FastAPI
     try {
       await createOrderApi(lead);
     } catch (err) {
@@ -273,7 +327,8 @@ export function useKayanova() {
 
   const addContact = useCallback(async (contact: CustomerContact) => {
     setContacts((prev) => {
-      const next = [contact, ...prev];
+      const filtered = prev.filter((c) => c.id !== contact.id);
+      const next = [contact, ...filtered];
       writeStorage(CONTACTS_KEY, next);
       return next;
     });

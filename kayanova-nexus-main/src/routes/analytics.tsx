@@ -122,13 +122,14 @@ function DualCrmPage() {
     notes: "",
   });
 
-  const brandName = (id: string) => brands.find((b) => b.id === id)?.name ?? "Global";
+  const brandName = (id: string) => brands.find((b) => b.id === id || b.name === id)?.name ?? id ?? "Global";
 
   // Filtered Orders
   const filteredOrders = useMemo(() => {
     const q = orderQuery.trim().toLowerCase();
+    const activeBrandObj = brands.find((b) => b.id === brandFilter);
     return leads.filter((l) => {
-      if (brandFilter !== "all" && l.brandId !== brandFilter) return false;
+      if (brandFilter !== "all" && l.brandId !== brandFilter && l.brandId !== activeBrandObj?.name) return false;
       if (orderStatus !== "all" && l.status !== orderStatus) return false;
       if (!q) return true;
       return [l.customerName, l.customerPhone, l.deliveryAddress, ...(l.items ?? [])]
@@ -136,13 +137,14 @@ function DualCrmPage() {
         .toLowerCase()
         .includes(q);
     });
-  }, [leads, brandFilter, orderStatus, orderQuery]);
+  }, [leads, brandFilter, brands, orderStatus, orderQuery]);
 
   // Filtered Contacts
   const filteredContacts = useMemo(() => {
     const q = contactQuery.trim().toLowerCase();
+    const activeBrandObj = brands.find((b) => b.id === brandFilter);
     return contacts.filter((c) => {
-      if (brandFilter !== "all" && c.brandId !== brandFilter) return false;
+      if (brandFilter !== "all" && c.brandId !== brandFilter && c.brandId !== activeBrandObj?.name) return false;
       if (contactStage !== "all" && c.stage !== contactStage) return false;
       if (contactChannel !== "all" && c.channel !== contactChannel) return false;
       if (!q) return true;
@@ -152,7 +154,7 @@ function DualCrmPage() {
         .toLowerCase()
         .includes(q);
     });
-  }, [contacts, brandFilter, contactStage, contactChannel, contactQuery]);
+  }, [contacts, brandFilter, brands, contactStage, contactChannel, contactQuery]);
 
   // Orders Stats
   const revenue = leads.reduce((s, l) => s + (l.numericTotal ?? 0), 0);
