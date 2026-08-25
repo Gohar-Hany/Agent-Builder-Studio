@@ -53,6 +53,32 @@ function writeStorage<T>(key: string, value: T): void {
   }
 }
 
+function deduplicateContacts(list: CustomerContact[]): CustomerContact[] {
+  const deduped: CustomerContact[] = [];
+  for (const c of list) {
+    const p = (c.customerPhone || "").trim();
+    const existingIdx = deduped.findIndex(
+      (d) =>
+        d.id === c.id ||
+        (p && d.customerPhone && d.customerPhone.trim() === p && (d.brandId === c.brandId || !d.brandId || !c.brandId)),
+    );
+    if (existingIdx !== -1) {
+      const ex = deduped[existingIdx]!;
+      deduped[existingIdx] = {
+        ...ex,
+        customerName: ex.customerName || c.customerName,
+        totalOrdersCount: Math.max(ex.totalOrdersCount ?? 1, c.totalOrdersCount ?? 1),
+        totalSpent: Math.max(ex.totalSpent ?? 0, c.totalSpent ?? 0),
+        lastContactAt: c.lastContactAt || ex.lastContactAt,
+        stage: ex.stage === "Converted" || c.stage === "Converted" ? "Converted" : (ex.stage || c.stage || "New Lead"),
+      };
+    } else {
+      deduped.push(c);
+    }
+  }
+  return deduped;
+}
+
 export function useKayanova() {
   const [brands, setBrands] = useState<BrandProfile[]>(() => {
     return readStorage<BrandProfile[]>(BRANDS_KEY, []);
@@ -67,7 +93,7 @@ export function useKayanova() {
   });
 
   const [contacts, setContacts] = useState<CustomerContact[]>(() => {
-    return readStorage<CustomerContact[]>(CONTACTS_KEY, []);
+    return deduplicateContacts(readStorage<CustomerContact[]>(CONTACTS_KEY, []));
   });
 
   const [isLoadingBackend, setIsLoadingBackend] = useState(false);
@@ -130,22 +156,15 @@ export function useKayanova() {
             writeStorage(LEADS_KEY, mergedLeads);
           }
 
-          // 3. Merge Customer Contacts
+          // 3. Merge Customer Contacts with strict deduplication
           if (cData !== null && Array.isArray(cData)) {
             const localContacts = readStorage<CustomerContact[]>(CONTACTS_KEY, []);
-            const mergedContacts = [...cData];
+            const mergedContacts = deduplicateContacts([...cData, ...localContacts]);
 
-            // Retain any local contacts not present on the backend and sync them
-            for (const lc of localContacts) {
-              if (
-                !mergedContacts.some(
-                  (mc) =>
-                    mc.id === lc.id ||
-                    (lc.customerPhone && mc.customerPhone === lc.customerPhone),
-                )
-              ) {
-                mergedContacts.push(lc);
-                createContactApi(lc).catch(() => {});
+            // Sync any local contacts not yet on backend
+            for (const mc of mergedContacts) {
+              if (!cData.some((bc) => bc.id === mc.id || ((mc.customerPhone || "").trim() && (bc.customerPhone || "").trim() === (mc.customerPhone || "").trim()))) {
+                createContactApi(mc).catch(() => {});
               }
             }
 
@@ -170,7 +189,7 @@ export function useKayanova() {
     const onSync = () => {
       setBrands(readStorage<BrandProfile[]>(BRANDS_KEY, []));
       setLeads(readStorage<ExtractedLead[]>(LEADS_KEY, []));
-      setContacts(readStorage<CustomerContact[]>(CONTACTS_KEY, []));
+      setContacts(deduplicateContacts(readStorage<CustomerContact[]>(CONTACTS_KEY, [])));
       setActiveBrandIdState(readStorage<string>(ACTIVE_KEY, ""));
     };
     window.addEventListener("kayanova:sync", onSync);
@@ -286,8 +305,9 @@ export function useKayanova() {
           updated = [newContact, ...prev];
           createContactApi(newContact).catch(console.warn);
         }
-        writeStorage(CONTACTS_KEY, updated);
-        return updated;
+        const dedupedUpdated = deduplicateContacts(updated);
+        writeStorage(CONTACTS_KEY, dedupedUpdated);
+        return dedupedUpdated;
       });
     }
 
@@ -327,8 +347,7 @@ export function useKayanova() {
 
   const addContact = useCallback(async (contact: CustomerContact) => {
     setContacts((prev) => {
-      const filtered = prev.filter((c) => c.id !== contact.id);
-      const next = [contact, ...filtered];
+      const next = deduplicateContacts([contact, ...prev]);
       writeStorage(CONTACTS_KEY, next);
       return next;
     });

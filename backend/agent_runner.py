@@ -446,11 +446,32 @@ Always respond in a single valid JSON object matching this schema:
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'New', 'الآن', ?)
             """, (order_id, brand_id, cust_name, cust_phone, json.dumps(items_list, ensure_ascii=False), num_total, tot_amount, ord_type, del_addr, now_iso))
 
-            contact_id = f"cont-{uuid.uuid4().hex[:6]}"
-            cursor.execute("""
-            INSERT INTO contacts (id, brand_id, customer_name, customer_phone, channel, intent, stage, total_orders_count, total_spent, last_contact_at, created_at)
-            VALUES (?, ?, ?, ?, 'web', ?, 'Converted', 1, ?, ?, ?)
-            """, (contact_id, brand_id, cust_name, cust_phone, f"طلب أوردر: {', '.join(items_list[:2])}", num_total, now_iso, now_iso))
+            # Upsert contact in SQLite (deduplicate by phone and brand)
+            cursor.execute("SELECT id, total_orders_count, total_spent FROM contacts WHERE customer_phone = ? AND customer_phone != '' AND brand_id = ?", (cust_phone, brand_id))
+            existing_contact = cursor.fetchone()
+
+            if existing_contact:
+                prev_orders = int(existing_contact["total_orders_count"] or 0)
+                prev_spent = float(existing_contact["total_spent"] or 0)
+                cursor.execute("""
+                UPDATE contacts SET
+                    customer_name = ?, intent = ?, stage = 'Converted',
+                    total_orders_count = ?, total_spent = ?, last_contact_at = ?
+                WHERE id = ?
+                """, (
+                    cust_name,
+                    f"طلب أوردر: {', '.join(items_list[:2])}",
+                    prev_orders + 1,
+                    prev_spent + num_total,
+                    now_iso,
+                    existing_contact["id"]
+                ))
+            else:
+                contact_id = f"cont-{uuid.uuid4().hex[:6]}"
+                cursor.execute("""
+                INSERT INTO contacts (id, brand_id, customer_name, customer_phone, channel, intent, stage, total_orders_count, total_spent, last_contact_at, created_at)
+                VALUES (?, ?, ?, ?, 'web', ?, 'Converted', 1, ?, ?, ?)
+                """, (contact_id, brand_id, cust_name, cust_phone, f"طلب أوردر: {', '.join(items_list[:2])}", num_total, now_iso, now_iso))
 
             conn.commit()
             conn.close()

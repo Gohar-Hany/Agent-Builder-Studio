@@ -568,10 +568,23 @@ def create_contact(contact: ContactModel):
             """, (brand_id, "Custom Agent Brand", now_iso, now_iso))
             conn.commit()
 
-        cursor.execute("SELECT id FROM contacts WHERE id = ?", (contact_id,))
-        exists = cursor.fetchone() is not None
+        cust_phone = (contact.customerPhone or "").strip()
+        existing_row = None
+        if cust_phone:
+            cursor.execute("SELECT * FROM contacts WHERE customer_phone = ? AND brand_id = ?", (cust_phone, brand_id))
+            existing_row = cursor.fetchone()
 
-        if exists:
+        if not existing_row:
+            cursor.execute("SELECT * FROM contacts WHERE id = ?", (contact_id,))
+            existing_row = cursor.fetchone()
+
+        if existing_row:
+            target_id = existing_row["id"]
+            prev_orders = int(existing_row["total_orders_count"] or 0)
+            prev_spent = float(existing_row["total_spent"] or 0)
+            new_orders = max(prev_orders, int(contact.totalOrdersCount or 1))
+            new_spent = max(prev_spent, float(contact.totalSpent or 0))
+
             cursor.execute("""
             UPDATE contacts SET
                 brand_id = ?, customer_name = ?, customer_phone = ?, email = ?,
@@ -579,17 +592,22 @@ def create_contact(contact: ContactModel):
                 total_orders_count = ?, total_spent = ?, last_contact_at = ?
             WHERE id = ?
             """, (
-                brand_id, contact.customerName or "عميل الوكيل", contact.customerPhone or "",
-                contact.email, contact.channel or "whatsapp", contact.intent or "Manual Lead",
-                contact.stage or "New Lead", contact.notes or "",
-                contact.totalOrdersCount or 0, contact.totalSpent or 0, now_iso, contact_id
+                brand_id, contact.customerName or existing_row["customer_name"] or "عميل الوكيل",
+                cust_phone or existing_row["customer_phone"],
+                contact.email or existing_row["email"],
+                contact.channel or existing_row["channel"] or "whatsapp",
+                contact.intent or existing_row["intent"] or "Manual Lead",
+                contact.stage or existing_row["stage"] or "New Lead",
+                contact.notes or existing_row["notes"] or "",
+                new_orders, new_spent, now_iso, target_id
             ))
+            contact_id = target_id
         else:
             cursor.execute("""
             INSERT INTO contacts (id, brand_id, customer_name, customer_phone, email, channel, intent, stage, notes, total_orders_count, total_spent, last_contact_at, created_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
-                contact_id, brand_id, contact.customerName or "عميل الوكيل", contact.customerPhone or "",
+                contact_id, brand_id, contact.customerName or "عميل الوكيل", cust_phone,
                 contact.email, contact.channel or "whatsapp", contact.intent or "Manual Lead",
                 contact.stage or "New Lead", contact.notes or "",
                 contact.totalOrdersCount or 0, contact.totalSpent or 0, now_iso, now_iso
