@@ -87,7 +87,8 @@ function deduplicateContacts(list: CustomerContact[]): CustomerContact[] {
 
 export function useKayanova() {
   const [brands, setBrands] = useState<BrandProfile[]>(() => {
-    return readStorage<BrandProfile[]>(BRANDS_KEY, []);
+    const raw = readStorage<BrandProfile[]>(BRANDS_KEY, []);
+    return raw.filter((b) => !b.name.includes("Custom Agent Brand") && b.name.trim() !== "");
   });
 
   const [activeBrandId, setActiveBrandIdState] = useState<string>(() => {
@@ -117,10 +118,22 @@ export function useKayanova() {
         ]);
 
         if (mounted) {
-          // 1. Merge Brands
+          // 1. Merge Brands & purge any ghost brands
           if (bData !== null && Array.isArray(bData)) {
-            const localBrands = readStorage<BrandProfile[]>(BRANDS_KEY, []);
-            const mergedBrands = [...bData];
+            // Delete ghost brands from backend if found
+            for (const b of bData) {
+              if (b.name.includes("Custom Agent Brand")) {
+                deleteBrandApi(b.id).catch(() => {});
+              }
+            }
+
+            const localBrands = readStorage<BrandProfile[]>(BRANDS_KEY, []).filter(
+              (b) => !b.name.includes("Custom Agent Brand") && b.name.trim() !== "",
+            );
+            const validBackendBrands = bData.filter(
+              (b) => !b.name.includes("Custom Agent Brand") && b.name.trim() !== "",
+            );
+            const mergedBrands = [...validBackendBrands];
 
             // Retain any local brands not present on the backend and sync them
             for (const lb of localBrands) {

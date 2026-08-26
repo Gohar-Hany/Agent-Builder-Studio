@@ -482,11 +482,16 @@ def create_order(order: OrderModel):
         # Ensure brand exists in brands table to satisfy foreign keys
         cursor.execute("SELECT id FROM brands WHERE id = ?", (brand_id,))
         if not cursor.fetchone():
-            cursor.execute("""
-            INSERT OR IGNORE INTO brands (id, name, created_at, updated_at)
-            VALUES (?, ?, ?, ?)
-            """, (brand_id, "Custom Agent Brand", now_iso, now_iso))
-            conn.commit()
+            cursor.execute("SELECT id FROM brands LIMIT 1")
+            first_b = cursor.fetchone()
+            if first_b:
+                brand_id = first_b["id"]
+            else:
+                cursor.execute("""
+                INSERT OR IGNORE INTO brands (id, name, category, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?)
+                """, (brand_id, "Kayanova Agent", "General", now_iso, now_iso))
+                conn.commit()
 
         # Check if order already exists (upsert)
         cursor.execute("SELECT id FROM orders WHERE id = ?", (order_id,))
@@ -575,11 +580,16 @@ def create_contact(contact: ContactModel):
         # Ensure brand exists
         cursor.execute("SELECT id FROM brands WHERE id = ?", (brand_id,))
         if not cursor.fetchone():
-            cursor.execute("""
-            INSERT OR IGNORE INTO brands (id, name, created_at, updated_at)
-            VALUES (?, ?, ?, ?)
-            """, (brand_id, "Custom Agent Brand", now_iso, now_iso))
-            conn.commit()
+            cursor.execute("SELECT id FROM brands LIMIT 1")
+            first_b = cursor.fetchone()
+            if first_b:
+                brand_id = first_b["id"]
+            else:
+                cursor.execute("""
+                INSERT OR IGNORE INTO brands (id, name, category, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?)
+                """, (brand_id, "Kayanova Agent", "General", now_iso, now_iso))
+                conn.commit()
 
         cust_phone = (contact.customerPhone or "").strip()
         existing_row = None
