@@ -506,8 +506,8 @@ function Simulator() {
 
       {/* Suggestion Chips - Only shown during active conversation */}
       {messages.length > 0 && (
-        <div className="shrink-0 flex items-center gap-1.5 overflow-x-auto border-t border-border bg-secondary px-3 py-1.5 sm:py-2 scrollbar-none">
-          <span className="shrink-0 text-[10px] font-bold text-muted-foreground">
+        <div className="shrink-0 flex items-center gap-2 overflow-x-auto border-t border-border bg-secondary/60 px-3.5 py-2.5 touch-scroll no-scrollbar">
+          <span className="shrink-0 text-xs font-bold text-muted-foreground">
             {lang === "ar" ? "جرب:" : "Try:"}
           </span>
           {quickSuggestions.map((q, idx) => {
@@ -519,12 +519,12 @@ function Simulator() {
                 onClick={() => void dispatch(q.prompt)}
                 disabled={pending}
                 className={cn(
-                  "flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] sm:text-[11px] font-semibold transition-all hover:shadow-sm active:scale-95 disabled:opacity-50",
+                  "flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition-all hover:shadow-sm active:scale-95 disabled:opacity-50 min-h-[36px]",
                   q.chipCls,
                 )}
               >
-                <Ic className="size-3" />
-                {q.label}
+                <Ic className="size-3.5" />
+                <span>{q.label}</span>
               </button>
             );
           })}
@@ -533,7 +533,7 @@ function Simulator() {
 
       {/* Input Form */}
       <form
-        className="shrink-0 flex items-center gap-1.5 sm:gap-2 border-t-2 border-border bg-card p-2 sm:p-3"
+        className="shrink-0 flex items-center gap-2 border-t-2 border-border bg-card p-3 sm:p-3.5"
         onSubmit={(e) => {
           e.preventDefault();
           void dispatch(input);
@@ -544,20 +544,20 @@ function Simulator() {
           onClick={startListening}
           title={t.simulator.voiceInput}
           className={cn(
-            "flex size-9 sm:size-10 shrink-0 items-center justify-center rounded-xl border-2 transition-all",
+            "flex size-11 sm:size-12 shrink-0 items-center justify-center rounded-xl border-2 transition-all active:scale-95",
             listening
               ? "border-primary bg-primary text-primary-foreground animate-pulse"
               : "border-border bg-card text-muted-foreground hover:border-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-300",
           )}
         >
-          <Mic className="size-4" />
+          <Mic className="size-5" />
         </button>
 
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={t.simulator.placeholder}
-          className="h-9 sm:h-10 flex-1 border-border bg-background text-xs sm:text-sm font-medium"
+          className="h-11 sm:h-12 flex-1 border-border bg-background text-sm sm:text-base font-medium rounded-xl px-4"
           dir="auto"
         />
 
@@ -565,12 +565,12 @@ function Simulator() {
           type="submit"
           disabled={pending || !input.trim()}
           className={cn(
-            "flex h-9 sm:h-10 shrink-0 items-center gap-1.5 rounded-xl px-3.5 sm:px-5 text-xs sm:text-sm font-bold text-primary-foreground transition-all brand-gradient shadow-sm hover:opacity-90 hover:shadow-md",
+            "flex h-11 sm:h-12 shrink-0 items-center justify-center gap-2 rounded-xl px-4 sm:px-6 text-xs sm:text-sm font-bold text-primary-foreground transition-all brand-gradient shadow-xs hover:opacity-90 active:scale-95 min-w-[52px]",
             "disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none",
           )}
         >
           <span className="hidden sm:inline">{t.simulator.sendBtn}</span>
-          <Send className={cn("size-3.5 sm:size-4", isRtl && "rotate-180")} />
+          <Send className={cn("size-4", isRtl && "rotate-180")} />
         </button>
       </form>
     </div>

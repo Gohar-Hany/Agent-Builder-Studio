@@ -46,7 +46,9 @@ export function AppShell({
   const { lang, dir, isRtl, t, toggleLang } = useLanguage();
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("kayanova_sidebar_collapsed") === "true";
+      const saved = localStorage.getItem("kayanova_sidebar_collapsed");
+      if (saved !== null) return saved === "true";
+      return window.innerWidth < 1200;
     }
     return false;
   });
@@ -310,8 +312,8 @@ export function AppShell({
             </div>
           </div>
 
-          {/* Mobile Bottom-Header Navigation Strip */}
-          <nav className="flex gap-1 overflow-x-auto border-t border-border/60 px-2.5 py-1.5 lg:hidden no-scrollbar">
+          {/* Mobile/Tablet Header Navigation Strip with 44px Touch Targets */}
+          <nav className="flex gap-2 overflow-x-auto border-t border-border bg-secondary/30 px-3 py-2 lg:hidden touch-scroll no-scrollbar">
             {NAV.map((item) => {
               const active = pathname === item.to;
               return (
@@ -319,14 +321,14 @@ export function AppShell({
                   key={item.to}
                   to={item.to}
                   className={cn(
-                    "flex items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors",
+                    "flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-xs sm:text-sm font-bold transition-all min-h-[42px] shrink-0 active:scale-95",
                     active
-                      ? "bg-primary text-primary-foreground shadow-2xs"
-                      : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+                      ? "brand-gradient text-white shadow-xs"
+                      : "border border-border/80 bg-card text-foreground hover:bg-accent",
                   )}
                 >
-                  <item.icon className="size-3.5" />
-                  {item.shortLabel}
+                  <item.icon className="size-4 shrink-0" />
+                  <span>{item.shortLabel}</span>
                 </Link>
               );
             })}

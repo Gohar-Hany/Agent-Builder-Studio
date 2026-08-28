@@ -217,28 +217,28 @@ function Dashboard() {
               <p className="mt-1.5 text-sm font-medium text-muted-foreground">
                 {activeBrand.tagline}
               </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Button size="sm" asChild>
+              <div className="mt-5 flex flex-wrap gap-2.5">
+                <Button size="default" className="h-10 sm:h-11 px-4 text-xs sm:text-sm font-bold rounded-xl shadow-xs" asChild>
                   <Link to="/simulator">{t.dashboard.liveSimulator}</Link>
                 </Button>
-                <Button size="sm" variant="secondary" asChild>
+                <Button size="default" variant="secondary" className="h-10 sm:h-11 px-4 text-xs sm:text-sm font-bold rounded-xl" asChild>
                   <Link to="/analytics">{t.dashboard.crmOrders}</Link>
                 </Button>
-                <Button size="sm" variant="secondary" asChild>
+                <Button size="default" variant="secondary" className="h-10 sm:h-11 px-4 text-xs sm:text-sm font-bold rounded-xl" asChild>
                   <Link to="/builder" search={{ step: "identity" }}>
                     {lang === "ar" ? "تعديل في الاستوديو" : "Edit in Builder"}
                   </Link>
                 </Button>
-                <Button size="sm" variant="outline" asChild>
+                <Button size="default" variant="outline" className="h-10 sm:h-11 px-4 text-xs sm:text-sm font-bold rounded-xl border-border" asChild>
                   <Link to="/analytics">{t.dashboard.analytics}</Link>
                 </Button>
                 <Button
-                  size="sm"
+                  size="default"
                   variant="ghost"
-                  className="text-destructive hover:bg-rose-100 dark:hover:bg-rose-950 hover:text-destructive"
+                  className="h-10 sm:h-11 px-3 text-xs sm:text-sm font-bold rounded-xl text-destructive hover:bg-rose-100 dark:hover:bg-rose-950 hover:text-destructive"
                   onClick={() => setBrandToDelete({ id: activeBrand.id, name: activeBrand.name })}
                 >
-                  <Trash2 className="size-3.5 me-1" />
+                  <Trash2 className="size-4 me-1.5" />
                   <span>{lang === "ar" ? "حذف الوكيل" : "Delete Agent"}</span>
                 </Button>
               </div>
@@ -345,17 +345,18 @@ function Dashboard() {
                   <div className="mt-4 flex items-center gap-2">
                     <button
                       onClick={() => copyPhone(brand.contactInfo?.phone)}
-                      className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-border bg-secondary/50 px-3 py-2 text-sm transition-colors hover:bg-accent hover:border-emerald-300"
+                      className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-border bg-secondary/50 px-3.5 py-2.5 text-sm transition-all hover:bg-accent hover:border-emerald-300 active:scale-[0.98] min-h-[42px]"
                     >
-                      <Phone className="size-3.5 shrink-0 text-muted-foreground" />
-                      <span className="truncate font-medium">
+                      <Phone className="size-4 shrink-0 text-muted-foreground" />
+                      <span className="truncate font-semibold">
                         {brand.contactInfo?.phone ?? "—"}
                       </span>
-                      <Copy className="ms-auto size-3.5 shrink-0 text-muted-foreground" />
+                      <Copy className="ms-auto size-4 shrink-0 text-muted-foreground" />
                     </button>
                     <Button
                       size="icon"
                       variant="outline"
+                      className="size-10.5 rounded-xl shrink-0 active:scale-95"
                       title={`${t.dashboard.switchContext} ${brand.name}`}
                       aria-label={`${t.dashboard.switchContext} ${brand.name}`}
                       onClick={() => {
@@ -368,7 +369,7 @@ function Dashboard() {
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="text-destructive hover:bg-rose-100 dark:hover:bg-rose-950 hover:text-destructive"
+                      className="size-10.5 rounded-xl text-destructive hover:bg-rose-100 dark:hover:bg-rose-950 hover:text-destructive shrink-0 active:scale-95"
                       title={lang === "ar" ? `حذف الوكيل ${brand.name}` : `Delete ${brand.name}`}
                       aria-label={`Delete ${brand.name}`}
                       onClick={() => setBrandToDelete({ id: brand.id, name: brand.name })}

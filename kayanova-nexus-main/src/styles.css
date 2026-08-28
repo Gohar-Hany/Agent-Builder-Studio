@@ -265,9 +265,32 @@
     width: 100%;
   }
 
-  /* ─── Selection Color ─── */
-  ::selection {
-    background-color: rgba(0, 114, 57, 0.18);
+  /* ─── Touch & Tablet Ergonomics ─── */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    touch-action: manipulation;
+  }
+
+  /* Prevent browser auto-zoom on input focus for mobile/tablet */
+  @media (max-width: 1024px) {
+    input,
+    textarea,
+    select {
+      font-size: 16px !important;
+    }
+  }
+
+  /* Smooth momentum scrolling for touch devices */
+  .touch-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
   }
 }
 
@@ -312,3 +335,4 @@
     border-radius: 99px;
   }
 }
+

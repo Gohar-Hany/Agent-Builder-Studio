@@ -449,14 +449,14 @@ function Builder() {
         {step === "behavior" ? <BehaviorStep draft={draft} patch={patch} /> : null}
         {step === "preview" ? <PreviewStep draft={draft} onSave={save} /> : null}
 
-        {/* Step Bottom Navigation */}
-        <div className="flex flex-wrap items-center justify-between gap-3 mt-8 pt-5 border-t border-border">
+        {/* Step Bottom Navigation - Sticky & Touch-Optimized */}
+        <div className="sticky bottom-0 z-10 flex flex-wrap items-center justify-between gap-3 mt-8 p-3 sm:p-4 rounded-2xl border-2 border-border bg-card/95 backdrop-blur-md shadow-md">
           <div>
             {prevStep ? (
               <Button
                 variant="outline"
-                size="sm"
-                className="h-10 gap-1.5 text-xs sm:text-sm font-medium px-4"
+                size="default"
+                className="h-11 gap-2 text-xs sm:text-sm font-bold px-4 sm:px-5 rounded-xl active:scale-95 min-h-[44px]"
                 onClick={() => goto(prevStep)}
               >
                 {isRtl ? <ArrowRight className="size-4" /> : <ArrowLeft className="size-4" />}
@@ -469,19 +469,19 @@ function Builder() {
             {/* Quick Save on Every Step */}
             <Button
               variant="outline"
-              size="sm"
-              className="h-10 gap-1.5 text-xs sm:text-sm px-4 border-2 border-emerald-300 text-emerald-800 dark:border-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900 font-bold"
+              size="default"
+              className="h-11 gap-1.5 text-xs sm:text-sm px-4 border-2 border-emerald-300 text-emerald-800 dark:border-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900 font-bold rounded-xl active:scale-95 min-h-[44px]"
               onClick={save}
               title={lang === "ar" ? "حفظ التغييرات" : "Save Changes"}
             >
-              <Save className="size-3.5" />
+              <Save className="size-4" />
               <span>{lang === "ar" ? "حفظ التغييرات" : "Save Draft"}</span>
             </Button>
 
             {nextStep ? (
               <Button
-                size="sm"
-                className="h-10 gap-2 text-xs sm:text-sm px-5 brand-gradient text-primary-foreground shadow-sm font-bold"
+                size="default"
+                className="h-11 gap-2 text-xs sm:text-sm px-5 sm:px-6 brand-gradient text-primary-foreground shadow-xs font-bold rounded-xl active:scale-95 min-h-[44px]"
                 onClick={() => goto(nextStep)}
               >
                 <span>{t.builder.nextStep}</span>
@@ -489,8 +489,8 @@ function Builder() {
               </Button>
             ) : (
               <Button
-                size="sm"
-                className="h-10 gap-2 text-xs sm:text-sm px-6 brand-gradient text-primary-foreground shadow-md font-bold"
+                size="default"
+                className="h-11 gap-2 text-xs sm:text-sm px-6 brand-gradient text-primary-foreground shadow-md font-bold rounded-xl active:scale-95 min-h-[44px]"
                 onClick={save}
               >
                 <Rocket className="size-4" />
