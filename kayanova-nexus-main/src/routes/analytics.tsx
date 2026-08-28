@@ -17,7 +17,9 @@ import {
   Printer,
   Search,
   ShoppingBag,
+  Store,
   Trash2,
+  Truck,
   UserCheck,
   UserPlus,
   Users,
@@ -574,20 +576,36 @@ function DualCrmPage() {
                           {egp(l.numericTotal ?? 0, lang)}
                         </td>
                         <td className="px-4 py-3">
-                          <Badge variant="outline" className="text-xs font-medium">
-                            {l.orderType ?? "Delivery"}
-                          </Badge>
-                          {l.deliveryAddress ? (
-                            <p
-                              className="mt-0.5 truncate text-xs text-muted-foreground max-w-[180px]"
-                              title={l.deliveryAddress}
-                            >
-                              {l.deliveryAddress}
-                            </p>
-                          ) : null}
+                          <div className="flex flex-col gap-1.5 min-w-[150px]">
+                            <div className="flex items-center gap-1.5">
+                              {l.orderType?.toLowerCase() === "pickup" || l.orderType?.includes("استلام") ? (
+                                <span className="inline-flex items-center gap-1.5 rounded-lg bg-purple-50 px-2.5 py-1 text-xs font-bold text-purple-700 border border-purple-200 dark:bg-purple-950/50 dark:text-purple-300 dark:border-purple-800">
+                                  <Store className="size-3.5" />
+                                  <span>{lang === "ar" ? "استلام من الفرع" : "Pickup"}</span>
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 border border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800">
+                                  <Truck className="size-3.5" />
+                                  <span>{lang === "ar" ? "توصيل دليفري" : "Delivery"}</span>
+                                </span>
+                              )}
+                            </div>
+                            {l.deliveryAddress ? (
+                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground" title={l.deliveryAddress}>
+                                <MapPin className="size-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                                <span className="truncate max-w-[180px] font-medium text-foreground">
+                                  {l.deliveryAddress}
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-[11px] text-muted-foreground/60 italic">
+                                {lang === "ar" ? "بدون عنوان" : "No address specified"}
+                              </span>
+                            )}
+                          </div>
                         </td>
-                        <td className="whitespace-nowrap px-4 py-3 text-xs text-muted-foreground">
-                          {relativeTime(l.timestamp)}
+                        <td className="whitespace-nowrap px-4 py-3 text-xs font-medium text-muted-foreground">
+                          {relativeTime(l.timestamp, lang)}
                         </td>
                         <td className="px-4 py-3">
                           <Select
@@ -598,13 +616,13 @@ function DualCrmPage() {
                           >
                             <SelectTrigger
                               className={cn(
-                                "h-8 w-28 rounded-lg text-xs font-semibold",
+                                "h-8.5 w-36 min-w-[130px] rounded-xl text-xs font-bold px-3 gap-1.5 shadow-2xs transition-all",
                                 l.status === "New" &&
-                                  "border-amber-500/40 bg-amber-500/10 text-amber-600",
+                                  "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-300",
                                 l.status === "In Progress" &&
-                                  "border-blue-500/40 bg-blue-500/10 text-blue-600",
+                                  "border-blue-300 bg-blue-50 text-blue-800 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-300",
                                 l.status === "Completed" &&
-                                  "border-emerald-500/40 bg-emerald-500/10 text-emerald-600",
+                                  "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300",
                               )}
                             >
                               <SelectValue />
@@ -680,13 +698,13 @@ function DualCrmPage() {
                     >
                       <SelectTrigger
                         className={cn(
-                          "h-7 w-28 rounded-lg text-[11px] font-semibold shrink-0",
+                          "h-8 w-32 rounded-xl text-xs font-bold px-2.5 shrink-0 shadow-2xs",
                           l.status === "New" &&
-                            "border-amber-500/40 bg-amber-500/10 text-amber-600",
+                            "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-300",
                           l.status === "In Progress" &&
-                            "border-blue-500/40 bg-blue-500/10 text-blue-600",
+                            "border-blue-300 bg-blue-50 text-blue-800 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-300",
                           l.status === "Completed" &&
-                            "border-emerald-500/40 bg-emerald-500/10 text-emerald-600",
+                            "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300",
                         )}
                       >
                         <SelectValue />
@@ -701,12 +719,12 @@ function DualCrmPage() {
 
                   {/* Brand & Time Badges */}
                   <div className="flex items-center justify-between text-xs">
-                    <Badge variant="secondary" className="text-[11px] font-medium">
+                    <Badge variant="secondary" className="text-xs font-medium">
                       {brandName(l.brandId)}
                     </Badge>
-                    <span className="text-muted-foreground text-[11px] flex items-center gap-1">
-                      <Clock className="size-3" />
-                      {relativeTime(l.timestamp)}
+                    <span className="text-muted-foreground text-xs font-medium flex items-center gap-1">
+                      <Clock className="size-3.5" />
+                      {relativeTime(l.timestamp, lang)}
                     </span>
                   </div>
 
@@ -738,12 +756,21 @@ function DualCrmPage() {
                       </p>
                     </div>
                     <div className="text-end">
-                      <Badge variant="outline" className="text-[10px]">
-                        {l.orderType ?? "Delivery"}
-                      </Badge>
+                      {l.orderType?.toLowerCase() === "pickup" || l.orderType?.includes("استلام") ? (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-purple-50 px-2 py-0.5 text-[11px] font-bold text-purple-700 border border-purple-200 dark:bg-purple-950/50 dark:text-purple-300 dark:border-purple-800">
+                          <Store className="size-3" />
+                          <span>{lang === "ar" ? "استلام" : "Pickup"}</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700 border border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800">
+                          <Truck className="size-3" />
+                          <span>{lang === "ar" ? "توصيل" : "Delivery"}</span>
+                        </span>
+                      )}
                       {l.deliveryAddress ? (
-                        <p className="mt-0.5 text-[11px] text-muted-foreground line-clamp-1 max-w-[160px]">
-                          {l.deliveryAddress}
+                        <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1 max-w-[170px] flex items-center gap-1 justify-end">
+                          <MapPin className="size-3 text-emerald-600 shrink-0" />
+                          <span>{l.deliveryAddress}</span>
                         </p>
                       ) : null}
                     </div>
@@ -1021,17 +1048,17 @@ function DualCrmPage() {
                           >
                             <SelectTrigger
                               className={cn(
-                                "h-8 w-32 rounded-lg text-xs font-semibold",
+                                "h-8.5 w-36 min-w-[130px] rounded-xl text-xs font-bold px-3 gap-1.5 shadow-2xs transition-all",
                                 c.stage === "New Lead" &&
-                                  "border-amber-500/40 bg-amber-500/10 text-amber-600",
+                                  "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-300",
                                 c.stage === "Contacted" &&
-                                  "border-blue-500/40 bg-blue-500/10 text-blue-600",
+                                  "border-blue-300 bg-blue-50 text-blue-800 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-300",
                                 c.stage === "Qualified" &&
-                                  "border-purple-500/40 bg-purple-500/10 text-purple-600",
+                                  "border-purple-300 bg-purple-50 text-purple-800 dark:border-purple-800 dark:bg-purple-950/50 dark:text-purple-300",
                                 c.stage === "Converted" &&
-                                  "border-emerald-500/40 bg-emerald-500/10 text-emerald-600",
+                                  "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300",
                                 c.stage === "Inactive" &&
-                                  "border-muted-foreground/30 bg-muted text-muted-foreground",
+                                  "border-slate-300 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300",
                               )}
                             >
                               <SelectValue />
@@ -1051,8 +1078,8 @@ function DualCrmPage() {
                           </p>
                           <p className="text-muted-foreground">{egp(c.totalSpent ?? 0, lang)}</p>
                         </td>
-                        <td className="whitespace-nowrap px-4 py-3 text-xs text-muted-foreground">
-                          {relativeTime(c.lastContactAt)}
+                        <td className="whitespace-nowrap px-4 py-3 text-xs font-medium text-muted-foreground">
+                          {relativeTime(c.lastContactAt, lang)}
                         </td>
                         <td className="px-4 py-3 text-end">
                           <div className="flex items-center justify-end gap-1">
@@ -1120,17 +1147,17 @@ function DualCrmPage() {
                     >
                       <SelectTrigger
                         className={cn(
-                          "h-7 w-28 rounded-lg text-[11px] font-semibold shrink-0",
+                          "h-8 w-32 rounded-xl text-xs font-bold px-2.5 shrink-0 shadow-2xs",
                           c.stage === "New Lead" &&
-                            "border-amber-500/40 bg-amber-500/10 text-amber-600",
+                            "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-300",
                           c.stage === "Contacted" &&
-                            "border-blue-500/40 bg-blue-500/10 text-blue-600",
+                            "border-blue-300 bg-blue-50 text-blue-800 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-300",
                           c.stage === "Qualified" &&
-                            "border-purple-500/40 bg-purple-500/10 text-purple-600",
+                            "border-purple-300 bg-purple-50 text-purple-800 dark:border-purple-800 dark:bg-purple-950/50 dark:text-purple-300",
                           c.stage === "Converted" &&
-                            "border-emerald-500/40 bg-emerald-500/10 text-emerald-600",
+                            "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300",
                           c.stage === "Inactive" &&
-                            "border-muted-foreground/30 bg-muted text-muted-foreground",
+                            "border-slate-300 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300",
                         )}
                       >
                         <SelectValue />
@@ -1188,8 +1215,8 @@ function DualCrmPage() {
                         {c.channel}
                       </span>
                     </div>
-                    <span className="text-muted-foreground text-[11px]">
-                      {relativeTime(c.lastContactAt)}
+                    <span className="text-muted-foreground text-xs font-medium">
+                      {relativeTime(c.lastContactAt, lang)}
                     </span>
                   </div>
 

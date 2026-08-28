@@ -452,15 +452,36 @@ export function egp(amount: number | string, lang: "ar" | "en" | string = "ar"):
     : `${num.toLocaleString("en-US")} جنيه مصري`;
 }
 
-export function relativeTime(iso: string): string {
-  if (!iso || typeof iso !== "string") return "الآن";
+export function relativeTime(iso: string, lang: string = "ar"): string {
+  if (!iso || typeof iso !== "string") return lang === "en" || lang === "English" ? "Just now" : "الآن";
   const trimmed = iso.trim();
+  const isEn = lang === "en" || lang === "English";
+
+  // Translate Arabic fixed phrases if UI is currently English
+  if (isEn) {
+    if (trimmed === "الآن") return "Just now";
+    if (trimmed.includes("اليوم")) return trimmed.replace("اليوم،", "Today,").replace("اليوم", "Today");
+    if (trimmed.includes("أمس")) return trimmed.replace("أمس،", "Yesterday,").replace("أمس", "Yesterday");
+    if (trimmed.includes("منذ")) {
+      const match = trimmed.match(/\d+/);
+      if (match) {
+        if (trimmed.includes("دقيقة") || trimmed.includes("دقائق")) return `${match[0]}m ago`;
+        if (trimmed.includes("ساعة") || trimmed.includes("ساعات")) return `${match[0]}h ago`;
+        if (trimmed.includes("يوم") || trimmed.includes("أيام")) return `${match[0]}d ago`;
+      }
+    }
+  }
+
+  // If already formatted in Arabic/English
   if (
     trimmed.includes("منذ") ||
     trimmed.includes("اليوم") ||
     trimmed.includes("أمس") ||
     trimmed.includes("ص") ||
-    trimmed.includes("م")
+    trimmed.includes("م") ||
+    trimmed.includes("ago") ||
+    trimmed.includes("Today") ||
+    trimmed.includes("Yesterday")
   ) {
     return trimmed;
   }
@@ -469,11 +490,25 @@ export function relativeTime(iso: string): string {
     const time = d.getTime();
     if (isNaN(time)) return trimmed;
     const diff = Math.max(0, Math.floor((Date.now() - time) / 1000));
-    if (diff < 60) return "الآن";
-    if (diff < 3600) return `منذ ${Math.floor(diff / 60)} دقيقة`;
-    if (diff < 86400) return `منذ ${Math.floor(diff / 3600)} ساعة`;
+    if (diff < 90) return isEn ? "Just now" : "الآن";
+    if (diff < 3600) {
+      const mins = Math.floor(diff / 60);
+      return isEn ? `${mins}m ago` : `منذ ${mins} دقيقة`;
+    }
+    if (diff < 86400) {
+      const hours = Math.floor(diff / 3600);
+      return isEn ? `${hours}h ago` : `منذ ${hours} ساعة`;
+    }
     const days = Math.floor(diff / 86400);
-    return `منذ ${days} ${days === 1 ? "يوم" : days === 2 ? "يومين" : days <= 10 ? "أيام" : "يوم"}`;
+    if (days === 1) return isEn ? "Yesterday" : "أمس";
+    if (days < 7) return isEn ? `${days}d ago` : `منذ ${days} أيام`;
+    
+    return d.toLocaleDateString(isEn ? "en-US" : "ar-EG", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   } catch {
     return trimmed;
   }
