@@ -12,6 +12,7 @@ import {
   Instagram,
   MapPin,
   MessageCircle,
+  Package,
   Phone,
   Plus,
   Printer,
@@ -73,6 +74,29 @@ export const Route = createFileRoute("/analytics")({
 });
 
 type CrmTab = "orders" | "contacts";
+
+function parseItemText(raw: string) {
+  let text = (raw || "").trim();
+  let qty = 1;
+
+  // Case 1: "إدارة الإعلانات المدفوعة (1)" or "(2) قهوة"
+  const parenMatch = text.match(/\((\d+)\)/);
+  if (parenMatch) {
+    qty = parseInt(parenMatch[1], 10) || 1;
+    text = text.replace(/\(\d+\)/, "").trim();
+  } else {
+    // Case 2: "2 سبانش لاتيه" or "1 Paid Ads"
+    const startMatch = text.match(/^(\d+)\s*[-xX]?\s*(.*)$/);
+    if (startMatch && startMatch[2]?.trim()) {
+      qty = parseInt(startMatch[1], 10) || 1;
+      text = startMatch[2].trim();
+    }
+  }
+
+  // Clean remaining symbols
+  text = text.replace(/^[-–—]\s*/, "").replace(/\s*[-–—]$/, "").trim();
+  return { title: text || raw, qty };
+}
 
 function DualCrmPage() {
   const {
@@ -560,17 +584,31 @@ function DualCrmPage() {
                             {brandName(l.brandId)}
                           </Badge>
                         </td>
-                        <td className="max-w-xs px-4 py-3">
-                          <div className="flex flex-wrap gap-1">
-                            {(l.items ?? []).map((item, idx) => (
-                              <span
-                                key={idx}
-                                className="rounded-md bg-secondary px-2 py-0.5 text-xs text-foreground font-medium"
-                              >
-                                {item}
-                              </span>
-                            ))}
-                          </div>
+                        <td className="max-w-[280px] px-4 py-3">
+                          {!l.items || l.items.length === 0 ? (
+                            <span className="text-xs text-muted-foreground/60 italic">—</span>
+                          ) : (
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              {l.items.map((item, idx) => {
+                                const { title, qty } = parseItemText(item);
+                                return (
+                                  <div
+                                    key={idx}
+                                    className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-secondary/80 px-2.5 py-1 text-xs font-semibold text-foreground shadow-2xs hover:border-emerald-400/60 dark:hover:border-emerald-600 transition-colors"
+                                    title={item}
+                                  >
+                                    {qty > 1 && (
+                                      <span className="inline-flex items-center justify-center rounded-md bg-emerald-100 px-1.5 py-0.5 text-[10px] font-extrabold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                                        {qty}x
+                                      </span>
+                                    )}
+                                    <Package className="size-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                    <span className="truncate max-w-[190px]">{title}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
                         </td>
                         <td className="px-4 py-3 font-semibold text-foreground">
                           {egp(l.numericTotal ?? 0, lang)}
@@ -729,19 +767,28 @@ function DualCrmPage() {
                   </div>
 
                   {/* Items List */}
-                  <div className="space-y-1">
-                    <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
+                  <div className="space-y-1.5">
+                    <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wide">
                       {t.crm.orderedItems}:
                     </p>
                     <div className="flex flex-wrap gap-1.5">
-                      {(l.items ?? []).map((item, idx) => (
-                        <span
-                          key={idx}
-                          className="rounded-md bg-secondary px-2 py-0.5 text-xs text-foreground font-medium"
-                        >
-                          {item}
-                        </span>
-                      ))}
+                      {(l.items ?? []).map((item, idx) => {
+                        const { title, qty } = parseItemText(item);
+                        return (
+                          <div
+                            key={idx}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-secondary/80 px-2.5 py-1 text-xs font-semibold text-foreground shadow-2xs"
+                          >
+                            {qty > 1 && (
+                              <span className="inline-flex items-center justify-center rounded-md bg-emerald-100 px-1.5 py-0.5 text-[10px] font-extrabold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                                {qty}x
+                              </span>
+                            )}
+                            <Package className="size-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                            <span>{title}</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -1334,7 +1381,7 @@ function DualCrmPage() {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">{t.crm.time}</span>
                     <span className="font-semibold text-foreground">
-                      {relativeTime(selectedOrder.timestamp)}
+                      {relativeTime(selectedOrder.timestamp, lang)}
                     </span>
                   </div>
                   {selectedOrder.deliveryAddress ? (
@@ -1349,15 +1396,31 @@ function DualCrmPage() {
 
                 {/* Items List */}
                 <div className="border-t border-border pt-3">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-2.5">
                     {t.crm.orderedItems}
                   </p>
-                  <div className="space-y-1.5">
-                    {(selectedOrder.items ?? []).map((item, idx) => (
-                      <div key={idx} className="flex items-center justify-between text-xs">
-                        <span className="font-medium text-foreground">{item}</span>
-                      </div>
-                    ))}
+                  <div className="space-y-2">
+                    {(selectedOrder.items ?? []).map((item, idx) => {
+                      const { title, qty } = parseItemText(item);
+                      return (
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between rounded-xl border border-border bg-secondary/50 p-2.5 text-xs font-semibold"
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="flex size-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                              <Package className="size-3.5" />
+                            </div>
+                            <span className="text-foreground">{title}</span>
+                          </div>
+                          {qty > 1 && (
+                            <span className="rounded-md bg-card px-2 py-0.5 font-bold text-primary border border-border">
+                              {qty}x
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
