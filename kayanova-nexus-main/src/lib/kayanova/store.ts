@@ -20,6 +20,9 @@ const BRANDS_KEY = "kayanova.brands.v1";
 const LEADS_KEY = "kayanova.leads.v1";
 const CONTACTS_KEY = "kayanova.contacts.v1";
 const ACTIVE_KEY = "kayanova.activeBrand.v1";
+const DELETED_BRANDS_KEY = "kayanova.deleted_brands.v1";
+const DELETED_LEADS_KEY = "kayanova.deleted_leads.v1";
+const DELETED_CONTACTS_KEY = "kayanova.deleted_contacts.v1";
 
 function seedBrands(): BrandProfile[] {
   return [];
@@ -87,8 +90,14 @@ function deduplicateContacts(list: CustomerContact[]): CustomerContact[] {
 
 export function useKayanova() {
   const [brands, setBrands] = useState<BrandProfile[]>(() => {
+    const deleted = readStorage<string[]>(DELETED_BRANDS_KEY, []);
     const raw = readStorage<BrandProfile[]>(BRANDS_KEY, []);
-    return raw.filter((b) => !b.name.includes("Custom Agent Brand") && b.name.trim() !== "");
+    return raw.filter(
+      (b) =>
+        !b.name.includes("Custom Agent Brand") &&
+        b.name.trim() !== "" &&
+        !deleted.includes(b.id),
+    );
   });
 
   const [activeBrandId, setActiveBrandIdState] = useState<string>(() => {
@@ -96,11 +105,15 @@ export function useKayanova() {
   });
 
   const [leads, setLeads] = useState<ExtractedLead[]>(() => {
-    return readStorage<ExtractedLead[]>(LEADS_KEY, []);
+    const deleted = readStorage<string[]>(DELETED_LEADS_KEY, []);
+    return readStorage<ExtractedLead[]>(LEADS_KEY, []).filter((l) => !deleted.includes(l.id));
   });
 
   const [contacts, setContacts] = useState<CustomerContact[]>(() => {
-    return deduplicateContacts(readStorage<CustomerContact[]>(CONTACTS_KEY, []));
+    const deleted = readStorage<string[]>(DELETED_CONTACTS_KEY, []);
+    return deduplicateContacts(
+      readStorage<CustomerContact[]>(CONTACTS_KEY, []).filter((c) => !deleted.includes(c.id)),
+    );
   });
 
   const [isLoadingBackend, setIsLoadingBackend] = useState(false);
@@ -118,20 +131,30 @@ export function useKayanova() {
         ]);
 
         if (mounted) {
-          // 1. Merge Brands & purge any ghost brands
+          const deletedBrandIds = readStorage<string[]>(DELETED_BRANDS_KEY, []);
+          const deletedLeadIds = readStorage<string[]>(DELETED_LEADS_KEY, []);
+          const deletedContactIds = readStorage<string[]>(DELETED_CONTACTS_KEY, []);
+
+          // 1. Merge Brands & purge any ghost or user-deleted brands
           if (bData !== null && Array.isArray(bData)) {
-            // Delete ghost brands from backend if found
+            // Delete ghost or deleted brands from backend if found
             for (const b of bData) {
-              if (b.name.includes("Custom Agent Brand")) {
+              if (b.name.includes("Custom Agent Brand") || deletedBrandIds.includes(b.id)) {
                 deleteBrandApi(b.id).catch(() => {});
               }
             }
 
             const localBrands = readStorage<BrandProfile[]>(BRANDS_KEY, []).filter(
-              (b) => !b.name.includes("Custom Agent Brand") && b.name.trim() !== "",
+              (b) =>
+                !b.name.includes("Custom Agent Brand") &&
+                b.name.trim() !== "" &&
+                !deletedBrandIds.includes(b.id),
             );
             const validBackendBrands = bData.filter(
-              (b) => !b.name.includes("Custom Agent Brand") && b.name.trim() !== "",
+              (b) =>
+                !b.name.includes("Custom Agent Brand") &&
+                b.name.trim() !== "" &&
+                !deletedBrandIds.includes(b.id),
             );
             const mergedBrands = [...validBackendBrands];
 
@@ -160,8 +183,17 @@ export function useKayanova() {
 
           // 2. Merge Orders (Leads)
           if (oData !== null && Array.isArray(oData)) {
-            const localLeads = readStorage<ExtractedLead[]>(LEADS_KEY, []);
-            const mergedLeads = [...oData];
+            for (const o of oData) {
+              if (deletedLeadIds.includes(o.id)) {
+                deleteOrderApi(o.id).catch(() => {});
+              }
+            }
+
+            const localLeads = readStorage<ExtractedLead[]>(LEADS_KEY, []).filter(
+              (l) => !deletedLeadIds.includes(l.id),
+            );
+            const validBackendLeads = oData.filter((o) => !deletedLeadIds.includes(o.id));
+            const mergedLeads = [...validBackendLeads];
 
             // Retain any local leads not present on the backend and sync them
             for (const ll of localLeads) {
@@ -177,8 +209,17 @@ export function useKayanova() {
 
           // 3. Merge Customer Contacts with strict deduplication
           if (cData !== null && Array.isArray(cData)) {
-            const localContacts = readStorage<CustomerContact[]>(CONTACTS_KEY, []);
-            const mergedContacts = deduplicateContacts([...cData, ...localContacts]);
+            for (const c of cData) {
+              if (deletedContactIds.includes(c.id)) {
+                deleteContactApi(c.id).catch(() => {});
+              }
+            }
+
+            const localContacts = readStorage<CustomerContact[]>(CONTACTS_KEY, []).filter(
+              (c) => !deletedContactIds.includes(c.id),
+            );
+            const validBackendContacts = cData.filter((c) => !deletedContactIds.includes(c.id));
+            const mergedContacts = deduplicateContacts([...validBackendContacts, ...localContacts]);
 
             // Sync any local contacts not yet on backend
             for (const mc of mergedContacts) {
@@ -213,9 +254,28 @@ export function useKayanova() {
   // Listen for cross-tab sync events
   useEffect(() => {
     const onSync = () => {
-      setBrands(readStorage<BrandProfile[]>(BRANDS_KEY, []));
-      setLeads(readStorage<ExtractedLead[]>(LEADS_KEY, []));
-      setContacts(deduplicateContacts(readStorage<CustomerContact[]>(CONTACTS_KEY, [])));
+      const deletedBrands = readStorage<string[]>(DELETED_BRANDS_KEY, []);
+      const deletedLeads = readStorage<string[]>(DELETED_LEADS_KEY, []);
+      const deletedContacts = readStorage<string[]>(DELETED_CONTACTS_KEY, []);
+
+      setBrands(
+        readStorage<BrandProfile[]>(BRANDS_KEY, []).filter(
+          (b) =>
+            !b.name.includes("Custom Agent Brand") &&
+            b.name.trim() !== "" &&
+            !deletedBrands.includes(b.id),
+        ),
+      );
+      setLeads(
+        readStorage<ExtractedLead[]>(LEADS_KEY, []).filter((l) => !deletedLeads.includes(l.id)),
+      );
+      setContacts(
+        deduplicateContacts(
+          readStorage<CustomerContact[]>(CONTACTS_KEY, []).filter(
+            (c) => !deletedContacts.includes(c.id),
+          ),
+        ),
+      );
       setActiveBrandIdState(readStorage<string>(ACTIVE_KEY, ""));
     };
     window.addEventListener("kayanova:sync", onSync);
@@ -231,6 +291,15 @@ export function useKayanova() {
 
   const saveBrand = useCallback(
     async (brand: BrandProfile) => {
+      // Remove from tombstone if re-created/saved
+      const deleted = readStorage<string[]>(DELETED_BRANDS_KEY, []);
+      if (deleted.includes(brand.id)) {
+        writeStorage(
+          DELETED_BRANDS_KEY,
+          deleted.filter((d) => d !== brand.id),
+        );
+      }
+
       let isNew = false;
       setBrands((prev) => {
         const idx = prev.findIndex((b) => b.id === brand.id);
@@ -257,15 +326,26 @@ export function useKayanova() {
 
   const deleteBrand = useCallback(
     async (id: string) => {
+      // 1. Mark as permanently deleted in tombstone storage
+      const deleted = readStorage<string[]>(DELETED_BRANDS_KEY, []);
+      if (!deleted.includes(id)) {
+        writeStorage(DELETED_BRANDS_KEY, [...deleted, id]);
+      }
+
+      // 2. Remove from active state & local storage
       setBrands((prev) => {
         const next = prev.filter((b) => b.id !== id);
         writeStorage(BRANDS_KEY, next);
         return next;
       });
+
+      // 3. Update active brand if deleted
       if (activeBrandId === id) {
-        const remaining = readStorage<BrandProfile[]>(BRANDS_KEY, []);
+        const remaining = readStorage<BrandProfile[]>(BRANDS_KEY, []).filter((b) => b.id !== id);
         setActiveBrandId(remaining[0]?.id ?? "");
       }
+
+      // 4. Send delete to backend
       try {
         await deleteBrandApi(id);
       } catch (err) {
@@ -359,6 +439,12 @@ export function useKayanova() {
   }, []);
 
   const deleteLead = useCallback(async (id: string) => {
+    // 1. Add to tombstone deleted storage
+    const deleted = readStorage<string[]>(DELETED_LEADS_KEY, []);
+    if (!deleted.includes(id)) {
+      writeStorage(DELETED_LEADS_KEY, [...deleted, id]);
+    }
+
     setLeads((prev) => {
       const next = prev.filter((l) => l.id !== id);
       writeStorage(LEADS_KEY, next);
@@ -372,6 +458,15 @@ export function useKayanova() {
   }, []);
 
   const addContact = useCallback(async (contact: CustomerContact) => {
+    // If contact was deleted previously, revive from tombstone
+    const deleted = readStorage<string[]>(DELETED_CONTACTS_KEY, []);
+    if (deleted.includes(contact.id)) {
+      writeStorage(
+        DELETED_CONTACTS_KEY,
+        deleted.filter((d) => d !== contact.id),
+      );
+    }
+
     setContacts((prev) => {
       const next = deduplicateContacts([contact, ...prev]);
       writeStorage(CONTACTS_KEY, next);
@@ -411,6 +506,12 @@ export function useKayanova() {
   }, []);
 
   const deleteContact = useCallback(async (id: string) => {
+    // 1. Add to tombstone deleted storage
+    const deleted = readStorage<string[]>(DELETED_CONTACTS_KEY, []);
+    if (!deleted.includes(id)) {
+      writeStorage(DELETED_CONTACTS_KEY, [...deleted, id]);
+    }
+
     setContacts((prev) => {
       const next = prev.filter((c) => c.id !== id);
       writeStorage(CONTACTS_KEY, next);
