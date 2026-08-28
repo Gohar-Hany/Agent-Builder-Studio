@@ -135,20 +135,18 @@ export function AppShell({
             )}
           </Link>
 
-          {/* Sidebar Toggle Button on Desktop */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleSidebar}
-            className="size-7 text-muted-foreground hover:text-foreground shrink-0"
-            title={collapsed ? t.expandSidebar : t.collapseSidebar}
-          >
-            {collapsed ? (
-              <PanelLeftOpen className="size-4" />
-            ) : (
+          {/* Sidebar Toggle Button on Desktop - Only shown when sidebar is expanded */}
+          {!collapsed && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              className="size-7 text-muted-foreground hover:text-foreground shrink-0"
+              title={t.nav?.collapseSidebar ?? "Collapse"}
+            >
               <PanelLeftClose className="size-4" />
-            )}
-          </Button>
+            </Button>
+          )}
         </div>
 
         {/* Global Search / Command Menu Trigger */}
