@@ -42,7 +42,7 @@ export function FormattedMessage({ content, className, isUser = false }: Formatt
         <ul key={`list-${elements.length}`} className="my-2.5 space-y-2 pr-1 pl-1">
           {currentList.items.map((item, idx) => (
             <li key={idx} className="flex items-start gap-2.5 text-inherit">
-              <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary ring-2 ring-primary/20" />
+              <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary ring-2 ring-emerald-300 dark:ring-emerald-700" />
               <span className="flex-1 leading-relaxed text-foreground font-normal">
                 {renderInlineMarkdown(autoFormatListItem(item))}
               </span>

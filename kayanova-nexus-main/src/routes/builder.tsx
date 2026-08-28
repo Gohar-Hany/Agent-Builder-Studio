@@ -260,13 +260,13 @@ function Builder() {
               }
             }}
           >
-            <SelectTrigger className="h-9 bg-card border-2 border-primary/25 hover:border-primary/40 text-xs sm:text-sm w-[135px] sm:w-[170px] font-bold truncate shadow-2xs shrink-0">
+            <SelectTrigger className="h-9 bg-card border-2 border-emerald-300 hover:border-emerald-500 text-xs sm:text-sm w-[135px] sm:w-[170px] font-bold truncate shadow-2xs shrink-0">
               <SelectValue placeholder={lang === "ar" ? "اختر وكيلاً..." : "Select Agent..."} />
             </SelectTrigger>
             <SelectContent className="bg-card border-border shadow-xl z-50 min-w-[200px]">
               <SelectItem
                 value="new"
-                className="text-xs sm:text-sm font-bold text-primary focus:bg-primary/10"
+                className="text-xs sm:text-sm font-bold text-primary focus:bg-accent focus:text-foreground"
               >
                 + {lang === "ar" ? "إنشاء وكيل جديد" : "Create New Agent"}
               </SelectItem>
@@ -282,7 +282,7 @@ function Builder() {
             <Button
               variant="ghost"
               size="sm"
-              className="h-9 text-xs sm:text-sm text-destructive hover:bg-destructive/10 hover:text-destructive gap-1 px-2 shrink-0"
+              className="h-9 text-xs sm:text-sm text-destructive hover:bg-rose-100 dark:hover:bg-rose-950 hover:text-destructive gap-1 px-2 shrink-0"
               onClick={() => setIsDeletingDraft(true)}
               title={lang === "ar" ? "حذف الوكيل الحالي" : "Delete Current Agent"}
             >
@@ -335,7 +335,7 @@ function Builder() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
           <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl space-y-4">
             <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-destructive/10 text-destructive shrink-0">
+              <div className="flex size-10 items-center justify-center rounded-xl bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 shrink-0">
                 <Trash2 className="size-5" />
               </div>
               <div>
@@ -378,7 +378,7 @@ function Builder() {
           {/* Connecting line */}
           <div className="absolute top-5 sm:top-6 inset-x-0 h-px bg-border" />
           <div
-            className="absolute top-5 sm:top-6 start-0 h-px bg-gradient-to-r from-primary to-primary/30 transition-all duration-500"
+            className="absolute top-5 sm:top-6 start-0 h-px bg-gradient-to-r from-emerald-600 to-emerald-300 transition-all duration-500"
             style={{ width: `${(currentStepIdx / (STEPS.length - 1)) * 100}%` }}
           />
 
@@ -399,8 +399,8 @@ function Builder() {
                     isActive
                       ? "brand-gradient border-transparent text-white shadow-md scale-110"
                       : isPassed
-                        ? "bg-primary/10 border-primary text-primary"
-                        : "bg-card border-border text-muted-foreground group-hover:border-primary/50 group-hover:text-primary",
+                        ? "bg-emerald-100 border-emerald-600 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                        : "bg-card border-border text-muted-foreground group-hover:border-emerald-400 group-hover:text-primary",
                   )}
                 >
                   {isPassed ? (
@@ -470,7 +470,7 @@ function Builder() {
             <Button
               variant="outline"
               size="sm"
-              className="h-10 gap-1.5 text-xs sm:text-sm px-4 border-2 border-primary/30 text-primary hover:bg-primary/10 font-bold"
+              className="h-10 gap-1.5 text-xs sm:text-sm px-4 border-2 border-emerald-300 text-emerald-800 dark:border-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900 font-bold"
               onClick={save}
               title={lang === "ar" ? "حفظ التغييرات" : "Save Changes"}
             >
@@ -529,7 +529,7 @@ function Section({
   return (
     <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
       {/* Section header with gradient accent */}
-      <div className="flex items-start gap-3.5 border-b border-border bg-secondary/30 px-5 py-4">
+      <div className="flex items-start gap-3.5 border-b border-border bg-secondary px-5 py-4">
         {SectionIcon && (
           <div
             className={`flex size-9 shrink-0 items-center justify-center rounded-xl border ${colorMap[accentColor]}`}
@@ -566,7 +566,7 @@ function Pill({
         "rounded-xl px-3.5 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold transition-all duration-150 border",
         active
           ? "bg-primary text-primary-foreground border-primary shadow-sm"
-          : "bg-card text-muted-foreground border-border hover:border-primary/40 hover:text-foreground hover:bg-primary/5",
+          : "bg-card text-muted-foreground border-border hover:border-emerald-400 hover:text-foreground hover:bg-accent hover:text-foreground",
       )}
     >
       {children}
@@ -594,9 +594,9 @@ function AiActionButton({
       disabled={disabled || isLoading}
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold transition-all duration-150",
-        "border border-primary/30 bg-primary/10 text-primary shadow-2xs",
+        "border border-emerald-300 bg-emerald-100 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 shadow-2xs",
         "hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-xs active:scale-95",
-        "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary/10 disabled:hover:text-primary",
+        "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-emerald-100 dark:hover:bg-emerald-900 disabled:hover:text-primary",
         "whitespace-nowrap shrink-0 cursor-pointer",
       )}
     >
@@ -926,7 +926,7 @@ function IdentityStep({
                     <span className="font-semibold text-foreground">
                       {lang === "ar" ? m.nameAr : m.name}
                     </span>
-                    <span className="text-[10px] font-bold rounded-full bg-primary/10 px-2 py-0.5 text-primary border border-primary/20">
+                    <span className="text-[10px] font-bold rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-800 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800">
                       {lang === "ar" ? m.badge : m.badgeEn}
                     </span>
                   </div>
@@ -940,7 +940,7 @@ function IdentityStep({
             const currentModel =
               AVAILABLE_LLM_MODELS.find((m) => m.id === draft.llmModel) || AVAILABLE_LLM_MODELS[0];
             return (
-              <div className="mt-2 rounded-xl border border-primary/20 bg-primary/5 p-2.5 text-xs">
+              <div className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50/60 dark:border-emerald-800 dark:bg-emerald-950/30 p-2.5 text-xs">
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-bold text-primary flex items-center gap-1.5">
                     <Sparkles className="size-3.5" />
@@ -973,7 +973,7 @@ function IdentityStep({
         accentColor="violet"
       >
         {/* Agent Card — Premium Version */}
-        <div className="overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 via-card to-card">
+        <div className="overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-emerald-50/60 via-card to-card dark:from-emerald-950/20">
           {/* Card top bar */}
           <div className="brand-gradient h-1 w-full" />
 
@@ -988,7 +988,7 @@ function IdentityStep({
                 <Badge variant="secondary" className="text-[11px] font-medium">
                   {draft.category || (lang === "ar" ? "مجال العمل" : "Industry")}
                 </Badge>
-                <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                <span className="flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
                   <span className="size-1.5 animate-pulse rounded-full bg-primary" />
                   {lang === "ar" ? "وكيل نشط" : "Active Agent"}
                 </span>
@@ -1010,7 +1010,7 @@ function IdentityStep({
 
           {/* Stats Grid */}
           <div className="grid grid-cols-3 gap-2 px-5 pb-4">
-            <div className="rounded-xl bg-secondary/60 border border-border px-3 py-2.5">
+            <div className="rounded-xl bg-secondary border border-border px-3 py-2.5">
               <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block">
                 {t.builder.dialectLabel}
               </span>
@@ -1018,7 +1018,7 @@ function IdentityStep({
                 {(t.dialects[draft.dialect as keyof typeof t.dialects] ?? draft.dialect) || "—"}
               </span>
             </div>
-            <div className="rounded-xl bg-secondary/60 border border-border px-3 py-2.5">
+            <div className="rounded-xl bg-secondary border border-border px-3 py-2.5">
               <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block">
                 {t.builder.toneLabel}
               </span>
@@ -1026,7 +1026,7 @@ function IdentityStep({
                 {(t.tones[draft.tone as keyof typeof t.tones] ?? draft.tone) || "—"}
               </span>
             </div>
-            <div className="rounded-xl bg-primary/10 border border-primary/20 px-3 py-2.5">
+            <div className="rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800 px-3 py-2.5">
               <span className="text-[10px] font-bold uppercase tracking-widest text-primary block">
                 {lang === "ar" ? "الموديل" : "Model"}
               </span>
@@ -1246,8 +1246,8 @@ function KnowledgeStep({
         accentColor="blue"
       >
         {/* Add Item Form */}
-        <div className="overflow-hidden rounded-xl border border-border bg-secondary/30">
-          <div className="border-b border-border bg-secondary/50 px-4 py-2.5 flex items-center gap-2">
+        <div className="overflow-hidden rounded-xl border border-border bg-secondary">
+          <div className="border-b border-border bg-secondary px-4 py-2.5 flex items-center gap-2">
             <Plus className="size-3.5 text-muted-foreground" />
             <span className="text-xs font-bold text-foreground uppercase tracking-wide">
               {t.builder.addItemBtn}
@@ -1288,7 +1288,7 @@ function KnowledgeStep({
         {/* Desktop Table View */}
         <div className="hidden sm:block overflow-hidden rounded-xl border border-border bg-card shadow-sm">
           <table className="w-full text-sm">
-            <thead className="border-b border-border bg-secondary/40">
+            <thead className="border-b border-border bg-secondary">
               <tr>
                 <th className="px-4 py-3 text-start text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
                   {t.builder.itemName}
@@ -1325,7 +1325,7 @@ function KnowledgeStep({
                 </tr>
               ) : (
                 items.map((item) => (
-                  <tr key={item.id} className="group transition-colors hover:bg-primary/3">
+                  <tr key={item.id} className="group transition-colors hover:bg-accent">
                     <td className="px-4 py-3 font-semibold text-foreground">{item.name}</td>
                     <td className="px-4 py-3">
                       <Badge variant="secondary" className="text-[11px] font-medium px-2 py-0.5">
@@ -1333,7 +1333,7 @@ function KnowledgeStep({
                       </Badge>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="inline-flex items-center rounded-lg bg-primary/10 px-2.5 py-1 text-sm font-bold text-primary">
+                      <span className="inline-flex items-center rounded-lg bg-emerald-100 px-2.5 py-1 text-sm font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
                         {egp(item.price, lang)}
                       </span>
                     </td>
@@ -1341,7 +1341,7 @@ function KnowledgeStep({
                       <Button
                         size="icon"
                         variant="ghost"
-                        className="size-8 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all"
+                        className="size-8 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-rose-100 dark:hover:bg-rose-950 transition-all"
                         aria-label={`${t.delete} ${item.name}`}
                         onClick={() => patch({ menuItems: items.filter((i) => i.id !== item.id) })}
                       >
@@ -1382,7 +1382,7 @@ function KnowledgeStep({
                 <Button
                   size="icon"
                   variant="ghost"
-                  className="size-8 text-destructive hover:bg-destructive/10 shrink-0"
+                  className="size-8 text-destructive hover:bg-rose-100 dark:hover:bg-rose-950 shrink-0"
                   onClick={() => patch({ menuItems: items.filter((i) => i.id !== item.id) })}
                 >
                   <Trash2 className="size-3.5" />
@@ -1397,7 +1397,7 @@ function KnowledgeStep({
           type="button"
           disabled={isAiGeneratingItems}
           className={cn(
-            "group w-full rounded-xl border-2 border-dashed border-primary/30 bg-primary/4 px-4 py-3.5 text-center transition-all hover:border-primary/60 hover:bg-primary/8 disabled:opacity-60",
+            "group w-full rounded-xl border-2 border-dashed border-emerald-300 bg-emerald-50/50 dark:border-emerald-700 dark:bg-emerald-950/20 px-4 py-3.5 text-center transition-all hover:border-emerald-500 hover:bg-emerald-100/50 disabled:opacity-60",
           )}
           onClick={generateSmartItems}
         >
@@ -1413,7 +1413,7 @@ function KnowledgeStep({
                   : `Generate Smart Catalog for "${draft.name || "Brand"}"`}
             </span>
           </div>
-          <p className="mt-0.5 text-[11px] text-primary/60">
+          <p className="mt-0.5 text-[11px] text-emerald-700 dark:text-emerald-400">
             {lang === "ar"
               ? "سيتم توليد أسعار وأصناف مخصصة باستخدام الذكاء الاصطناعي"
               : "AI will generate custom items & real prices for your brand"}
@@ -1721,7 +1721,7 @@ function BehaviorStep({
             const isOn = Boolean(g[tg.key]);
             // Static accent classes per index to avoid Tailwind JIT purge issues
             const iconActiveClass = [
-              "text-primary bg-primary/10 border-primary/20",
+              "text-emerald-800 bg-emerald-100 border-emerald-200 dark:text-emerald-300 dark:bg-emerald-950 dark:border-emerald-800",
               "text-amber-600 bg-amber-100 border-amber-200",
               "text-violet-600 bg-violet-100 border-violet-200",
             ][idx % 3]!;
@@ -1732,8 +1732,8 @@ function BehaviorStep({
                 className={cn(
                   "flex cursor-pointer items-start justify-between gap-3 rounded-2xl border-2 p-4 transition-all duration-200 select-none",
                   isOn
-                    ? "border-primary/40 bg-primary/5 shadow-sm"
-                    : "border-border bg-card hover:bg-secondary/30",
+                    ? "border-emerald-300 bg-emerald-50/60 text-foreground shadow-sm dark:border-emerald-800 dark:bg-emerald-950/30"
+                    : "border-border bg-card hover:bg-secondary",
                 )}
               >
                 <div className="flex items-start gap-3">
@@ -1758,7 +1758,7 @@ function BehaviorStep({
                       {lang === "ar" ? tg.descAr : tg.descEn}
                     </p>
                     {isOn && (
-                      <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
+                      <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
                         <span className="size-1.5 rounded-full bg-primary" />
                         {lang === "ar" ? "مفعّل" : "Active"}
                       </span>
@@ -1777,7 +1777,7 @@ function BehaviorStep({
         </div>
 
         {/* Tips card */}
-        <div className="rounded-xl border border-border bg-secondary/40 p-3.5 space-y-1.5">
+        <div className="rounded-xl border border-border bg-secondary p-3.5 space-y-1.5">
           <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
             {lang === "ar" ? "تلميح مهني" : "Pro Tip"}
           </p>
@@ -1842,7 +1842,7 @@ function PreviewStep({ draft, onSave }: { draft: BrandProfile; onSave: () => voi
         {/* Chat Area */}
         <div
           ref={scroller}
-          className="h-72 sm:h-80 overflow-y-auto rounded-xl border border-border bg-secondary/30 p-3 sm:p-4 space-y-3"
+          className="h-72 sm:h-80 overflow-y-auto rounded-xl border border-border bg-secondary p-3 sm:p-4 space-y-3"
         >
           {messages.length === 0 && !pending && (
             <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
@@ -1869,7 +1869,7 @@ function PreviewStep({ draft, onSave }: { draft: BrandProfile; onSave: () => voi
               className={cn("flex gap-2", m.role === "user" ? "flex-row-reverse" : "flex-row")}
             >
               {m.role === "assistant" && (
-                <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary border border-primary/20">
+                <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800">
                   <Bot className="size-3.5" />
                 </div>
               )}
@@ -1887,7 +1887,7 @@ function PreviewStep({ draft, onSave }: { draft: BrandProfile; onSave: () => voi
           ))}
           {pending ? (
             <div className="flex gap-2">
-              <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 border border-primary/20">
+              <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800">
                 <Bot className="size-3.5 text-primary" />
               </div>
               <div className="rounded-2xl bg-card border border-border px-4 py-2.5 shadow-xs">
@@ -1943,11 +1943,11 @@ function PreviewStep({ draft, onSave }: { draft: BrandProfile; onSave: () => voi
           {summary.map(([k, v], i) => {
             const hasValue = v && v !== "—" && v !== "0 items" && v !== "0 أصناف";
             const colors = [
-              "border-s-primary/60 bg-primary/3",
+              "border-s-emerald-600 bg-emerald-50/40 dark:bg-emerald-950/20",
               "border-s-blue-500/60 bg-blue-500/3",
               "border-s-amber-500/60 bg-amber-500/3",
               "border-s-violet-500/60 bg-violet-500/3",
-              "border-s-primary/60 bg-primary/3",
+              "border-s-emerald-600 bg-emerald-50/40 dark:bg-emerald-950/20",
               "border-s-blue-500/60 bg-blue-500/3",
             ];
             return (
@@ -1955,7 +1955,7 @@ function PreviewStep({ draft, onSave }: { draft: BrandProfile; onSave: () => voi
                 key={k}
                 className={cn(
                   "flex items-center justify-between rounded-xl border border-border border-s-4 px-3.5 py-3 transition-all",
-                  hasValue ? colors[i % colors.length] : "bg-secondary/30",
+                  hasValue ? colors[i % colors.length] : "bg-secondary",
                 )}
               >
                 <dt className="text-xs font-semibold text-muted-foreground">{k}</dt>

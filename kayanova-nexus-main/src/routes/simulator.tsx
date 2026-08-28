@@ -293,19 +293,19 @@ function Simulator() {
   const renderChatBox = (isFullscreen: boolean) => (
     <div
       className={cn(
-        "flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all",
+        "flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all",
         isFullscreen
-          ? "h-full w-full max-w-5xl rounded-none sm:rounded-3xl border-0 sm:border-2 border-primary/30 shadow-2xl"
+          ? "h-full w-full max-w-5xl rounded-none sm:rounded-3xl border-0 sm:border-2 border-emerald-300 shadow-2xl dark:border-emerald-800"
           : "h-[calc(100dvh-220px)] min-h-[480px] lg:h-[calc(100vh-160px)] lg:min-h-[550px]",
       )}
     >
       {/* Chat Header */}
-      <div className="shrink-0 flex items-center justify-between gap-3 border-b border-border/70 bg-secondary/40 px-3.5 py-2.5 sm:px-5 sm:py-3 min-w-0">
+      <div className="shrink-0 flex items-center justify-between gap-3 border-b border-border bg-secondary px-3.5 py-2.5 sm:px-5 sm:py-3 min-w-0">
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
           <div className="relative shrink-0">
             <BrandGlyph
               brand={activeBrand}
-              className="size-8 sm:size-10 rounded-xl ring-2 ring-primary/20 shadow-2xs"
+              className="size-8 sm:size-10 rounded-xl ring-2 ring-emerald-300 dark:ring-emerald-700 shadow-2xs"
             />
             <span className="absolute -bottom-0.5 -end-0.5 size-2.5 sm:size-3 rounded-full bg-emerald-500 ring-2 ring-background" />
           </div>
@@ -386,7 +386,7 @@ function Simulator() {
               variant="outline"
               size="sm"
               onClick={() => setIsFocusMode(true)}
-              className="h-8 sm:h-9 gap-1.5 px-2.5 sm:px-3 text-xs font-bold border-primary/30 bg-primary/5 text-primary hover:bg-primary hover:text-primary-foreground shadow-2xs"
+              className="h-8 sm:h-9 gap-1.5 px-2.5 sm:px-3 text-xs font-bold border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-primary hover:text-white dark:border-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 shadow-2xs"
               title={lang === "ar" ? "تكبير وتركيز كامل الشاشة" : "Full Screen Focus Mode"}
             >
               <Maximize2 className="size-3.5" />
@@ -413,7 +413,7 @@ function Simulator() {
                 <span className="size-1 sm:size-1.5 rounded-full bg-white" />
               </span>
               <span
-                className="absolute inset-0 -m-1.5 animate-ping rounded-2xl bg-primary/10"
+                className="absolute inset-0 -m-1.5 animate-ping rounded-2xl bg-emerald-400/30"
                 style={{ animationDuration: "2s" }}
               />
             </div>
@@ -476,7 +476,7 @@ function Simulator() {
                   "rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm leading-relaxed shadow-xs",
                   m.role === "user"
                     ? "rounded-tr-sm brand-gradient text-primary-foreground font-medium"
-                    : "rounded-tl-sm border border-border/70 bg-card text-foreground",
+                    : "rounded-tl-sm border border-border bg-card text-foreground",
                 )}
               >
                 <FormattedMessage content={m.content} isUser={m.role === "user"} />
@@ -490,7 +490,7 @@ function Simulator() {
             <div className="flex size-7 sm:size-8 shrink-0 items-center justify-center rounded-full border-2 border-border bg-card">
               <Bot className="size-3 sm:size-3.5 text-primary" />
             </div>
-            <div className="flex items-center gap-2 rounded-2xl rounded-tl-sm border border-border/70 bg-card px-3 py-2 sm:px-4 sm:py-2.5 shadow-xs">
+            <div className="flex items-center gap-2 rounded-2xl rounded-tl-sm border border-border bg-card px-3 py-2 sm:px-4 sm:py-2.5 shadow-xs">
               <span className="inline-flex gap-1.5">
                 <span className="size-1.5 animate-bounce rounded-full bg-primary [animation-delay:-0.3s]" />
                 <span className="size-1.5 animate-bounce rounded-full bg-primary [animation-delay:-0.15s]" />
@@ -506,7 +506,7 @@ function Simulator() {
 
       {/* Suggestion Chips - Only shown during active conversation */}
       {messages.length > 0 && (
-        <div className="shrink-0 flex items-center gap-1.5 overflow-x-auto border-t border-border/60 bg-secondary/30 px-3 py-1.5 sm:py-2 scrollbar-none">
+        <div className="shrink-0 flex items-center gap-1.5 overflow-x-auto border-t border-border bg-secondary px-3 py-1.5 sm:py-2 scrollbar-none">
           <span className="shrink-0 text-[10px] font-bold text-muted-foreground">
             {lang === "ar" ? "جرب:" : "Try:"}
           </span>
@@ -547,7 +547,7 @@ function Simulator() {
             "flex size-9 sm:size-10 shrink-0 items-center justify-center rounded-xl border-2 transition-all",
             listening
               ? "border-primary bg-primary text-primary-foreground animate-pulse"
-              : "border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-primary",
+              : "border-border bg-card text-muted-foreground hover:border-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-300",
           )}
         >
           <Mic className="size-4" />
@@ -581,9 +581,9 @@ function Simulator() {
     <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-start-4 duration-300">
       {/* Live Extracted Order */}
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-        <div className="flex items-center justify-between border-b border-border bg-secondary/40 px-4 py-3">
+        <div className="flex items-center justify-between border-b border-border bg-secondary px-4 py-3">
           <div className="flex items-center gap-2.5">
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 text-primary">
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-xl border border-emerald-300 bg-emerald-100 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
               <ShoppingBag className="size-4" />
             </div>
             <div>
@@ -608,7 +608,7 @@ function Simulator() {
         <div className="p-4">
           {lead ? (
             <div className="space-y-3">
-              <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 space-y-2">
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3 space-y-2 dark:border-emerald-800 dark:bg-emerald-950/30">
                 <Row k={t.crm.customerName} v={lead.customerName} />
                 <Row k={t.crm.customerPhone} v={lead.customerPhone || "—"} />
                 <Row k={t.crm.orderType} v={lead.orderType ?? "Delivery"} />
@@ -624,7 +624,7 @@ function Simulator() {
                     {(lead.items ?? []).map((item, idx) => (
                       <span
                         key={idx}
-                        className="rounded-lg border border-primary/20 bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary"
+                        className="rounded-lg border border-emerald-200 bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
                       >
                         {item}
                       </span>
@@ -634,14 +634,14 @@ function Simulator() {
               )}
               <Link
                 to="/analytics"
-                className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-border bg-secondary/60 px-3 py-2 text-xs font-bold text-foreground transition-colors hover:border-primary/50 hover:bg-secondary"
+                className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-border bg-secondary px-3 py-2 text-xs font-bold text-foreground transition-colors hover:border-emerald-500 hover:bg-secondary"
               >
                 <span>{lang === "ar" ? "عرض في سجل المبيعات" : "Open in Sales CRM"}</span>
                 <ExternalLink className="size-3.5 text-primary" />
               </Link>
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-border bg-secondary/20 px-3 py-6 text-center">
+            <div className="rounded-xl border border-dashed border-border bg-secondary/50 px-3 py-6 text-center">
               <div className="mx-auto mb-3 flex size-10 items-center justify-center rounded-xl bg-secondary text-muted-foreground/50">
                 <ShoppingBag className="size-5" />
               </div>
@@ -658,7 +658,7 @@ function Simulator() {
 
       {/* Quick Test Scenarios */}
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-        <div className="flex items-center gap-2.5 border-b border-border bg-secondary/40 px-4 py-3">
+        <div className="flex items-center gap-2.5 border-b border-border bg-secondary px-4 py-3">
           <div className="flex size-8 shrink-0 items-center justify-center rounded-xl border border-amber-400/30 bg-amber-500/10 text-amber-600">
             <Zap className="size-4" />
           </div>
@@ -700,7 +700,7 @@ function Simulator() {
 
       {/* Agent Persona */}
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-        <div className="flex items-center gap-2.5 border-b border-border bg-secondary/40 px-4 py-3">
+        <div className="flex items-center gap-2.5 border-b border-border bg-secondary px-4 py-3">
           <div className="flex size-8 shrink-0 items-center justify-center rounded-xl border border-violet-400/30 bg-violet-500/10 text-violet-600">
             <Layers className="size-4" />
           </div>
@@ -717,7 +717,7 @@ function Simulator() {
           {[
             {
               label: activeBrand?.role ?? "Advisor",
-              cls: "border-primary/20 bg-primary/8 text-primary",
+              cls: "border-emerald-200 bg-emerald-100 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
             },
             {
               label: activeBrand?.dialect ?? "Egyptian Arabic",
@@ -731,7 +731,7 @@ function Simulator() {
               label:
                 AVAILABLE_LLM_MODELS.find((m) => m.id === activeBrand?.llmModel)?.name ||
                 "Gemini 3.7 Flash",
-              cls: "border-primary/30 bg-primary/10 text-primary font-mono",
+              cls: "border-emerald-300 bg-emerald-100 text-emerald-800 font-mono dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
             },
             {
               label: `${activeBrand?.menuItems?.length ?? 0} ${lang === "ar" ? "عنصر في القائمة" : "Catalog items"}`,
@@ -804,7 +804,7 @@ function Simulator() {
                   }
                 }}
               >
-                <SelectTrigger className="h-9 w-32 sm:w-44 border-primary/30 bg-primary/5 text-xs font-bold text-primary">
+                <SelectTrigger className="h-9 w-32 sm:w-44 border-emerald-300 bg-emerald-50 text-xs font-bold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
                   <div className="flex items-center gap-1.5 truncate">
                     <Sparkles className="size-3.5 shrink-0 text-primary" />
                     <SelectValue placeholder="Model" />
@@ -911,7 +911,7 @@ function Simulator() {
 
 function Row({ k, v, isBold = false }: { k: string; v: string; isBold?: boolean }) {
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-border/50 pb-2 last:border-b-0 last:pb-0">
+    <div className="flex items-center justify-between gap-3 border-b border-border pb-2 last:border-b-0 last:pb-0">
       <dt className="text-[11px] font-semibold text-muted-foreground shrink-0">{k}</dt>
       <dd
         className={cn(

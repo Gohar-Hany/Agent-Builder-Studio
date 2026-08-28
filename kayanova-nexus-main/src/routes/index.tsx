@@ -235,7 +235,7 @@ function Dashboard() {
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  className="text-destructive hover:bg-rose-100 dark:hover:bg-rose-950 hover:text-destructive"
                   onClick={() => setBrandToDelete({ id: activeBrand.id, name: activeBrand.name })}
                 >
                   <Trash2 className="size-3.5 me-1" />
@@ -307,7 +307,7 @@ function Dashboard() {
                 <article
                   key={brand.id}
                   className={`group relative overflow-hidden rounded-2xl border bg-card p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 ${
-                    isActive ? "border-primary/30 ring-1 ring-primary/20" : "border-border"
+                    isActive ? "border-emerald-400 ring-1 ring-emerald-300" : "border-border"
                   }`}
                 >
                   {isActive && <div className="absolute inset-x-0 top-0 h-[2px] brand-gradient" />}
@@ -345,7 +345,7 @@ function Dashboard() {
                   <div className="mt-4 flex items-center gap-2">
                     <button
                       onClick={() => copyPhone(brand.contactInfo?.phone)}
-                      className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-border bg-secondary/50 px-3 py-2 text-sm transition-colors hover:bg-accent hover:border-primary/20"
+                      className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-border bg-secondary/50 px-3 py-2 text-sm transition-colors hover:bg-accent hover:border-emerald-300"
                     >
                       <Phone className="size-3.5 shrink-0 text-muted-foreground" />
                       <span className="truncate font-medium">
@@ -368,7 +368,7 @@ function Dashboard() {
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                      className="text-destructive hover:bg-rose-100 dark:hover:bg-rose-950 hover:text-destructive"
                       title={lang === "ar" ? `حذف الوكيل ${brand.name}` : `Delete ${brand.name}`}
                       aria-label={`Delete ${brand.name}`}
                       onClick={() => setBrandToDelete({ id: brand.id, name: brand.name })}
@@ -388,7 +388,7 @@ function Dashboard() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
           <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl space-y-4">
             <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-destructive/10 text-destructive shrink-0">
+              <div className="flex size-10 items-center justify-center rounded-xl bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 shrink-0">
                 <Trash2 className="size-5" />
               </div>
               <div>
