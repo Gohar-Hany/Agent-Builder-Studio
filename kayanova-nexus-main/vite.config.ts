@@ -25,4 +25,8 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    target: ["es2015", "chrome60", "safari11", "firefox60"],
+    cssTarget: ["chrome60", "safari11", "firefox60"],
+  },
 });
