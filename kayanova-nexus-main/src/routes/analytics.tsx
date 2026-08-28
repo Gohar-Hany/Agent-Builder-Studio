@@ -984,28 +984,23 @@ function DualCrmPage() {
           {/* DESKTOP CONTACTS TABLE */}
           <div className="hidden md:block surface overflow-hidden rounded-xl border border-border">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[950px] text-start text-sm">
-                <thead className="bg-secondary/60 text-xs font-semibold uppercase text-muted-foreground">
+              <table className="w-full min-w-[860px] text-start text-sm">
+                <thead className="bg-secondary/60 text-xs font-semibold uppercase text-muted-foreground border-b border-border">
                   <tr>
-                    <th className="px-4 py-3">{t.crm.customerName}</th>
-                    <th className="px-4 py-3">{t.crm.customerPhone}</th>
-                    <th className="px-4 py-3">{t.dashboard.directoryTitle}</th>
-                    <th className="px-4 py-3">{t.crm.filterChannel}</th>
-                    <th className="px-4 py-3">
-                      {lang === "ar" ? "موضوع الاستفسار" : "Inquired Topic"}
-                    </th>
-                    <th className="px-4 py-3">{t.crm.filterStage}</th>
-                    <th className="px-4 py-3">
-                      {lang === "ar" ? "الطلبات والمشتريات" : "Orders & Spend"}
-                    </th>
-                    <th className="px-4 py-3">{t.crm.time}</th>
-                    <th className="px-4 py-3 text-end">{t.actions}</th>
+                    <th className="px-4 py-3.5">{t.crm.customerName} & {t.crm.customerPhone}</th>
+                    <th className="px-4 py-3.5">{t.dashboard.directoryTitle}</th>
+                    <th className="px-4 py-3.5">{t.crm.filterChannel}</th>
+                    <th className="px-4 py-3.5">{lang === "ar" ? "موضوع الاستفسار" : "Inquired Topic"}</th>
+                    <th className="px-4 py-3.5">{t.crm.filterStage}</th>
+                    <th className="px-4 py-3.5">{lang === "ar" ? "إجمالي المشتريات" : "Total Spend"}</th>
+                    <th className="px-4 py-3.5">{t.crm.time}</th>
+                    <th className="px-4 py-3.5 text-end">{t.actions}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {filteredContacts.length === 0 ? (
                     <tr>
-                      <td colSpan={9} className="px-4 py-16 text-center">
+                      <td colSpan={8} className="px-4 py-16 text-center">
                         <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-2xl bg-secondary text-muted-foreground/60">
                           <Users className="size-6" />
                         </div>
@@ -1020,52 +1015,45 @@ function DualCrmPage() {
                   ) : (
                     filteredContacts.map((c) => (
                       <tr key={c.id} className="transition-colors hover:bg-secondary/30">
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2.5">
-                            <div className="flex size-8.5 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white font-bold text-xs shadow-2xs">
-                              {c.customerName?.charAt(0) || "U"}
-                            </div>
-                            <div className="min-w-0">
-                              <p className="font-bold text-sm text-foreground truncate">{c.customerName}</p>
-                              <p className="text-[11px] text-muted-foreground truncate">
-                                {c.email || (lang === "ar" ? "عميل معتمد" : "Verified Lead")}
-                              </p>
+                        {/* 1. Customer Name + Phone */}
+                        <td className="px-4 py-3.5">
+                          <div className="flex flex-col gap-0.5">
+                            <p className="font-bold text-sm text-foreground">{c.customerName}</p>
+                            <div className="flex items-center gap-1.5 font-mono text-xs text-muted-foreground">
+                              <span>{c.customerPhone || "—"}</span>
+                              {c.customerPhone ? (
+                                <div className="flex items-center gap-1">
+                                  <a
+                                    href={`https://wa.me/${c.customerPhone.replace(/[^0-9]/g, "")}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-emerald-600 hover:text-emerald-700 transition-colors"
+                                    title="WhatsApp"
+                                  >
+                                    <MessageCircle className="size-3.5" />
+                                  </a>
+                                  <a
+                                    href={`tel:${c.customerPhone}`}
+                                    className="text-blue-600 hover:text-blue-700 transition-colors"
+                                    title="Call"
+                                  >
+                                    <Phone className="size-3.5" />
+                                  </a>
+                                </div>
+                              ) : null}
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-xs font-bold text-foreground">
-                              {c.customerPhone || "—"}
-                            </span>
-                            {c.customerPhone ? (
-                              <div className="flex items-center gap-1">
-                                <a
-                                  href={`https://wa.me/${c.customerPhone.replace(/[^0-9]/g, "")}`}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="inline-flex size-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800 transition-all hover:bg-emerald-200 active:scale-90 dark:bg-emerald-950 dark:text-emerald-300"
-                                  title="WhatsApp"
-                                >
-                                  <MessageCircle className="size-3.5" />
-                                </a>
-                                <a
-                                  href={`tel:${c.customerPhone}`}
-                                  className="inline-flex size-7 items-center justify-center rounded-lg bg-blue-100 text-blue-800 transition-all hover:bg-blue-200 active:scale-90 dark:bg-blue-950 dark:text-blue-300"
-                                  title="Call"
-                                >
-                                  <Phone className="size-3.5" />
-                                </a>
-                              </div>
-                            ) : null}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
+
+                        {/* 2. Brand Directory */}
+                        <td className="px-4 py-3.5 whitespace-nowrap">
                           <Badge variant="secondary" className="font-medium text-xs">
                             {brandName(c.brandId)}
                           </Badge>
                         </td>
-                        <td className="px-4 py-3">
+
+                        {/* 3. Channel */}
+                        <td className="px-4 py-3.5 whitespace-nowrap">
                           {c.channel === "whatsapp" && (
                             <span className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
                               <MessageCircle className="size-3.5 text-emerald-600 dark:text-emerald-400" />
@@ -1081,7 +1069,7 @@ function DualCrmPage() {
                           {c.channel === "web" && (
                             <span className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-800 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300">
                               <Globe className="size-3.5 text-blue-600 dark:text-blue-400" />
-                              <span>Web AI Chat</span>
+                              <span>Web Chat</span>
                             </span>
                           )}
                           {c.channel === "phone" && (
@@ -1091,25 +1079,21 @@ function DualCrmPage() {
                             </span>
                           )}
                         </td>
-                        <td className="max-w-[200px] px-4 py-3">
-                          <div className="flex flex-col gap-1">
-                            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-foreground">
-                              <MessageSquare className="size-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                              <span className="truncate" title={c.intent || "—"}>
-                                {c.intent || (lang === "ar" ? "استفسار عام" : "General Inquiry")}
-                              </span>
-                            </div>
-                            {c.notes ? (
-                              <p
-                                className="truncate rounded bg-secondary/80 px-1.5 py-0.5 text-[11px] text-muted-foreground border border-border/40"
-                                title={c.notes}
-                              >
-                                {c.notes}
-                              </p>
-                            ) : null}
-                          </div>
+
+                        {/* 4. Inquired Topic */}
+                        <td className="max-w-[190px] px-4 py-3.5">
+                          <p className="truncate text-xs font-medium text-foreground" title={c.intent || "—"}>
+                            {c.intent || "—"}
+                          </p>
+                          {c.notes ? (
+                            <p className="truncate text-[11px] text-muted-foreground mt-0.5" title={c.notes}>
+                              {c.notes}
+                            </p>
+                          ) : null}
                         </td>
-                        <td className="px-4 py-3">
+
+                        {/* 5. Lead Stage */}
+                        <td className="px-4 py-3.5 whitespace-nowrap">
                           <Select
                             value={c.stage}
                             onValueChange={(val) =>
@@ -1118,7 +1102,7 @@ function DualCrmPage() {
                           >
                             <SelectTrigger
                               className={cn(
-                                "h-8.5 w-36 min-w-[130px] rounded-xl text-xs font-bold px-3 gap-1.5 shadow-2xs transition-all",
+                                "h-8.5 w-34 min-w-[125px] rounded-xl text-xs font-bold px-3 gap-1.5 shadow-2xs transition-all",
                                 c.stage === "New Lead" &&
                                   "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-300",
                                 c.stage === "Contacted" &&
@@ -1142,21 +1126,26 @@ function DualCrmPage() {
                             </SelectContent>
                           </Select>
                         </td>
-                        <td className="px-4 py-3 text-xs">
-                          <div className="flex flex-col gap-0.5">
-                            <div className="flex items-center gap-1 font-bold text-foreground">
-                              <ShoppingBag className="size-3 text-emerald-600 shrink-0" />
-                              <span>{c.totalOrdersCount ?? 0} {lang === "ar" ? "طلبات" : "orders"}</span>
-                            </div>
-                            <span className="font-semibold text-emerald-700 dark:text-emerald-300">
+
+                        {/* 6. Total Spend & Orders (Single clean line) */}
+                        <td className="px-4 py-3.5 whitespace-nowrap">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-sm text-foreground">
                               {egp(c.totalSpent ?? 0, lang)}
+                            </span>
+                            <span className="text-xs text-muted-foreground font-normal">
+                              ({c.totalOrdersCount ?? 0} {lang === "ar" ? "طلب" : "orders"})
                             </span>
                           </div>
                         </td>
-                        <td className="whitespace-nowrap px-4 py-3 text-xs font-medium text-muted-foreground">
+
+                        {/* 7. Timestamp */}
+                        <td className="whitespace-nowrap px-4 py-3.5 text-xs font-medium text-muted-foreground">
                           {relativeTime(c.lastContactAt, lang)}
                         </td>
-                        <td className="px-4 py-3 text-end">
+
+                        {/* 8. Actions */}
+                        <td className="px-4 py-3.5 text-end">
                           <div className="flex items-center justify-end gap-1">
                             <Button
                               variant="ghost"
