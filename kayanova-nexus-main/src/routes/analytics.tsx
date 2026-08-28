@@ -12,6 +12,7 @@ import {
   Instagram,
   MapPin,
   MessageCircle,
+  MessageSquare,
   Package,
   Phone,
   Plus,
@@ -1020,15 +1021,22 @@ function DualCrmPage() {
                     filteredContacts.map((c) => (
                       <tr key={c.id} className="transition-colors hover:bg-secondary/30">
                         <td className="px-4 py-3">
-                          <p className="font-semibold text-foreground">{c.customerName}</p>
-                          {c.email ? (
-                            <p className="text-xs text-muted-foreground">{c.email}</p>
-                          ) : null}
+                          <div className="flex items-center gap-2.5">
+                            <div className="flex size-8.5 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white font-bold text-xs shadow-2xs">
+                              {c.customerName?.charAt(0) || "U"}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-bold text-sm text-foreground truncate">{c.customerName}</p>
+                              <p className="text-[11px] text-muted-foreground truncate">
+                                {c.email || (lang === "ar" ? "عميل معتمد" : "Verified Lead")}
+                              </p>
+                            </div>
+                          </div>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <span className="font-mono text-xs font-medium text-foreground">
-                              {c.customerPhone}
+                            <span className="font-mono text-xs font-bold text-foreground">
+                              {c.customerPhone || "—"}
                             </span>
                             {c.customerPhone ? (
                               <div className="flex items-center gap-1">
@@ -1036,14 +1044,14 @@ function DualCrmPage() {
                                   href={`https://wa.me/${c.customerPhone.replace(/[^0-9]/g, "")}`}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="inline-flex size-6 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-600 transition-colors hover:bg-emerald-500/20"
+                                  className="inline-flex size-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800 transition-all hover:bg-emerald-200 active:scale-90 dark:bg-emerald-950 dark:text-emerald-300"
                                   title="WhatsApp"
                                 >
                                   <MessageCircle className="size-3.5" />
                                 </a>
                                 <a
                                   href={`tel:${c.customerPhone}`}
-                                  className="inline-flex size-6 items-center justify-center rounded-md bg-blue-500/10 text-blue-600 transition-colors hover:bg-blue-500/20"
+                                  className="inline-flex size-7 items-center justify-center rounded-lg bg-blue-100 text-blue-800 transition-all hover:bg-blue-200 active:scale-90 dark:bg-blue-950 dark:text-blue-300"
                                   title="Call"
                                 >
                                   <Phone className="size-3.5" />
@@ -1058,33 +1066,48 @@ function DualCrmPage() {
                           </Badge>
                         </td>
                         <td className="px-4 py-3">
-                          <div className="flex items-center gap-1.5">
-                            {c.channel === "whatsapp" && (
-                              <MessageCircle className="size-3.5 text-emerald-500" />
-                            )}
-                            {c.channel === "instagram" && (
-                              <Instagram className="size-3.5 text-pink-500" />
-                            )}
-                            {c.channel === "web" && <Globe className="size-3.5 text-blue-500" />}
-                            {c.channel === "phone" && <Phone className="size-3.5 text-amber-500" />}
-                            <span className="capitalize text-xs font-medium">{c.channel}</span>
-                          </div>
+                          {c.channel === "whatsapp" && (
+                            <span className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
+                              <MessageCircle className="size-3.5 text-emerald-600 dark:text-emerald-400" />
+                              <span>WhatsApp</span>
+                            </span>
+                          )}
+                          {c.channel === "instagram" && (
+                            <span className="inline-flex items-center gap-1.5 rounded-lg border border-pink-200 bg-pink-50 px-2.5 py-1 text-xs font-bold text-pink-800 dark:border-pink-800 dark:bg-pink-950/40 dark:text-pink-300">
+                              <Instagram className="size-3.5 text-pink-600 dark:text-pink-400" />
+                              <span>Instagram</span>
+                            </span>
+                          )}
+                          {c.channel === "web" && (
+                            <span className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-800 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300">
+                              <Globe className="size-3.5 text-blue-600 dark:text-blue-400" />
+                              <span>Web AI Chat</span>
+                            </span>
+                          )}
+                          {c.channel === "phone" && (
+                            <span className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+                              <Phone className="size-3.5 text-amber-600 dark:text-amber-400" />
+                              <span>Direct Phone</span>
+                            </span>
+                          )}
                         </td>
-                        <td className="max-w-[180px] px-4 py-3">
-                          <p
-                            className="truncate text-xs font-medium text-foreground"
-                            title={c.intent}
-                          >
-                            {c.intent}
-                          </p>
-                          {c.notes ? (
-                            <p
-                              className="truncate text-[11px] text-muted-foreground"
-                              title={c.notes}
-                            >
-                              {c.notes}
-                            </p>
-                          ) : null}
+                        <td className="max-w-[200px] px-4 py-3">
+                          <div className="flex flex-col gap-1">
+                            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                              <MessageSquare className="size-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                              <span className="truncate" title={c.intent || "—"}>
+                                {c.intent || (lang === "ar" ? "استفسار عام" : "General Inquiry")}
+                              </span>
+                            </div>
+                            {c.notes ? (
+                              <p
+                                className="truncate rounded bg-secondary/80 px-1.5 py-0.5 text-[11px] text-muted-foreground border border-border/40"
+                                title={c.notes}
+                              >
+                                {c.notes}
+                              </p>
+                            ) : null}
+                          </div>
                         </td>
                         <td className="px-4 py-3">
                           <Select
@@ -1120,10 +1143,15 @@ function DualCrmPage() {
                           </Select>
                         </td>
                         <td className="px-4 py-3 text-xs">
-                          <p className="font-semibold text-foreground">
-                            {c.totalOrdersCount ?? 0} {lang === "ar" ? "طلبات" : "orders"}
-                          </p>
-                          <p className="text-muted-foreground">{egp(c.totalSpent ?? 0, lang)}</p>
+                          <div className="flex flex-col gap-0.5">
+                            <div className="flex items-center gap-1 font-bold text-foreground">
+                              <ShoppingBag className="size-3 text-emerald-600 shrink-0" />
+                              <span>{c.totalOrdersCount ?? 0} {lang === "ar" ? "طلبات" : "orders"}</span>
+                            </div>
+                            <span className="font-semibold text-emerald-700 dark:text-emerald-300">
+                              {egp(c.totalSpent ?? 0, lang)}
+                            </span>
+                          </div>
                         </td>
                         <td className="whitespace-nowrap px-4 py-3 text-xs font-medium text-muted-foreground">
                           {relativeTime(c.lastContactAt, lang)}
@@ -1180,11 +1208,16 @@ function DualCrmPage() {
                 >
                   {/* Card Header: Customer + Stage */}
                   <div className="flex items-center justify-between gap-2 border-b border-border/50 pb-2.5">
-                    <div>
-                      <p className="font-bold text-sm text-foreground">{c.customerName}</p>
-                      {c.email ? (
-                        <p className="text-[11px] text-muted-foreground">{c.email}</p>
-                      ) : null}
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white font-bold text-xs shadow-2xs">
+                        {c.customerName?.charAt(0) || "U"}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-bold text-sm text-foreground truncate">{c.customerName}</p>
+                        <p className="text-[11px] text-muted-foreground truncate">
+                          {c.email || (lang === "ar" ? "عميل معتمد" : "Verified Lead")}
+                        </p>
+                      </div>
                     </div>
                     <Select
                       value={c.stage}
@@ -1220,47 +1253,62 @@ function DualCrmPage() {
                   </div>
 
                   {/* Phone & Fast Action Buttons (WhatsApp + Call) */}
-                  <div className="flex items-center justify-between rounded-lg bg-secondary/50 px-3 py-2">
-                    <span className="font-mono text-xs font-semibold text-foreground">
-                      {c.customerPhone}
+                  <div className="flex items-center justify-between rounded-xl bg-secondary/60 px-3 py-2 border border-border/50">
+                    <span className="font-mono text-xs font-bold text-foreground">
+                      {c.customerPhone || "—"}
                     </span>
-                    <div className="flex items-center gap-1.5">
-                      <a
-                        href={`https://wa.me/${c.customerPhone.replace(/[^0-9]/g, "")}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-2.5 py-1 text-xs font-semibold text-emerald-600 transition-colors hover:bg-emerald-500/25"
-                      >
-                        <MessageCircle className="size-3.5" />
-                        <span>WhatsApp</span>
-                      </a>
-                      <a
-                        href={`tel:${c.customerPhone}`}
-                        className="inline-flex items-center gap-1 rounded-md bg-blue-500/15 px-2.5 py-1 text-xs font-semibold text-blue-600 transition-colors hover:bg-blue-500/25"
-                      >
-                        <Phone className="size-3.5" />
-                        <span>{lang === "ar" ? "اتصال" : "Call"}</span>
-                      </a>
-                    </div>
+                    {c.customerPhone ? (
+                      <div className="flex items-center gap-1.5">
+                        <a
+                          href={`https://wa.me/${c.customerPhone.replace(/[^0-9]/g, "")}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 rounded-lg bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-800 transition-all hover:bg-emerald-200 active:scale-95 dark:bg-emerald-950 dark:text-emerald-300"
+                        >
+                          <MessageCircle className="size-3.5" />
+                          <span>WhatsApp</span>
+                        </a>
+                        <a
+                          href={`tel:${c.customerPhone}`}
+                          className="inline-flex items-center gap-1 rounded-lg bg-blue-100 px-2.5 py-1 text-xs font-bold text-blue-800 transition-all hover:bg-blue-200 active:scale-95 dark:bg-blue-950 dark:text-blue-300"
+                        >
+                          <Phone className="size-3.5" />
+                          <span>{lang === "ar" ? "اتصال" : "Call"}</span>
+                        </a>
+                      </div>
+                    ) : null}
                   </div>
 
                   {/* Brand & Channel & Time */}
                   <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5">
-                      <Badge variant="secondary" className="text-[11px] font-medium">
+                      <Badge variant="secondary" className="text-xs font-medium">
                         {brandName(c.brandId)}
                       </Badge>
-                      <span className="flex items-center gap-1 text-[11px] text-muted-foreground capitalize">
-                        {c.channel === "whatsapp" && (
-                          <MessageCircle className="size-3 text-emerald-500" />
-                        )}
-                        {c.channel === "instagram" && (
-                          <Instagram className="size-3 text-pink-500" />
-                        )}
-                        {c.channel === "web" && <Globe className="size-3 text-blue-500" />}
-                        {c.channel === "phone" && <Phone className="size-3 text-amber-500" />}
-                        {c.channel}
-                      </span>
+                      {c.channel === "whatsapp" && (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
+                          <MessageCircle className="size-3" />
+                          <span>WhatsApp</span>
+                        </span>
+                      )}
+                      {c.channel === "instagram" && (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-pink-50 px-2 py-0.5 text-[11px] font-bold text-pink-800 border border-pink-200 dark:border-pink-800 dark:bg-pink-950/40 dark:text-pink-300">
+                          <Instagram className="size-3" />
+                          <span>Instagram</span>
+                        </span>
+                      )}
+                      {c.channel === "web" && (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-800 border border-blue-200 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300">
+                          <Globe className="size-3" />
+                          <span>Web</span>
+                        </span>
+                      )}
+                      {c.channel === "phone" && (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-800 border border-amber-200 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+                          <Phone className="size-3" />
+                          <span>Phone</span>
+                        </span>
+                      )}
                     </div>
                     <span className="text-muted-foreground text-xs font-medium">
                       {relativeTime(c.lastContactAt, lang)}
@@ -1269,23 +1317,25 @@ function DualCrmPage() {
 
                   {/* Intent / Topic Note */}
                   {c.intent ? (
-                    <div className="rounded-lg bg-secondary/30 p-2 text-xs">
-                      <p className="text-[10px] font-semibold text-muted-foreground uppercase">
-                        {lang === "ar" ? "موضوع الاستفسار:" : "Topic / Inquiry:"}
+                    <div className="rounded-xl bg-secondary/40 border border-border/50 p-2.5 text-xs">
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-1">
+                        <MessageSquare className="size-3 text-emerald-600" />
+                        <span>{lang === "ar" ? "موضوع الاستفسار:" : "Topic / Inquiry:"}</span>
                       </p>
-                      <p className="text-foreground line-clamp-2 mt-0.5">{c.intent}</p>
+                      <p className="text-foreground line-clamp-2 mt-1 font-medium">{c.intent}</p>
                     </div>
                   ) : null}
 
                   {/* Orders and Spend Stats */}
                   <div className="flex items-center justify-between pt-1 border-t border-border/40 text-xs">
-                    <div>
+                    <div className="flex items-center gap-1">
+                      <ShoppingBag className="size-3.5 text-emerald-600" />
                       <span className="text-muted-foreground">{t.crm.tabOrders}: </span>
                       <span className="font-bold text-foreground">{c.totalOrdersCount ?? 0}</span>
                     </div>
                     <div>
                       <span className="text-muted-foreground">{t.crm.totalRevenue}: </span>
-                      <span className="font-bold text-foreground">
+                      <span className="font-bold text-emerald-700 dark:text-emerald-300">
                         {egp(c.totalSpent ?? 0, lang)}
                       </span>
                     </div>
