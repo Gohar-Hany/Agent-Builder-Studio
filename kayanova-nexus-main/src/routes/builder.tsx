@@ -518,10 +518,13 @@ function Section({
   accentColor?: "primary" | "blue" | "amber" | "violet";
 }) {
   const colorMap = {
-    primary: "text-primary bg-primary/10 border-primary/20",
-    blue: "text-blue-600 bg-blue-500/10 border-blue-500/20",
-    amber: "text-amber-600 bg-amber-500/10 border-amber-500/20",
-    violet: "text-violet-600 bg-violet-500/10 border-violet-500/20",
+    primary:
+      "text-emerald-800 bg-emerald-100 border-emerald-200 dark:text-emerald-300 dark:bg-emerald-950 dark:border-emerald-800",
+    blue: "text-blue-800 bg-blue-100 border-blue-200 dark:text-blue-300 dark:bg-blue-950 dark:border-blue-800",
+    amber:
+      "text-amber-800 bg-amber-100 border-amber-200 dark:text-amber-300 dark:bg-amber-950 dark:border-amber-800",
+    violet:
+      "text-purple-800 bg-purple-100 border-purple-200 dark:text-purple-300 dark:bg-purple-950 dark:border-purple-800",
   };
   return (
     <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">

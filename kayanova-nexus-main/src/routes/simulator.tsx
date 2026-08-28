@@ -132,7 +132,7 @@ function Simulator() {
         : lang === "ar"
           ? `أنا مهتم بالخدمة وعايز أطلبها، اسمي كريم وتليفوني 01012345678، إيه الخطوات؟`
           : `I am interested in your services and would like to proceed. Name: Karim, Phone: 01012345678`,
-      chipCls: "border-primary/25 bg-primary/8 text-primary hover:bg-primary/15",
+      chipCls: "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300",
     },
     {
       icon: MapPin,
@@ -174,8 +174,8 @@ function Simulator() {
         : lang === "ar"
           ? `حابب أطلب الخدمة وأتعاقد فوراً، اسمي كريم ورقمي 01098765432 والعنوان التجمع الخامس`
           : `I would like to order your service immediately. Name: Karim, Phone: 01098765432, New Cairo`,
-      cardCls: "border-primary/30 bg-primary/5",
-      tagCls: "bg-primary/15 text-primary",
+      cardCls: "border-emerald-200 bg-emerald-50/50 dark:border-emerald-800 dark:bg-emerald-950/20",
+      tagCls: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200",
     },
     {
       category: lang === "ar" ? "استفسار عن الأسعار والمواعيد" : "Pricing & Availability",

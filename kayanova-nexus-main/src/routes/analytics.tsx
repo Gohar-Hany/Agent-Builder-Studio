@@ -406,12 +406,12 @@ function DualCrmPage() {
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             {/* Revenue */}
             <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-              <div className="border-b-2 border-primary/20 bg-primary/5 px-4 py-3">
+              <div className="border-b-2 border-emerald-200 bg-emerald-50/60 px-4 py-3 dark:border-emerald-800 dark:bg-emerald-950/20">
                 <div className="flex items-center justify-between">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-primary/70">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
                     {t.crm.totalRevenue}
                   </p>
-                  <div className="flex size-8 items-center justify-center rounded-xl bg-primary/15 text-primary">
+                  <div className="flex size-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
                     <ShoppingBag className="size-4" />
                   </div>
                 </div>
@@ -787,12 +787,12 @@ function DualCrmPage() {
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             {/* Total Leads */}
             <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-              <div className="border-b-2 border-primary/20 bg-primary/5 px-4 py-3">
+              <div className="border-b-2 border-emerald-200 bg-emerald-50/60 px-4 py-3 dark:border-emerald-800 dark:bg-emerald-950/20">
                 <div className="flex items-center justify-between">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-primary/70">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
                     {t.crm.totalLeads}
                   </p>
-                  <div className="flex size-8 items-center justify-center rounded-xl bg-primary/15 text-primary">
+                  <div className="flex size-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
                     <Users className="size-4" />
                   </div>
                 </div>

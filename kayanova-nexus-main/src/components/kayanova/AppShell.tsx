@@ -101,7 +101,7 @@ export function AppShell({
       <aside
         className={cn(
           "fixed inset-y-0 start-0 z-30 hidden flex-col border-e border-border bg-sidebar transition-all duration-300 lg:flex",
-          "shadow-[1px_0_0_0_var(--color-border),4px_0_24px_oklch(0.15_0.03_255/0.06)]",
+          "shadow-[1px_0_0_0_var(--color-border),4px_0_24px_rgba(4,11,24,0.06)]",
           collapsed ? "w-18 px-2 py-5 items-center" : "w-64 px-4 py-6",
         )}
       >
@@ -138,39 +138,60 @@ export function AppShell({
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}
-            className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-secondary"
-            title={collapsed ? t.nav.expandSidebar : t.nav.collapseSidebar}
+            className="size-7 text-muted-foreground hover:text-foreground shrink-0"
+            title={collapsed ? t.expandSidebar : t.collapseSidebar}
           >
             {collapsed ? (
-              <PanelLeftOpen className={cn("size-4 text-primary", isRtl && "scale-x-[-1]")} />
+              <PanelLeftOpen className="size-4" />
             ) : (
-              <PanelLeftClose className={cn("size-4", isRtl && "scale-x-[-1]")} />
+              <PanelLeftClose className="size-4" />
             )}
           </Button>
         </div>
 
+        {/* Global Search / Command Menu Trigger */}
+        {!collapsed && (
+          <button
+            onClick={() => setOpen(true)}
+            className="mt-4 flex w-full items-center justify-between gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground shadow-2xs transition-colors hover:border-primary/40 hover:text-foreground hover:bg-accent/40"
+          >
+            <span className="flex items-center gap-2">
+              <Search className="size-3.5" />
+              <span>{t.searchPlaceholder}</span>
+            </span>
+            <kbd className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+              ⌘K
+            </kbd>
+          </button>
+        )}
+
         {/* Navigation Links */}
-        <nav className={cn("mt-7 flex flex-col gap-1 w-full", collapsed && "items-center")}>
+        <nav className="mt-5 flex flex-col gap-1 w-full flex-1">
           {NAV.map((item) => {
-            const active = pathname === item.to;
+            const Icon = item.icon;
+            const active =
+              item.to === "/"
+                ? pathname === "/"
+                : pathname.startsWith(item.to);
+
             return (
               <Link
                 key={item.to}
                 to={item.to}
                 title={collapsed ? item.label : undefined}
                 className={cn(
-                  "group flex items-center gap-3 rounded-xl text-sm font-semibold transition-all duration-150",
-                  collapsed ? "size-10 justify-center px-0" : "px-3.5 py-2.5 w-full",
+                  "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-semibold transition-all duration-150",
                   active
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-foreground/70 hover:bg-sidebar-accent hover:text-foreground",
+                    ? "brand-gradient text-white shadow-xs font-bold"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                  collapsed && "justify-center px-2",
                 )}
               >
-                <item.icon
+                <Icon
                   className={cn(
                     "size-4 shrink-0 transition-colors",
                     active
-                      ? "text-primary-foreground"
+                      ? "text-white"
                       : "text-muted-foreground group-hover:text-foreground",
                   )}
                 />
@@ -185,15 +206,15 @@ export function AppShell({
           {/* AI Runtime Status Box */}
           {collapsed ? (
             <div
-              className="flex size-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary mx-auto"
+              className="flex size-10 items-center justify-center rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-300 mx-auto"
               title={t.tagline}
             >
               <Bot className="size-5" />
             </div>
           ) : (
-            <div className="rounded-2xl border border-primary/20 bg-primary/8 p-3">
+            <div className="rounded-2xl border border-border bg-card p-3 shadow-xs">
               <div className="flex items-center gap-2">
-                <div className="flex size-7 items-center justify-center rounded-lg bg-primary/15 text-primary">
+                <div className="flex size-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
                   <Bot className="size-3.5" />
                 </div>
                 <p className="text-xs font-bold text-foreground">
@@ -219,7 +240,7 @@ export function AppShell({
           collapsed ? "lg:ps-18" : "lg:ps-64",
         )}
       >
-        <header className="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur-md shadow-[0_1px_0_0_var(--color-border),0_2px_8px_oklch(0.15_0.03_255/0.06)] w-full max-w-full overflow-x-hidden">
+        <header className="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur-md shadow-[0_1px_0_0_var(--color-border),0_2px_8px_rgba(4,11,24,0.06)] w-full max-w-full overflow-x-hidden">
           {/* Top Bar on Mobile */}
           <div className="flex items-center justify-between border-b border-border/50 px-4 py-2.5 lg:hidden">
             <Link to="/" className="flex items-center gap-2.5">
