@@ -2102,7 +2102,7 @@ function PreviewStep({
         {/* Deployment note */}
         <p className="text-center text-[11px] text-muted-foreground leading-relaxed">
           {lang === "ar"
-            ? "💡 ربط قنوات واتساب وإنستغرام يتم بربط رسمي Meta Cloud API لضمان استقرار الخدمة وتفادي الحظر."
+            ? "ربط قنوات واتساب وإنستغرام يتم بربط رسمي Meta Cloud API لضمان استقرار الخدمة وتفادي الحظر."
             : "Official Meta Cloud API integration ensures reliability and zero ban risk."}
         </p>
       </Section>

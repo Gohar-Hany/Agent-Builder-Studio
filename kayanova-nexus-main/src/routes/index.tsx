@@ -86,8 +86,8 @@ function Dashboard() {
             ? `لوحة التحكم: ${activeBrand.name}`
             : `${activeBrand.name} Control Center`
           : lang === "ar"
-            ? "لوحة القيادة التنفيذية للوكلاء الأذكياء"
-            : "Executive AI Operations Dashboard"
+            ? "لوحة القيادة التنفيذية"
+            : "Executive AI Dashboard"
       }
       subtitle={
         activeBrand
@@ -95,8 +95,8 @@ function Dashboard() {
             ? "تحكم في إعدادات وكيلك، اختبر محادثاته المباشرة، واستعرض طلبات عملائك بسلاسة."
             : "Manage your AI agent, test live conversations, and view extracted customer orders."
           : lang === "ar"
-            ? "منصة متكاملة لتصميم وتدريب وإطلاق وكلاء المحادثات الذكية لخدمة العملاء والبيع الآلي على مدار الساعة."
-            : "Enterprise platform to design, test, and deploy AI customer service & sales agents 24/7."
+            ? "إدارة وتدريب وكلاء المحادثات الذكية لخدمة العملاء والبيع الآلي على مدار الساعة."
+            : "Design, test, and deploy AI customer service and sales agents 24/7."
       }
       actions={
         <div className="flex items-center gap-2 shrink-0">
@@ -223,67 +223,55 @@ function Dashboard() {
             </div>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-xs">
-            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-              <div className="space-y-3 max-w-2xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
-                  <Sparkles className="size-3.5 text-emerald-600 dark:text-emerald-400" />
-                  <span>{lang === "ar" ? "استوديو وكلاء الذكاء الاصطناعي للأعمال" : "Kayanova Enterprise AI Studio"}</span>
+          <div className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5">
+              <div className="space-y-1.5 max-w-2xl">
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-50/80 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 dark:bg-emerald-950/40 dark:border-emerald-800/60 dark:text-emerald-300">
+                  <Sparkles className="size-3 text-emerald-600 dark:text-emerald-400" />
+                  <span>{lang === "ar" ? "استوديو وكلاء الأعمال" : "AI Business Studio"}</span>
                 </div>
-                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-foreground">
+                <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground">
                   {lang === "ar"
-                    ? "مركز القيادة والتحكم لوكلاء المحادثات الذكية"
-                    : "Autonomous AI Agent Operations & Command Center"}
+                    ? "مركز تصميم وإدارة وكلاء الذكاء الاصطناعي"
+                    : "AI Agent Operations & Command Center"}
                 </h2>
-                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                   {lang === "ar"
-                    ? "صمم، درب، واختبر وكيل ذكاء اصطناعي مخصص لنشاطك التجاري للرد الفوري على عملائك، تقديم الأسعار بدقة، وتأكيد طلبات البيع 24/7 عبر واتساب وموقعك."
-                    : "Build, customize, and deploy dedicated AI business agents to assist customers, answer product questions with locked prices, and capture orders 24/7."}
+                    ? "صمم ودرب وكيلاً مخصصاً لنشاطك التجاري للرد الفوري على استفسارات عملائك، تقديم الأسعار من الكتالوج بدقة، وتسجيل الطلبات عبر واتساب على مدار 24 ساعة."
+                    : "Design, customize, and deploy dedicated AI business agents to assist customers, quote locked catalog prices, and capture orders 24/7 across WhatsApp."}
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto shrink-0">
+              <div className="shrink-0 w-full sm:w-auto">
                 <Button
-                  size="lg"
-                  className="h-11 px-6 gap-2 brand-gradient text-white text-sm font-bold rounded-xl shadow-xs"
+                  className="w-full sm:w-auto h-10 px-5 gap-2 brand-gradient text-white text-xs sm:text-sm font-semibold rounded-xl shadow-xs"
                   asChild
                 >
                   <Link to="/builder" search={{ step: "identity" }}>
                     <Plus className="size-4" />
-                    <span>{lang === "ar" ? "بدء إنشاء وكيل جديد الآن ⚡" : "Create New AI Agent ⚡"}</span>
-                  </Link>
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="h-11 px-5 gap-2 text-sm font-bold rounded-xl border-border bg-background"
-                  asChild
-                >
-                  <Link to="/simulator">
-                    <MessageSquare className="size-4 text-emerald-600" />
-                    <span>{lang === "ar" ? "تجربة المحاكي المباشر" : "Open Live Simulator"}</span>
+                    <span>{lang === "ar" ? "إنشاء وكيل جديد" : "Create New Agent"}</span>
                   </Link>
                 </Button>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-border">
-              <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
-                <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
-                <span>{lang === "ar" ? "استجابة فورية < 1 ثانية" : "Sub-second response"}</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
-                <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
-                <span>{lang === "ar" ? "حماية صارمة للأسعار" : "Strict pricing guardrails"}</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
-                <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
-                <span>{lang === "ar" ? "استخراج فوري للأوردرات" : "Auto-extracted CRM leads"}</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
-                <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
-                <span>{lang === "ar" ? "دعم اللهجات العربية بطلاقة" : "Multi-dialect Arabic & English"}</span>
-              </div>
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-5 pt-4 border-t border-border/60 text-xs text-muted-foreground font-medium">
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
+                {lang === "ar" ? "استجابة فورية خلال ثوانٍ" : "Sub-second response"}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
+                {lang === "ar" ? "حماية صارمة للأسعار" : "Strict pricing guardrails"}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
+                {lang === "ar" ? "استخراج تلقائي لطلبات الـ CRM" : "Auto-extracted CRM leads"}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
+                {lang === "ar" ? "دعم اللهجات العربية بطلاقة" : "Multi-dialect Arabic & English"}
+              </span>
             </div>
           </div>
         )}
@@ -429,20 +417,20 @@ function Dashboard() {
         {/* SECTION: 4-STEP AGENT CREATION & LAUNCH GUIDE                         */}
         {/* ===================================================================== */}
         <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-xs space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/70 pb-4">
             <div>
-              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-primary mb-1">
-                <Zap className="size-3.5" />
-                <span>{lang === "ar" ? "دليل الإعداد السريع" : "Quick-Start Guided Workflow"}</span>
+              <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-primary mb-1">
+                <Zap className="size-3" />
+                <span>{lang === "ar" ? "مسار العمل" : "Workflow Guide"}</span>
               </div>
-              <h3 className="text-lg font-bold text-foreground">
-                {lang === "ar" ? "كيف تبني وتطلق وكيلك الذكي في 4 خطوات سهلة؟" : "How to Build & Deploy Your AI Agent in 4 Easy Steps"}
+              <h3 className="text-base font-bold text-foreground">
+                {lang === "ar" ? "مسار بناء وإطلاق الوكيل الذكي" : "AI Agent Setup & Launch Roadmap"}
               </h3>
             </div>
             <p className="text-xs text-muted-foreground max-w-sm">
               {lang === "ar"
-                ? "مسار عمل متكامل ومباشر ينقلك من الفكرة إلى وكيل شغال على واتساب بكل احترافية."
-                : "A step-by-step roadmap from initial persona setup to live customer activation."}
+                ? "4 خطوات عملية من ضبط الهوية وحتى الإطلاق المباشر لخدمة عملائك."
+                : "4 streamlined steps from persona definition to live customer automation."}
             </p>
           </div>
 

@@ -175,7 +175,7 @@ export function RequestDeploymentModal({
 
             <div className="space-y-2">
               <h3 className="text-xl font-extrabold text-foreground">
-                {lang === "ar" ? "تم استلام طلبك بنجاح! 🚀" : "Request Received Successfully! 🚀"}
+                {lang === "ar" ? "تم استلام طلبك بنجاح!" : "Request Received Successfully!"}
               </h3>
               <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
                 {lang === "ar"
