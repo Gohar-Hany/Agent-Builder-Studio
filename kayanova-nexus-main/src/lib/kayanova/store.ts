@@ -98,6 +98,15 @@ function deduplicateContacts(list: CustomerContact[]): CustomerContact[] {
   return deduped;
 }
 
+export function isSampleBrand(b: { id?: string; name?: string; isSample?: boolean }): boolean {
+  if (b.isSample) return true;
+  const id = b.id || "";
+  if (id.startsWith("brand-fishawy") || id.startsWith("brand-kamal") || id.startsWith("brand-misk")) return true;
+  const n = (b.name || "").trim();
+  if (n === "قهوة الفيشاوي" || n === "عيادات د. أحمد كمال" || n === "بوتيك مسك وعنبر") return true;
+  return false;
+}
+
 export function useKayanova() {
   const [brands, setBrands] = useState<BrandProfile[]>(() => {
     const deleted = readStorage<string[]>(DELETED_BRANDS_KEY, []);
@@ -106,7 +115,8 @@ export function useKayanova() {
       (b) =>
         !b.name.includes("Custom Agent Brand") &&
         b.name.trim() !== "" &&
-        !deleted.includes(b.id),
+        !deleted.includes(b.id) &&
+        !isSampleBrand(b),
     );
   });
 
@@ -149,7 +159,7 @@ export function useKayanova() {
           if (bData !== null && Array.isArray(bData)) {
             // Delete ghost or deleted brands from backend if found
             for (const b of bData) {
-              if (b.name.includes("Custom Agent Brand") || deletedBrandIds.includes(b.id)) {
+              if (b.name.includes("Custom Agent Brand") || deletedBrandIds.includes(b.id) || isSampleBrand(b)) {
                 deleteBrandApi(b.id).catch(() => {});
               }
             }
@@ -158,13 +168,15 @@ export function useKayanova() {
               (b) =>
                 !b.name.includes("Custom Agent Brand") &&
                 b.name.trim() !== "" &&
-                !deletedBrandIds.includes(b.id),
+                !deletedBrandIds.includes(b.id) &&
+                !isSampleBrand(b),
             );
             const validBackendBrands = bData.filter(
               (b) =>
                 !b.name.includes("Custom Agent Brand") &&
                 b.name.trim() !== "" &&
-                !deletedBrandIds.includes(b.id),
+                !deletedBrandIds.includes(b.id) &&
+                !isSampleBrand(b),
             );
             const mergedBrands = [...validBackendBrands];
 

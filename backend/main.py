@@ -295,7 +295,7 @@ def get_brands(
     active_session = (sessionId or session_id or "").strip()
 
     if active_session:
-        cursor.execute("SELECT * FROM brands WHERE session_id = ? OR is_sample = 1 ORDER BY created_at ASC", (active_session,))
+        cursor.execute("SELECT * FROM brands WHERE session_id = ? ORDER BY created_at ASC", (active_session,))
     else:
         cursor.execute("SELECT * FROM brands WHERE is_sample = 1 ORDER BY created_at ASC")
 
