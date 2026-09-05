@@ -84,15 +84,11 @@ function formatCleanPhone(raw: string): string {
 
 function AdminPage() {
   const { lang, dir } = useLanguage();
-  const [adminKey, setAdminKey] = useState<string>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem(STORAGE_ADMIN_KEY) || "";
-    }
-    return "";
-  });
+  const [adminKey, setAdminKey] = useState<string>("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [keyInput, setKeyInput] = useState("");
+  const [hydrated, setHydrated] = useState(false);
 
   const [activeTab, setActiveTab] = useState<"overview" | "leads" | "brands" | "orders">("leads");
   const [overview, setOverview] = useState<AdminOverviewData | null>(null);
@@ -102,10 +98,15 @@ function AdminPage() {
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [searchLeadQuery, setSearchLeadQuery] = useState("");
 
-  // Auto verify if key is present
+  // Auto verify if key is present after hydration
   useEffect(() => {
-    if (adminKey) {
-      void handleVerifyKey(adminKey);
+    setHydrated(true);
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem(STORAGE_ADMIN_KEY) || "";
+      if (saved) {
+        setAdminKey(saved);
+        void handleVerifyKey(saved);
+      }
     }
   }, []);
 
@@ -116,13 +117,15 @@ function AdminPage() {
       if (res.valid) {
         setIsAuthenticated(true);
         setAdminKey(key);
-        localStorage.setItem(STORAGE_ADMIN_KEY, key);
+        if (typeof window !== "undefined") {
+          localStorage.setItem(STORAGE_ADMIN_KEY, key);
+        }
         toast.success(lang === "ar" ? "تم تسجيل الدخول بنجاح" : "Admin authenticated successfully");
         void loadAllData(key);
       } else {
         toast.error(lang === "ar" ? "مفتاح الدخول غير صحيح" : "Invalid admin access key");
       }
-    } catch (e: any) {
+    } catch {
       toast.error(lang === "ar" ? "تعذر التحقق من المفتاح" : "Failed to verify key");
     } finally {
       setIsVerifying(false);
@@ -132,7 +135,9 @@ function AdminPage() {
   const handleLogout = () => {
     setIsAuthenticated(false);
     setAdminKey("");
-    localStorage.removeItem(STORAGE_ADMIN_KEY);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(STORAGE_ADMIN_KEY);
+    }
     toast.info(lang === "ar" ? "تم تسجيل الخروج" : "Logged out");
   };
 
@@ -146,10 +151,32 @@ function AdminPage() {
         fetchAdminAllOrdersApi(key).catch(() => []),
       ]);
 
-      if (ovData) setOverview(ovData);
-      setLeads(lData);
-      setBrands(bData);
-      setOrders(oData);
+      let localLeads: PlatformLead[] = [];
+      if (typeof window !== "undefined") {
+        try {
+          localLeads = JSON.parse(localStorage.getItem("kayanova_platform_leads_v3") || "[]");
+        } catch {}
+      }
+
+      const finalLeads = (lData && lData.length > 0) ? lData : localLeads;
+      const finalBrands = bData || [];
+      const finalOrders = oData || [];
+
+      if (ovData && (ovData.totalCustomBrands > 0 || ovData.totalPlatformLeads > 0)) {
+        setOverview(ovData);
+      } else {
+        setOverview({
+          totalPlatformLeads: finalLeads.length,
+          totalCustomBrands: finalBrands.length,
+          totalCapturedOrders: finalOrders.length,
+          activeSessionsCount: 1,
+          recentLeads: finalLeads.slice(0, 10),
+        });
+      }
+
+      setLeads(finalLeads);
+      setBrands(finalBrands);
+      setOrders(finalOrders);
     } catch (err) {
       console.error("Admin data load error:", err);
     } finally {

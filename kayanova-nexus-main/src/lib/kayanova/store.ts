@@ -170,6 +170,11 @@ export function useKayanova() {
   });
 
   const [isLoadingBackend, setIsLoadingBackend] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   // Sync initial state from real FastAPI Backend on mount with intelligent non-destructive merge
   useEffect(() => {
@@ -189,6 +194,17 @@ export function useKayanova() {
           const deletedContactIds = readStorage<string[]>(DELETED_CONTACTS_KEY, []);
 
           // 1. Merge Brands & purge any ghost or user-deleted brands
+          const currentSid = getSessionId();
+          const localBrands = readStorage<BrandProfile[]>(BRANDS_KEY, []).filter(
+            (b) =>
+              !b.name.includes("Custom Agent Brand") &&
+              b.name.trim() !== "" &&
+              !deletedBrandIds.includes(b.id) &&
+              !isSampleBrand(b),
+          );
+          const localBrandIds = new Set(localBrands.map((b) => b.id));
+          const mergedBrands: BrandProfile[] = [...localBrands];
+
           if (bData !== null && Array.isArray(bData)) {
             // Delete ghost or deleted brands from backend if found
             for (const b of bData) {
@@ -196,16 +212,6 @@ export function useKayanova() {
                 deleteBrandApi(b.id).catch(() => {});
               }
             }
-
-            const currentSid = getSessionId();
-            const localBrands = readStorage<BrandProfile[]>(BRANDS_KEY, []).filter(
-              (b) =>
-                !b.name.includes("Custom Agent Brand") &&
-                b.name.trim() !== "" &&
-                !deletedBrandIds.includes(b.id) &&
-                !isSampleBrand(b),
-            );
-            const localBrandIds = new Set(localBrands.map((b) => b.id));
 
             // Strictly filter backend brands: only accept brands created in THIS browser or strictly matching this session ID
             const validBackendBrands = bData.filter(
@@ -217,7 +223,6 @@ export function useKayanova() {
                 (localBrandIds.has(b.id) || (b.sessionId && b.sessionId === currentSid)),
             );
 
-            const mergedBrands = [...localBrands];
             for (const vb of validBackendBrands) {
               if (!mergedBrands.some((mb) => mb.id === vb.id)) {
                 mergedBrands.push(vb);
@@ -230,20 +235,20 @@ export function useKayanova() {
                 createBrandApi(lb).catch(() => {});
               }
             }
+          }
 
-            setBrands(mergedBrands);
-            writeStorage(BRANDS_KEY, mergedBrands);
+          setBrands(mergedBrands);
+          writeStorage(BRANDS_KEY, mergedBrands);
 
-            if (mergedBrands.length > 0) {
-              const currentActive = readStorage<string>(ACTIVE_KEY, "");
-              if (!mergedBrands.some((b) => b.id === currentActive)) {
-                setActiveBrandIdState(mergedBrands[0]!.id);
-                writeStorage(ACTIVE_KEY, mergedBrands[0]!.id);
-              }
-            } else {
-              setActiveBrandIdState("");
-              writeStorage(ACTIVE_KEY, "");
+          if (mergedBrands.length > 0) {
+            const currentActive = readStorage<string>(ACTIVE_KEY, "");
+            if (!mergedBrands.some((b) => b.id === currentActive)) {
+              setActiveBrandIdState(mergedBrands[0]!.id);
+              writeStorage(ACTIVE_KEY, mergedBrands[0]!.id);
             }
+          } else {
+            setActiveBrandIdState("");
+            writeStorage(ACTIVE_KEY, "");
           }
 
           // 2. Merge Orders (Leads)
@@ -629,7 +634,7 @@ export function useKayanova() {
     updateContactNotes,
     deleteContact,
     isLoadingBackend,
-    hydrated: true,
+    hydrated,
   };
 }
 

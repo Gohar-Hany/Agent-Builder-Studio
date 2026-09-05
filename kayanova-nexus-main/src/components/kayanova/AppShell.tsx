@@ -46,14 +46,18 @@ export function AppShell({
 }) {
   const [open, setOpen] = useState(false);
   const { lang, dir, isRtl, t, toggleLang } = useLanguage();
-  const [collapsed, setCollapsed] = useState<boolean>(() => {
+  const [collapsed, setCollapsed] = useState<boolean>(false);
+
+  useEffect(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("kayanova_sidebar_collapsed");
-      if (saved !== null) return saved === "true";
-      return window.innerWidth < 1200;
+      if (saved !== null) {
+        setCollapsed(saved === "true");
+      } else if (window.innerWidth < 1200) {
+        setCollapsed(true);
+      }
     }
-    return false;
-  });
+  }, []);
 
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 

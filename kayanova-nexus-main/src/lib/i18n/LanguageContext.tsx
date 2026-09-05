@@ -22,14 +22,8 @@ const LANG_STORAGE_KEY = "kayanova_language";
 const LanguageContext = createContext<LanguageContextType | null>(null);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLangState] = useState<Language>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem(LANG_STORAGE_KEY) as Language;
-      if (saved === "ar" || saved === "en") return saved;
-    }
-    return "ar"; // Default to Arabic as primary enterprise locale
-  });
-
+  // Always initialize to "ar" on initial render to prevent SSR hydration mismatch (React #418)
+  const [lang, setLangState] = useState<Language>("ar");
   const [, startTransition] = useTransition();
 
   const updateDocumentAttributes = useCallback((currentLang: Language) => {
@@ -41,6 +35,17 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       document.documentElement.lang = currentLang;
     }
   }, []);
+
+  // Sync saved language from localStorage safely after hydration
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem(LANG_STORAGE_KEY) as Language;
+      if (saved === "en" || saved === "ar") {
+        setLangState(saved);
+        updateDocumentAttributes(saved);
+      }
+    }
+  }, [updateDocumentAttributes]);
 
   const setLang = useCallback(
     (newLang: Language) => {
