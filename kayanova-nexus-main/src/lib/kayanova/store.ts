@@ -243,10 +243,19 @@ export function useKayanova() {
               }
             }
 
+            const validBrandIds = new Set(mergedBrands.map((b) => b.id));
+            const validBrandNames = new Set(mergedBrands.map((b) => b.name));
+
             const localLeads = readStorage<ExtractedLead[]>(LEADS_KEY, []).filter(
-              (l) => !deletedLeadIds.includes(l.id),
+              (l) =>
+                !deletedLeadIds.includes(l.id) &&
+                (validBrandIds.has(l.brandId) || validBrandNames.has(l.brandId)),
             );
-            const validBackendLeads = oData.filter((o) => !deletedLeadIds.includes(o.id));
+            const validBackendLeads = oData.filter(
+              (o) =>
+                !deletedLeadIds.includes(o.id) &&
+                (validBrandIds.has(o.brandId) || validBrandNames.has(o.brandId)),
+            );
             const mergedLeads = [...validBackendLeads];
 
             // Retain any local leads not present on the backend and sync them
@@ -263,6 +272,9 @@ export function useKayanova() {
 
           // 3. Merge Customer Contacts with strict deduplication
           if (cData !== null && Array.isArray(cData)) {
+            const validBrandIds = new Set(mergedBrands.map((b) => b.id));
+            const validBrandNames = new Set(mergedBrands.map((b) => b.name));
+
             for (const c of cData) {
               if (deletedContactIds.includes(c.id)) {
                 deleteContactApi(c.id).catch(() => {});
@@ -270,9 +282,15 @@ export function useKayanova() {
             }
 
             const localContacts = readStorage<CustomerContact[]>(CONTACTS_KEY, []).filter(
-              (c) => !deletedContactIds.includes(c.id),
+              (c) =>
+                !deletedContactIds.includes(c.id) &&
+                (validBrandIds.has(c.brandId) || validBrandNames.has(c.brandId)),
             );
-            const validBackendContacts = cData.filter((c) => !deletedContactIds.includes(c.id));
+            const validBackendContacts = cData.filter(
+              (c) =>
+                !deletedContactIds.includes(c.id) &&
+                (validBrandIds.has(c.brandId) || validBrandNames.has(c.brandId)),
+            );
             const mergedContacts = deduplicateContacts([...validBackendContacts, ...localContacts]);
 
             // Sync any local contacts not yet on backend
