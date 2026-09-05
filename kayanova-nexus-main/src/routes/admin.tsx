@@ -460,12 +460,12 @@ function AdminOperationsPortal() {
   // -------------------------------------------------------------
   return (
     <div
-      className="min-h-screen bg-background text-foreground flex flex-col antialiased selection:bg-primary/20"
+      className="h-screen w-full overflow-hidden bg-background text-foreground flex flex-col antialiased selection:bg-primary/20"
       dir="ltr"
       lang="en"
     >
       {/* Mobile Top App Bar */}
-      <div className="lg:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-3 border-b border-border bg-card/95 backdrop-blur-md">
+      <div className="lg:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-3 border-b border-border bg-card/95 backdrop-blur-md shrink-0">
         <div className="flex items-center gap-2.5">
           <Button
             variant="ghost"
@@ -508,12 +508,12 @@ function AdminOperationsPortal() {
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden min-h-0">
         {/* =================================================================== */}
         {/* DESKTOP & RESPONSIVE SIDEBAR (COLLAPSIBLE / EXPANDABLE)             */}
         {/* =================================================================== */}
         <aside
-          className={`fixed inset-y-0 left-0 z-50 lg:static flex flex-col border-r border-border bg-card/95 backdrop-blur-xl transition-all duration-300 ease-in-out ${
+          className={`fixed inset-y-0 left-0 z-50 lg:relative lg:flex flex-col h-full border-r border-border bg-card/95 backdrop-blur-xl shrink-0 select-none transition-all duration-300 ease-in-out ${
             sidebarCollapsed ? "w-20" : "w-64"
           } ${
             mobileMenuOpen
@@ -772,7 +772,7 @@ function AdminOperationsPortal() {
         {/* =================================================================== */}
         {/* MAIN OPERATIONS WORKSPACE                                          */}
         {/* =================================================================== */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+        <div className="flex-1 h-full min-h-0 flex flex-col min-w-0 overflow-y-auto">
           {/* Top Desktop Bar */}
           <header className="sticky top-0 z-30 hidden lg:flex items-center justify-between px-8 py-3.5 border-b border-border bg-card/90 backdrop-blur-md">
             <div>

@@ -207,45 +207,29 @@ export function AppShell({
           })}
         </nav>
 
-        {/* Sidebar Footer / Runtime Status Box */}
+        {/* Sidebar Footer / Platform Info */}
         <div className="mt-auto w-full flex flex-col gap-2">
-          {/* AI Runtime Status Box */}
           {collapsed ? (
             <div
-              className="flex size-10 items-center justify-center rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-300 mx-auto"
-              title={lang === "ar" ? "مساحة تجريبية خاصة ومعزولة" : "Private Sandbox"}
+              className="flex size-10 items-center justify-center rounded-xl border border-border bg-secondary/60 text-muted-foreground mx-auto"
+              title="Kayanova Studio"
             >
-              <Lock className="size-4" />
+              <Sparkles className="size-4 text-primary" />
             </div>
           ) : (
-            <div className="rounded-2xl border border-border bg-card p-3 shadow-xs space-y-2">
-              <div className="flex items-center gap-2">
-                <div className="flex size-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                  <Lock className="size-3.5" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-foreground">
-                    {lang === "ar" ? "بيئة تجريبية معزولة" : "Client Sandbox"}
-                  </p>
-                  <p className="text-[10px] text-emerald-800 dark:text-emerald-300 font-semibold">
-                    {lang === "ar" ? "بياناتك مشفرة ومحمية" : "Isolated & Private"}
-                  </p>
-                </div>
+            <div className="rounded-2xl border border-border/70 bg-secondary/30 p-3 text-center space-y-1.5">
+              <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-foreground">
+                <Sparkles className="size-3.5 text-primary" />
+                <span>Kayanova Studio</span>
               </div>
-              <p className="text-[10px] font-medium text-muted-foreground leading-relaxed">
+              <p className="text-[10px] text-muted-foreground font-medium">
                 {lang === "ar"
-                  ? "نماذجك وأوردراتك التجريبية خاصة بجلستك فقط ولا تظهر لباقي الزوار."
-                  : "Your draft agents and test orders are isolated and visible only to your session."}
+                  ? "منصة بناء وكلاء الذكاء الاصطناعي للأعمال"
+                  : "Enterprise AI Agent Platform"}
               </p>
-
-              <div className="pt-1.5 border-t border-border/60">
-                <Link
-                  to="/admin"
-                  className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-muted-foreground hover:text-primary transition-colors py-0.5"
-                >
-                  <ShieldCheck className="size-3" />
-                  <span>{lang === "ar" ? "لوحة الإدارة (Admin)" : "Master Admin"}</span>
-                </Link>
+              <div className="pt-1.5 border-t border-border/50 flex items-center justify-center gap-1.5 text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold">
+                <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>{lang === "ar" ? "الخدمة نشطة وجاهزة" : "System Operational"}</span>
               </div>
             </div>
           )}
