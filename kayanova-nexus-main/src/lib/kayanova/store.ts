@@ -16,13 +16,23 @@ import {
   deleteContactApi,
 } from "./api";
 
-const BRANDS_KEY = "kayanova.brands.v1";
-const LEADS_KEY = "kayanova.leads.v1";
-const CONTACTS_KEY = "kayanova.contacts.v1";
-const ACTIVE_KEY = "kayanova.activeBrand.v1";
-const DELETED_BRANDS_KEY = "kayanova.deleted_brands.v1";
-const DELETED_LEADS_KEY = "kayanova.deleted_leads.v1";
-const DELETED_CONTACTS_KEY = "kayanova.deleted_contacts.v1";
+const MIGRATION_KEY = "kayanova.sandbox_migrated_v2";
+if (typeof window !== "undefined" && !localStorage.getItem(MIGRATION_KEY)) {
+  try {
+    localStorage.removeItem("kayanova.leads.v1");
+    localStorage.removeItem("kayanova.contacts.v1");
+    localStorage.removeItem("kayanova.brands.v1");
+    localStorage.setItem(MIGRATION_KEY, "true");
+  } catch {}
+}
+
+const BRANDS_KEY = "kayanova.brands.v2";
+const LEADS_KEY = "kayanova.leads.v2";
+const CONTACTS_KEY = "kayanova.contacts.v2";
+const ACTIVE_KEY = "kayanova.activeBrand.v2";
+const DELETED_BRANDS_KEY = "kayanova.deleted_brands.v2";
+const DELETED_LEADS_KEY = "kayanova.deleted_leads.v2";
+const DELETED_CONTACTS_KEY = "kayanova.deleted_contacts.v2";
 
 function seedBrands(): BrandProfile[] {
   return [];

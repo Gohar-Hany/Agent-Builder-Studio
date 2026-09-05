@@ -18,7 +18,7 @@ if backend_dir not in sys.path:
 env_file = os.path.join(backend_dir, ".env")
 load_dotenv(env_file)
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -64,6 +64,8 @@ class MenuItemModel(BaseModel):
 
 class BrandModel(BaseModel):
     id: Optional[str] = None
+    sessionId: Optional[str] = ""
+    isSample: Optional[bool] = False
     name: str
     iconType: Optional[str] = "bot"
     tagline: Optional[str] = ""
@@ -89,6 +91,7 @@ class BrandModel(BaseModel):
 
 class OrderModel(BaseModel):
     id: Optional[str] = None
+    sessionId: Optional[str] = ""
     brandId: Optional[str] = "brand-default"
     customerName: Optional[str] = "عميل الوكيل"
     customerPhone: Optional[str] = ""
@@ -103,6 +106,7 @@ class OrderModel(BaseModel):
 
 class ContactModel(BaseModel):
     id: Optional[str] = None
+    sessionId: Optional[str] = ""
     brandId: Optional[str] = "brand-default"
     customerName: Optional[str] = "عميل الوكيل"
     customerPhone: Optional[str] = ""
@@ -113,6 +117,23 @@ class ContactModel(BaseModel):
     notes: Optional[str] = None
     totalOrdersCount: Optional[int] = 0
     totalSpent: Optional[float] = 0
+
+class PlatformLeadModel(BaseModel):
+    id: Optional[str] = None
+    sessionId: Optional[str] = ""
+    brandId: Optional[str] = ""
+    brandName: Optional[str] = ""
+    ownerName: str
+    ownerPhone: str
+    businessName: Optional[str] = ""
+    channels: Optional[List[str]] = []
+    notes: Optional[str] = ""
+
+class AdminVerifyModel(BaseModel):
+    key: str
+
+class AdminLeadStatusModel(BaseModel):
+    status: str
 
 class StatusUpdateModel(BaseModel):
     status: str
@@ -162,6 +183,8 @@ def row_to_brand_dict(row, menu_items=None):
 
     return {
         "id": row["id"],
+        "sessionId": row["session_id"] if "session_id" in keys and row["session_id"] else "",
+        "isSample": bool(row["is_sample"]) if "is_sample" in keys and row["is_sample"] else False,
         "name": row["name"],
         "iconType": row["icon_type"] if "icon_type" in keys and row["icon_type"] else "bot",
         "tagline": row["tagline"] if "tagline" in keys and row["tagline"] else "",
@@ -197,8 +220,10 @@ def row_to_order_dict(row):
         except Exception:
             items = [row["items"]]
 
+    keys = row.keys()
     return {
         "id": row["id"],
+        "sessionId": row["session_id"] if "session_id" in keys and row["session_id"] else "",
         "brandId": row["brand_id"],
         "customerName": row["customer_name"],
         "customerPhone": row["customer_phone"],
@@ -216,8 +241,10 @@ def row_to_order_dict(row):
     }
 
 def row_to_contact_dict(row):
+    keys = row.keys()
     return {
         "id": row["id"],
+        "sessionId": row["session_id"] if "session_id" in keys and row["session_id"] else "",
         "brandId": row["brand_id"],
         "customerName": row["customer_name"],
         "customerPhone": row["customer_phone"],
@@ -232,13 +259,46 @@ def row_to_contact_dict(row):
         "createdAt": row["created_at"],
     }
 
+def row_to_lead_dict(row):
+    keys = row.keys()
+    channels = []
+    if "channels" in keys and row["channels"]:
+        try:
+            channels = json.loads(row["channels"])
+        except Exception:
+            channels = [row["channels"]]
+
+    return {
+        "id": row["id"],
+        "sessionId": row["session_id"] if "session_id" in keys and row["session_id"] else "",
+        "brandId": row["brand_id"] if "brand_id" in keys and row["brand_id"] else "",
+        "brandName": row["brand_name"] if "brand_name" in keys and row["brand_name"] else "",
+        "ownerName": row["owner_name"] if "owner_name" in keys else "",
+        "ownerPhone": row["owner_phone"] if "owner_phone" in keys else "",
+        "businessName": row["business_name"] if "business_name" in keys and row["business_name"] else "",
+        "channels": channels,
+        "notes": row["notes"] if "notes" in keys and row["notes"] else "",
+        "status": row["status"] if "status" in keys and row["status"] else "New",
+        "createdAt": row["created_at"] if "created_at" in keys else "",
+        "updatedAt": row["updated_at"] if "updated_at" in keys else "",
+    }
+
 # ─── API Routes: Brands ───
 
 @app.get("/api/brands")
-def get_brands():
+def get_brands(
+    session_id: Optional[str] = Header(None, alias="X-Session-Id"),
+    sessionId: Optional[str] = None
+):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM brands ORDER BY created_at ASC")
+    active_session = (sessionId or session_id or "").strip()
+
+    if active_session:
+        cursor.execute("SELECT * FROM brands WHERE session_id = ? OR is_sample = 1 ORDER BY created_at ASC", (active_session,))
+    else:
+        cursor.execute("SELECT * FROM brands WHERE is_sample = 1 ORDER BY created_at ASC")
+
     rows = cursor.fetchall()
     
     brands = []
@@ -281,10 +341,15 @@ def get_brand(brand_id: str):
     return brand
 
 @app.post("/api/brands")
-def create_brand(brand: BrandModel):
+def create_brand(
+    brand: BrandModel,
+    session_id: Optional[str] = Header(None, alias="X-Session-Id")
+):
     conn = get_db_connection()
     cursor = conn.cursor()
     brand_id = brand.id or f"brand-{uuid.uuid4().hex[:8]}"
+    active_session = (brand.sessionId or session_id or "").strip()
+    is_sample_val = 1 if brand.isSample else 0
     now_iso = datetime.now().isoformat()
     
     contact = brand.contactInfo or {}
@@ -314,7 +379,7 @@ def create_brand(brand: BrandModel):
                 name = ?, icon_type = ?, tagline = ?, category = ?, role = ?, tone = ?,
                 language = ?, dialect = ?, llm_model = ?, description = ?, products_services = ?,
                 welcome_message = ?, instructions = ?, contact_phone = ?, contact_address = ?,
-                contact_hours = ?, creativity = ?, guardrails = ?, updated_at = ?
+                contact_hours = ?, creativity = ?, guardrails = ?, session_id = ?, is_sample = ?, updated_at = ?
             WHERE id = ?
             """, (
                 brand.name, brand.iconType, brand.tagline, brand.category, brand.role,
@@ -322,7 +387,7 @@ def create_brand(brand: BrandModel):
                 brand.description, brand.productsServices,
                 brand.welcomeMessage, instructions_val,
                 c_phone, c_address, c_hours,
-                brand.creativity or 50, guardrails_json, now_iso, brand_id
+                brand.creativity or 50, guardrails_json, active_session, is_sample_val, now_iso, brand_id
             ))
             cursor.execute("DELETE FROM menu_items WHERE brand_id = ?", (brand_id,))
         else:
@@ -330,15 +395,15 @@ def create_brand(brand: BrandModel):
             INSERT INTO brands (
                 id, name, icon_type, tagline, category, role, tone, language, dialect, llm_model,
                 description, products_services, welcome_message, instructions,
-                contact_phone, contact_address, contact_hours, creativity, guardrails, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                contact_phone, contact_address, contact_hours, creativity, guardrails, session_id, is_sample, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 brand_id, brand.name, brand.iconType, brand.tagline, brand.category, brand.role,
                 brand.tone, brand.language, brand.dialect, brand.llmModel or "google/gemini-3.7-flash",
                 brand.description, brand.productsServices,
                 brand.welcomeMessage, instructions_val,
                 c_phone, c_address, c_hours,
-                brand.creativity or 50, guardrails_json, now_iso, now_iso
+                brand.creativity or 50, guardrails_json, active_session, is_sample_val, now_iso, now_iso
             ))
 
         # Insert menu items if provided
@@ -365,10 +430,16 @@ def create_brand(brand: BrandModel):
     return {"message": "Brand created successfully", "brandId": brand_id}
 
 @app.put("/api/brands/{brand_id}")
-def update_brand(brand_id: str, brand: BrandModel):
+def update_brand(
+    brand_id: str,
+    brand: BrandModel,
+    session_id: Optional[str] = Header(None, alias="X-Session-Id")
+):
     conn = get_db_connection()
     cursor = conn.cursor()
     now_iso = datetime.now().isoformat()
+    active_session = (brand.sessionId or session_id or "").strip()
+    is_sample_val = 1 if brand.isSample else 0
     
     contact = brand.contactInfo or {}
     if isinstance(contact, dict):
@@ -397,7 +468,7 @@ def update_brand(brand_id: str, brand: BrandModel):
                 name = ?, icon_type = ?, tagline = ?, category = ?, role = ?, tone = ?,
                 language = ?, dialect = ?, llm_model = ?, description = ?, products_services = ?,
                 welcome_message = ?, instructions = ?, contact_phone = ?, contact_address = ?,
-                contact_hours = ?, creativity = ?, guardrails = ?, updated_at = ?
+                contact_hours = ?, creativity = ?, guardrails = ?, session_id = ?, is_sample = ?, updated_at = ?
             WHERE id = ?
             """, (
                 brand.name, brand.iconType, brand.tagline, brand.category, brand.role, brand.tone,
@@ -405,7 +476,7 @@ def update_brand(brand_id: str, brand: BrandModel):
                 brand.description, brand.productsServices,
                 brand.welcomeMessage, instructions_val,
                 c_phone, c_address, c_hours,
-                brand.creativity or 50, guardrails_json, now_iso, brand_id
+                brand.creativity or 50, guardrails_json, active_session, is_sample_val, now_iso, brand_id
             ))
             cursor.execute("DELETE FROM menu_items WHERE brand_id = ?", (brand_id,))
         else:
@@ -413,15 +484,15 @@ def update_brand(brand_id: str, brand: BrandModel):
             INSERT INTO brands (
                 id, name, icon_type, tagline, category, role, tone, language, dialect, llm_model,
                 description, products_services, welcome_message, instructions,
-                contact_phone, contact_address, contact_hours, creativity, guardrails, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                contact_phone, contact_address, contact_hours, creativity, guardrails, session_id, is_sample, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 brand_id, brand.name, brand.iconType, brand.tagline, brand.category, brand.role,
                 brand.tone, brand.language, brand.dialect, brand.llmModel or "google/gemini-3.7-flash",
                 brand.description, brand.productsServices,
                 brand.welcomeMessage, instructions_val,
                 c_phone, c_address, c_hours,
-                brand.creativity or 50, guardrails_json, now_iso, now_iso
+                brand.creativity or 50, guardrails_json, active_session, is_sample_val, now_iso, now_iso
             ))
 
         if brand.menuItems is not None:
@@ -458,24 +529,41 @@ def delete_brand(brand_id: str):
 # ─── API Routes: Orders CRM ───
 
 @app.get("/api/orders")
-def get_orders(brand_id: Optional[str] = None):
+def get_orders(
+    brand_id: Optional[str] = None,
+    session_id: Optional[str] = Header(None, alias="X-Session-Id"),
+    sessionId: Optional[str] = None
+):
     conn = get_db_connection()
     cursor = conn.cursor()
-    if brand_id and brand_id != "all":
-        cursor.execute("SELECT * FROM orders WHERE brand_id = ? ORDER BY created_at DESC", (brand_id,))
+    active_session = (sessionId or session_id or "").strip()
+
+    if active_session:
+        if brand_id and brand_id != "all":
+            cursor.execute("SELECT * FROM orders WHERE session_id = ? AND brand_id = ? ORDER BY created_at DESC", (active_session, brand_id))
+        else:
+            cursor.execute("SELECT * FROM orders WHERE session_id = ? ORDER BY created_at DESC", (active_session,))
     else:
-        cursor.execute("SELECT * FROM orders ORDER BY created_at DESC")
+        if brand_id and brand_id != "all":
+            cursor.execute("SELECT * FROM orders WHERE brand_id = ? ORDER BY created_at DESC", (brand_id,))
+        else:
+            cursor.execute("SELECT * FROM orders ORDER BY created_at DESC")
+
     rows = cursor.fetchall()
     orders = [row_to_order_dict(r) for r in rows]
     conn.close()
     return {"orders": orders}
 
 @app.post("/api/orders")
-def create_order(order: OrderModel):
+def create_order(
+    order: OrderModel,
+    session_id: Optional[str] = Header(None, alias="X-Session-Id")
+):
     conn = get_db_connection()
     cursor = conn.cursor()
     order_id = order.id or f"ord-{uuid.uuid4().hex[:6]}"
     brand_id = order.brandId or "brand-default"
+    active_session = (order.sessionId or session_id or "").strip()
     now_iso = datetime.now().isoformat()
 
     try:
@@ -488,9 +576,9 @@ def create_order(order: OrderModel):
                 brand_id = first_b["id"]
             else:
                 cursor.execute("""
-                INSERT OR IGNORE INTO brands (id, name, category, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?)
-                """, (brand_id, "Kayanova Agent", "General", now_iso, now_iso))
+                INSERT OR IGNORE INTO brands (id, name, category, session_id, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """, (brand_id, "Kayanova Agent", "General", active_session, now_iso, now_iso))
                 conn.commit()
 
         # Check if order already exists (upsert)
@@ -506,23 +594,23 @@ def create_order(order: OrderModel):
             UPDATE orders SET
                 brand_id = ?, customer_name = ?, customer_phone = ?, items = ?,
                 numeric_total = ?, total_amount = ?, order_type = ?, delivery_address = ?,
-                payment_method = ?, status = ?, notes = ?
+                payment_method = ?, status = ?, notes = ?, session_id = ?
             WHERE id = ?
             """, (
                 brand_id, order.customerName or "عميل الوكيل", order.customerPhone or "",
                 items_json, num_total, tot_amount, order.orderType or "Delivery",
                 order.deliveryAddress or "", order.paymentMethod or "دفع عند الاستلام",
-                order.status or "New", order.notes or "", order_id
+                order.status or "New", order.notes or "", active_session, order_id
             ))
         else:
             cursor.execute("""
-            INSERT INTO orders (id, brand_id, customer_name, customer_phone, items, numeric_total, total_amount, order_type, delivery_address, payment_method, status, notes, timestamp, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'الآن', ?)
+            INSERT INTO orders (id, brand_id, customer_name, customer_phone, items, numeric_total, total_amount, order_type, delivery_address, payment_method, status, notes, timestamp, session_id, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'الآن', ?, ?)
             """, (
                 order_id, brand_id, order.customerName or "عميل الوكيل", order.customerPhone or "",
                 items_json, num_total, tot_amount, order.orderType or "Delivery",
                 order.deliveryAddress or "", order.paymentMethod or "دفع عند الاستلام",
-                order.status or "New", order.notes or "", now_iso
+                order.status or "New", order.notes or "", active_session, now_iso
             ))
 
         conn.commit()
@@ -556,24 +644,41 @@ def delete_order(order_id: str):
 # ─── API Routes: Customer Leads & Contacts CRM ───
 
 @app.get("/api/contacts")
-def get_contacts(brand_id: Optional[str] = None):
+def get_contacts(
+    brand_id: Optional[str] = None,
+    session_id: Optional[str] = Header(None, alias="X-Session-Id"),
+    sessionId: Optional[str] = None
+):
     conn = get_db_connection()
     cursor = conn.cursor()
-    if brand_id and brand_id != "all":
-        cursor.execute("SELECT * FROM contacts WHERE brand_id = ? ORDER BY created_at DESC", (brand_id,))
+    active_session = (sessionId or session_id or "").strip()
+
+    if active_session:
+        if brand_id and brand_id != "all":
+            cursor.execute("SELECT * FROM contacts WHERE session_id = ? AND brand_id = ? ORDER BY created_at DESC", (active_session, brand_id))
+        else:
+            cursor.execute("SELECT * FROM contacts WHERE session_id = ? ORDER BY created_at DESC", (active_session,))
     else:
-        cursor.execute("SELECT * FROM contacts ORDER BY created_at DESC")
+        if brand_id and brand_id != "all":
+            cursor.execute("SELECT * FROM contacts WHERE brand_id = ? ORDER BY created_at DESC", (brand_id,))
+        else:
+            cursor.execute("SELECT * FROM contacts ORDER BY created_at DESC")
+
     rows = cursor.fetchall()
     contacts = [row_to_contact_dict(r) for r in rows]
     conn.close()
     return {"contacts": contacts}
 
 @app.post("/api/contacts")
-def create_contact(contact: ContactModel):
+def create_contact(
+    contact: ContactModel,
+    session_id: Optional[str] = Header(None, alias="X-Session-Id")
+):
     conn = get_db_connection()
     cursor = conn.cursor()
     contact_id = contact.id or f"cont-{uuid.uuid4().hex[:6]}"
     brand_id = contact.brandId or "brand-default"
+    active_session = (contact.sessionId or session_id or "").strip()
     now_iso = datetime.now().isoformat()
 
     try:
@@ -586,9 +691,9 @@ def create_contact(contact: ContactModel):
                 brand_id = first_b["id"]
             else:
                 cursor.execute("""
-                INSERT OR IGNORE INTO brands (id, name, category, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?)
-                """, (brand_id, "Kayanova Agent", "General", now_iso, now_iso))
+                INSERT OR IGNORE INTO brands (id, name, category, session_id, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """, (brand_id, "Kayanova Agent", "General", active_session, now_iso, now_iso))
                 conn.commit()
 
         cust_phone = (contact.customerPhone or "").strip()
@@ -612,7 +717,7 @@ def create_contact(contact: ContactModel):
             UPDATE contacts SET
                 brand_id = ?, customer_name = ?, customer_phone = ?, email = ?,
                 channel = ?, intent = ?, stage = ?, notes = ?,
-                total_orders_count = ?, total_spent = ?, last_contact_at = ?
+                total_orders_count = ?, total_spent = ?, session_id = ?, last_contact_at = ?
             WHERE id = ?
             """, (
                 brand_id, contact.customerName or existing_row["customer_name"] or "عميل الوكيل",
@@ -622,18 +727,18 @@ def create_contact(contact: ContactModel):
                 contact.intent or existing_row["intent"] or "Manual Lead",
                 contact.stage or existing_row["stage"] or "New Lead",
                 contact.notes or existing_row["notes"] or "",
-                new_orders, new_spent, now_iso, target_id
+                new_orders, new_spent, active_session, now_iso, target_id
             ))
             contact_id = target_id
         else:
             cursor.execute("""
-            INSERT INTO contacts (id, brand_id, customer_name, customer_phone, email, channel, intent, stage, notes, total_orders_count, total_spent, last_contact_at, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO contacts (id, brand_id, customer_name, customer_phone, email, channel, intent, stage, notes, total_orders_count, total_spent, session_id, last_contact_at, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 contact_id, brand_id, contact.customerName or "عميل الوكيل", cust_phone,
                 contact.email, contact.channel or "whatsapp", contact.intent or "Manual Lead",
                 contact.stage or "New Lead", contact.notes or "",
-                contact.totalOrdersCount or 0, contact.totalSpent or 0, now_iso, now_iso
+                contact.totalOrdersCount or 0, contact.totalSpent or 0, active_session, now_iso, now_iso
             ))
 
         conn.commit()
@@ -668,6 +773,184 @@ def delete_contact(contact_id: str):
     conn.commit()
     conn.close()
     return {"message": "Contact deleted successfully"}
+
+# ─── API Routes: Platform Deployment Requests & Leads ───
+
+@app.post("/api/platform/leads")
+def create_platform_lead(
+    lead: PlatformLeadModel,
+    session_id: Optional[str] = Header(None, alias="X-Session-Id")
+):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    lead_id = lead.id or f"lead-{uuid.uuid4().hex[:8]}"
+    active_session = (lead.sessionId or session_id or "").strip()
+    now_iso = datetime.now().isoformat()
+    channels_json = json.dumps(lead.channels or ["whatsapp"], ensure_ascii=False)
+
+    try:
+        cursor.execute("""
+        INSERT INTO platform_leads (
+            id, session_id, brand_id, brand_name, owner_name, owner_phone,
+            business_name, channels, notes, status, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'New', ?, ?)
+        """, (
+            lead_id, active_session, lead.brandId or "", lead.brandName or "",
+            lead.ownerName.strip(), lead.ownerPhone.strip(),
+            (lead.businessName or "").strip(), channels_json,
+            (lead.notes or "").strip(), now_iso, now_iso
+        ))
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
+    return {
+        "success": True,
+        "leadId": lead_id,
+        "message": "تم استلام طلب تفعيل الوكيل بنجاح"
+    }
+
+# ─── API Routes: Master Admin Management ───
+
+ADMIN_SECRET_KEY = os.environ.get("ADMIN_SECRET_KEY", "kayanova-admin-2026")
+
+def check_admin(admin_key: Optional[str], key: Optional[str]):
+    token = (admin_key or key or "").strip()
+    if not token or token != ADMIN_SECRET_KEY.strip():
+        raise HTTPException(status_code=401, detail="Unauthorized: Invalid Admin Secret Key")
+
+@app.post("/api/admin/verify")
+def verify_admin_key(payload: AdminVerifyModel):
+    is_valid = bool(payload.key and payload.key.strip() == ADMIN_SECRET_KEY.strip())
+    return {"valid": is_valid}
+
+@app.get("/api/admin/overview")
+def get_admin_overview(
+    admin_key: Optional[str] = Header(None, alias="X-Admin-Key"),
+    key: Optional[str] = None
+):
+    check_admin(admin_key, key)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT COUNT(*) as cnt FROM platform_leads;")
+    leads_cnt = cursor.fetchone()["cnt"]
+
+    cursor.execute("SELECT COUNT(*) as cnt FROM brands WHERE is_sample = 0;")
+    custom_brands_cnt = cursor.fetchone()["cnt"]
+
+    cursor.execute("SELECT COUNT(*) as cnt FROM orders;")
+    orders_cnt = cursor.fetchone()["cnt"]
+
+    cursor.execute("SELECT COUNT(DISTINCT session_id) as cnt FROM brands WHERE session_id != '';")
+    sessions_cnt = cursor.fetchone()["cnt"]
+
+    conn.close()
+    return {
+        "totalLeads": leads_cnt,
+        "totalCustomBrands": custom_brands_cnt,
+        "totalOrders": orders_cnt,
+        "totalSessions": sessions_cnt,
+    }
+
+@app.get("/api/admin/leads")
+def get_admin_leads(
+    admin_key: Optional[str] = Header(None, alias="X-Admin-Key"),
+    key: Optional[str] = None
+):
+    check_admin(admin_key, key)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM platform_leads ORDER BY created_at DESC")
+    rows = cursor.fetchall()
+    leads = [row_to_lead_dict(r) for r in rows]
+    conn.close()
+    return {"leads": leads}
+
+@app.patch("/api/admin/leads/{lead_id}/status")
+def update_admin_lead_status(
+    lead_id: str,
+    payload: AdminLeadStatusModel,
+    admin_key: Optional[str] = Header(None, alias="X-Admin-Key"),
+    key: Optional[str] = None
+):
+    check_admin(admin_key, key)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    now_iso = datetime.now().isoformat()
+    cursor.execute("UPDATE platform_leads SET status = ?, updated_at = ? WHERE id = ?", (payload.status, now_iso, lead_id))
+    conn.commit()
+    conn.close()
+    return {"message": "Lead status updated", "status": payload.status}
+
+@app.delete("/api/admin/leads/{lead_id}")
+def delete_admin_lead(
+    lead_id: str,
+    admin_key: Optional[str] = Header(None, alias="X-Admin-Key"),
+    key: Optional[str] = None
+):
+    check_admin(admin_key, key)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM platform_leads WHERE id = ?", (lead_id,))
+    conn.commit()
+    conn.close()
+    return {"message": "Lead deleted"}
+
+@app.get("/api/admin/all-brands")
+def get_admin_all_brands(
+    admin_key: Optional[str] = Header(None, alias="X-Admin-Key"),
+    key: Optional[str] = None
+):
+    check_admin(admin_key, key)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM brands ORDER BY created_at DESC")
+    rows = cursor.fetchall()
+    brands = []
+    for row in rows:
+        cursor.execute("SELECT * FROM menu_items WHERE brand_id = ?", (row["id"],))
+        m_rows = cursor.fetchall()
+        menu_items = [
+            {"id": m["id"], "name": m["name"], "price": float(m["price"]), "category": m["category"], "description": m["description"], "available": bool(m["available"])}
+            for m in m_rows
+        ]
+        brands.append(row_to_brand_dict(row, menu_items))
+    conn.close()
+    return {"brands": brands}
+
+@app.get("/api/admin/all-orders")
+def get_admin_all_orders(
+    admin_key: Optional[str] = Header(None, alias="X-Admin-Key"),
+    key: Optional[str] = None
+):
+    check_admin(admin_key, key)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM orders ORDER BY created_at DESC")
+    rows = cursor.fetchall()
+    orders = [row_to_order_dict(r) for r in rows]
+    conn.close()
+    return {"orders": orders}
+
+@app.post("/api/admin/purge-test-data")
+def purge_admin_test_data(
+    admin_key: Optional[str] = Header(None, alias="X-Admin-Key"),
+    key: Optional[str] = None
+):
+    check_admin(admin_key, key)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM orders WHERE brand_id NOT IN ('brand-bon-vanilla', 'brand-pearl-dental', 'brand-urban-chic');")
+    cursor.execute("DELETE FROM contacts WHERE brand_id NOT IN ('brand-bon-vanilla', 'brand-pearl-dental', 'brand-urban-chic');")
+    cursor.execute("DELETE FROM brands WHERE is_sample = 0;")
+    conn.commit()
+    conn.close()
+    return {"message": "Test data purged successfully"}
 
 # ─── API Routes: Live AI Chat Endpoint ───
 

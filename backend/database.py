@@ -112,6 +112,24 @@ def init_db():
     );
     """)
 
+    # 6. Platform Leads & Deployment Requests Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS platform_leads (
+        id TEXT PRIMARY KEY,
+        session_id TEXT DEFAULT '',
+        brand_id TEXT DEFAULT '',
+        brand_name TEXT DEFAULT '',
+        owner_name TEXT NOT NULL,
+        owner_phone TEXT NOT NULL,
+        business_name TEXT DEFAULT '',
+        channels TEXT DEFAULT '["whatsapp"]',
+        notes TEXT DEFAULT '',
+        status TEXT DEFAULT 'New',
+        created_at TEXT,
+        updated_at TEXT
+    );
+    """)
+
     # Ensure missing columns in older DB files
     cursor.execute("PRAGMA table_info(brands);")
     b_cols = [r["name"] for r in cursor.fetchall()]
@@ -119,11 +137,25 @@ def init_db():
         cursor.execute("ALTER TABLE brands ADD COLUMN guardrails TEXT DEFAULT '[\"strict_pricing\", \"order_confirmation\"]';")
     if "llm_model" not in b_cols:
         cursor.execute("ALTER TABLE brands ADD COLUMN llm_model TEXT DEFAULT 'google/gemini-3.7-flash';")
+    if "session_id" not in b_cols:
+        cursor.execute("ALTER TABLE brands ADD COLUMN session_id TEXT DEFAULT '';")
+    if "is_sample" not in b_cols:
+        cursor.execute("ALTER TABLE brands ADD COLUMN is_sample INTEGER DEFAULT 0;")
 
     cursor.execute("PRAGMA table_info(orders);")
     o_cols = [r["name"] for r in cursor.fetchall()]
     if "numeric_total" not in o_cols:
         cursor.execute("ALTER TABLE orders ADD COLUMN numeric_total REAL DEFAULT 0;")
+    if "session_id" not in o_cols:
+        cursor.execute("ALTER TABLE orders ADD COLUMN session_id TEXT DEFAULT '';")
+
+    cursor.execute("PRAGMA table_info(contacts);")
+    c_cols = [r["name"] for r in cursor.fetchall()]
+    if "session_id" not in c_cols:
+        cursor.execute("ALTER TABLE contacts ADD COLUMN session_id TEXT DEFAULT '';")
+
+    # Mark existing demo sample brands if is_sample is 0
+    cursor.execute("UPDATE brands SET is_sample = 1 WHERE id IN ('brand-bon-vanilla', 'brand-pearl-dental', 'brand-urban-chic');")
 
     # Seed initial data if brands table is empty
     cursor.execute("SELECT COUNT(*) as cnt FROM brands;")

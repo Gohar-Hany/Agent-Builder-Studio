@@ -1,4 +1,20 @@
-import type { BrandProfile, CustomerContact, ExtractedLead } from "./types";
+import type {
+  BrandProfile,
+  CustomerContact,
+  ExtractedLead,
+  PlatformLead,
+  AdminOverviewData,
+} from "./types";
+
+export function getSessionId(): string {
+  if (typeof window === "undefined") return "server";
+  let sid = window.localStorage.getItem("kayanova_session_id");
+  if (!sid) {
+    sid = "sess_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
+    window.localStorage.setItem("kayanova_session_id", sid);
+  }
+  return sid;
+}
 
 const getApiBase = () => {
   if (typeof window !== "undefined" && import.meta.env.VITE_API_URL) {
@@ -12,10 +28,12 @@ const getApiBase = () => {
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${getApiBase()}${endpoint}`;
+  const sid = getSessionId();
   const response = await fetch(url, {
     ...options,
     headers: {
       "Content-Type": "application/json",
+      "X-Session-Id": sid,
       ...(options.headers || {}),
     },
   });
@@ -198,4 +216,99 @@ export async function enhanceRulesApi(payload: {
     method: "POST",
     body: JSON.stringify(payload),
   });
+}
+
+// ─── Platform Deployment Requests (Leads) ───
+
+export async function createPlatformLeadApi(
+  lead: Partial<PlatformLead>,
+): Promise<{ message: string; leadId: string }> {
+  return request<{ message: string; leadId: string }>("/platform/leads", {
+    method: "POST",
+    body: JSON.stringify(lead),
+  });
+}
+
+// ─── Master Admin Endpoints ───
+
+export async function verifyAdminKeyApi(key: string): Promise<{ valid: boolean }> {
+  return request<{ valid: boolean }>("/admin/verify", {
+    method: "POST",
+    body: JSON.stringify({ key }),
+  });
+}
+
+export async function fetchAdminOverviewApi(adminKey: string): Promise<AdminOverviewData> {
+  return request<AdminOverviewData>("/admin/overview", {
+    headers: {
+      "X-Admin-Key": adminKey,
+    },
+  });
+}
+
+export async function fetchAdminLeadsApi(adminKey: string): Promise<PlatformLead[]> {
+  const data = await request<{ leads: PlatformLead[] }>("/admin/leads", {
+    headers: {
+      "X-Admin-Key": adminKey,
+    },
+  });
+  return data.leads;
+}
+
+export async function updateAdminLeadStatusApi(
+  leadId: string,
+  status: string,
+  adminKey: string,
+): Promise<{ message: string }> {
+  return request<{ message: string }>(`/admin/leads/${leadId}/status`, {
+    method: "PATCH",
+    headers: {
+      "X-Admin-Key": adminKey,
+    },
+    body: JSON.stringify({ status }),
+  });
+}
+
+export async function deleteAdminLeadApi(
+  leadId: string,
+  adminKey: string,
+): Promise<{ message: string }> {
+  return request<{ message: string }>(`/admin/leads/${leadId}`, {
+    method: "DELETE",
+    headers: {
+      "X-Admin-Key": adminKey,
+    },
+  });
+}
+
+export async function fetchAdminAllBrandsApi(adminKey: string): Promise<BrandProfile[]> {
+  const data = await request<{ brands: BrandProfile[] }>("/admin/all-brands", {
+    headers: {
+      "X-Admin-Key": adminKey,
+    },
+  });
+  return data.brands;
+}
+
+export async function fetchAdminAllOrdersApi(adminKey: string): Promise<ExtractedLead[]> {
+  const data = await request<{ orders: ExtractedLead[] }>("/admin/all-orders", {
+    headers: {
+      "X-Admin-Key": adminKey,
+    },
+  });
+  return data.orders;
+}
+
+export async function purgeAdminTestDataApi(
+  adminKey: string,
+): Promise<{ message: string; purged: { brands: number; orders: number; contacts: number } }> {
+  return request<{ message: string; purged: { brands: number; orders: number; contacts: number } }>(
+    "/admin/purge-test-data",
+    {
+      method: "POST",
+      headers: {
+        "X-Admin-Key": adminKey,
+      },
+    },
+  );
 }

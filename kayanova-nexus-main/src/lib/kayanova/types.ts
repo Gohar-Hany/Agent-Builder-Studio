@@ -46,6 +46,8 @@ export interface BrandProfile {
   };
   policies?: { delivery?: string; returns?: string; booking?: string };
   defaultChannel: "whatsapp" | "instagram" | "web";
+  sessionId?: string;
+  isSample?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -74,6 +76,8 @@ export interface ExtractedLead {
   intent?: string;
   channel?: string;
   confidence?: number;
+  sessionId?: string;
+  isSample?: boolean;
   timestamp: string;
 }
 
@@ -89,6 +93,8 @@ export interface CustomerContact {
   notes?: string;
   totalOrdersCount?: number;
   totalSpent?: number;
+  sessionId?: string;
+  isSample?: boolean;
   lastContactAt: string;
   createdAt: string;
 }
@@ -96,4 +102,34 @@ export interface CustomerContact {
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
+}
+
+export interface PlatformLead {
+  id: string;
+  sessionId?: string;
+  brandId?: string;
+  brandName?: string;
+  ownerName: string;
+  ownerPhone: string;
+  businessName?: string;
+  channels: string[];
+  notes?: string;
+  status: "new" | "contacted" | "activated" | "cancelled" | string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface AdminStats {
+  total_leads: number;
+  new_leads: number;
+  total_custom_brands: number;
+  total_orders: number;
+  total_contacts: number;
+  total_sessions: number;
+}
+
+export interface AdminOverviewData {
+  stats: AdminStats;
+  recent_leads: PlatformLead[];
+  recent_orders: ExtractedLead[];
 }

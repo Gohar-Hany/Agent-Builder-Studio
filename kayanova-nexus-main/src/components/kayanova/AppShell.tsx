@@ -7,11 +7,13 @@ import {
   Coffee,
   Globe,
   LayoutDashboard,
+  Lock,
   MessagesSquare,
   PanelLeft,
   PanelLeftClose,
   PanelLeftOpen,
   Search,
+  ShieldCheck,
   Shirt,
   Sparkles,
   Stethoscope,
@@ -207,25 +209,40 @@ export function AppShell({
           {collapsed ? (
             <div
               className="flex size-10 items-center justify-center rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-300 mx-auto"
-              title={t.tagline}
+              title={lang === "ar" ? "مساحة تجريبية خاصة ومعزولة" : "Private Sandbox"}
             >
-              <Bot className="size-5" />
+              <Lock className="size-4" />
             </div>
           ) : (
-            <div className="rounded-2xl border border-border bg-card p-3 shadow-xs">
+            <div className="rounded-2xl border border-border bg-card p-3 shadow-xs space-y-2">
               <div className="flex items-center gap-2">
                 <div className="flex size-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                  <Bot className="size-3.5" />
+                  <Lock className="size-3.5" />
                 </div>
-                <p className="text-xs font-bold text-foreground">
-                  {lang === "ar" ? "محرك الذكاء الاصطناعي" : "AI Agent Runtime"}
-                </p>
+                <div>
+                  <p className="text-xs font-bold text-foreground">
+                    {lang === "ar" ? "بيئة تجريبية معزولة" : "Client Sandbox"}
+                  </p>
+                  <p className="text-[10px] text-emerald-800 dark:text-emerald-300 font-semibold">
+                    {lang === "ar" ? "بياناتك مشفرة ومحمية" : "Isolated & Private"}
+                  </p>
+                </div>
               </div>
-              <p className="mt-1.5 text-[11px] font-medium text-muted-foreground leading-relaxed">
+              <p className="text-[10px] font-medium text-muted-foreground leading-relaxed">
                 {lang === "ar"
-                  ? "محرك ذكاء اصطناعي متعدد الوكلاء يدعم اللهجات والمبيعات الفورية."
-                  : "Multi-tenant conversational AI engine with live CRM sync."}
+                  ? "نماذجك وأوردراتك التجريبية خاصة بجلستك فقط ولا تظهر لباقي الزوار."
+                  : "Your draft agents and test orders are isolated and visible only to your session."}
               </p>
+
+              <div className="pt-1.5 border-t border-border/60">
+                <Link
+                  to="/admin"
+                  className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-muted-foreground hover:text-primary transition-colors py-0.5"
+                >
+                  <ShieldCheck className="size-3" />
+                  <span>{lang === "ar" ? "لوحة الإدارة (Admin)" : "Master Admin"}</span>
+                </Link>
+              </div>
             </div>
           )}
         </div>
@@ -294,6 +311,12 @@ export function AppShell({
 
             {/* Structured Executive Toolbar */}
             <div className="flex items-center gap-2 sm:gap-2.5 py-0.5 xl:py-0 w-full xl:w-auto justify-start xl:justify-end shrink-0 max-w-full">
+              {/* Private Sandbox Badge */}
+              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 border border-emerald-300 text-emerald-800 dark:bg-emerald-950/60 dark:border-emerald-800 dark:text-emerald-300">
+                <Lock className="size-3 text-emerald-700 dark:text-emerald-300" />
+                <span>{lang === "ar" ? "بيئة تجريبية معزولة" : "Isolated Sandbox"}</span>
+              </div>
+
               {/* Language Switcher in Top Bar (Desktop/Tablet) */}
               <Button
                 variant="outline"

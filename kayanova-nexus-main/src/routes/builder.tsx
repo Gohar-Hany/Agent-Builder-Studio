@@ -30,6 +30,7 @@ import {
 import { toast } from "sonner";
 import { AppShell, BrandGlyph } from "@/components/kayanova/AppShell";
 import { FormattedMessage } from "@/components/kayanova/FormattedMessage";
+import { RequestDeploymentModal } from "@/components/kayanova/RequestDeploymentModal";
 import { useAgentChat } from "@/components/kayanova/useAgentChat";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -129,6 +130,7 @@ function Builder() {
 
   const patch = (p: Partial<BrandProfile>) => setDraft((d) => ({ ...d, ...p }));
   const goto = (s: StepKey) => void navigate({ search: { step: s } });
+  const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
 
   const currentStepIdx = STEPS.findIndex((s) => s.key === step);
   const prevStep = currentStepIdx > 0 ? STEPS[currentStepIdx - 1]?.key : null;
@@ -447,7 +449,16 @@ function Builder() {
         ) : null}
         {step === "knowledge" ? <KnowledgeStep draft={draft} patch={patch} /> : null}
         {step === "behavior" ? <BehaviorStep draft={draft} patch={patch} /> : null}
-        {step === "preview" ? <PreviewStep draft={draft} onSave={save} /> : null}
+        {step === "preview" ? (
+          <PreviewStep
+            draft={draft}
+            onSave={save}
+            onRequestDeploy={() => {
+              save();
+              setIsDeployModalOpen(true);
+            }}
+          />
+        ) : null}
 
         {/* Step Bottom Navigation - Sticky & Touch-Optimized */}
         <div className="sticky bottom-0 z-10 flex flex-wrap items-center justify-between gap-3 mt-8 p-3 sm:p-4 rounded-2xl border-2 border-border bg-card/95 backdrop-blur-md shadow-md">
@@ -475,7 +486,7 @@ function Builder() {
               title={lang === "ar" ? "حفظ التغييرات" : "Save Changes"}
             >
               <Save className="size-4" />
-              <span>{lang === "ar" ? "حفظ التغييرات" : "Save Draft"}</span>
+              <span>{lang === "ar" ? "حفظ كمسودة" : "Save Draft"}</span>
             </Button>
 
             {nextStep ? (
@@ -490,16 +501,25 @@ function Builder() {
             ) : (
               <Button
                 size="default"
-                className="h-11 gap-2 text-xs sm:text-sm px-6 brand-gradient text-primary-foreground shadow-md font-bold rounded-xl active:scale-95 min-h-[44px]"
-                onClick={save}
+                className="h-11 gap-2 text-xs sm:text-sm px-5 sm:px-6 brand-gradient text-primary-foreground shadow-md font-bold rounded-xl active:scale-95 min-h-[44px]"
+                onClick={() => {
+                  save();
+                  setIsDeployModalOpen(true);
+                }}
               >
                 <Rocket className="size-4" />
-                <span>{lang === "ar" ? "حفظ وإطلاق الوكيل الآن" : "Save & Launch Agent Now"}</span>
+                <span>{lang === "ar" ? "طلب تفعيل الوكيل لقنوات التواصل" : "Deploy on Channels"}</span>
               </Button>
             )}
           </div>
         </div>
       </div>
+
+      <RequestDeploymentModal
+        open={isDeployModalOpen}
+        onOpenChange={setIsDeployModalOpen}
+        brand={draft}
+      />
     </AppShell>
   );
 }
@@ -1869,7 +1889,15 @@ function BehaviorStep({
 /* ========================================================================= */
 /* STEP 4: PREVIEW & LIVE TEST                                               */
 /* ========================================================================= */
-function PreviewStep({ draft, onSave }: { draft: BrandProfile; onSave: () => void }) {
+function PreviewStep({
+  draft,
+  onSave,
+  onRequestDeploy,
+}: {
+  draft: BrandProfile;
+  onSave: () => void;
+  onRequestDeploy: () => void;
+}) {
   const { t, lang } = useLanguage();
   const { messages, pending, send, reset } = useAgentChat(draft, "web");
   const [input, setInput] = useState("");
@@ -2049,11 +2077,19 @@ function PreviewStep({ draft, onSave }: { draft: BrandProfile; onSave: () => voi
         {/* Action Buttons */}
         <div className="flex flex-col gap-2.5 pt-1">
           <Button
-            onClick={onSave}
-            className="h-11 text-sm gap-2 brand-gradient text-primary-foreground shadow-sm font-bold"
+            onClick={onRequestDeploy}
+            className="h-11 text-sm gap-2 brand-gradient text-primary-foreground shadow-md font-bold"
           >
             <Rocket className="size-4" />
-            <span>{lang === "ar" ? "حفظ وإطلاق الوكيل" : "Save & Deploy Agent"}</span>
+            <span>{lang === "ar" ? "طلب تفعيل الوكيل لقنوات التواصل" : "Request Channel Deployment"}</span>
+          </Button>
+          <Button
+            onClick={onSave}
+            variant="outline"
+            className="h-10 text-sm gap-2 border-2 border-emerald-300 text-emerald-800 dark:border-emerald-700 dark:text-emerald-300 font-bold"
+          >
+            <Save className="size-4" />
+            <span>{lang === "ar" ? "حفظ كمسودة تجريبية" : "Save as Sandbox Draft"}</span>
           </Button>
           <Button variant="outline" asChild className="h-10 text-sm gap-2 border-2">
             <Link to="/simulator">
@@ -2064,10 +2100,10 @@ function PreviewStep({ draft, onSave }: { draft: BrandProfile; onSave: () => voi
         </div>
 
         {/* Deployment note */}
-        <p className="text-center text-[11px] text-muted-foreground">
+        <p className="text-center text-[11px] text-muted-foreground leading-relaxed">
           {lang === "ar"
-            ? "سيتم نشر الوكيل فوراً على الباكند بعد الحفظ"
-            : "Agent will be deployed instantly to backend after saving"}
+            ? "💡 ربط قنوات واتساب وإنستغرام يتم بربط رسمي Meta Cloud API لضمان استقرار الخدمة وتفادي الحظر."
+            : "Official Meta Cloud API integration ensures reliability and zero ban risk."}
         </p>
       </Section>
     </div>

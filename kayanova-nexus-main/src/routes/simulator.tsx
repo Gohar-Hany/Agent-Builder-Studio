@@ -15,6 +15,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   RotateCcw,
+  Rocket,
   Send,
   ShoppingBag,
   SlidersHorizontal,
@@ -28,6 +29,7 @@ import {
 import { toast } from "sonner";
 import { AppShell, BrandGlyph } from "@/components/kayanova/AppShell";
 import { FormattedMessage } from "@/components/kayanova/FormattedMessage";
+import { RequestDeploymentModal } from "@/components/kayanova/RequestDeploymentModal";
 import { useAgentChat } from "@/components/kayanova/useAgentChat";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -72,6 +74,7 @@ function Simulator() {
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [showInspector, setShowInspector] = useState(true);
   const [mobileTab, setMobileTab] = useState<"chat" | "inspector">("chat");
+  const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
   const { messages, pending, lead, send, reset } = useAgentChat(activeBrand, "web");
   const scroller = useRef<HTMLDivElement>(null);
 
@@ -838,6 +841,18 @@ function Simulator() {
                   <PanelLeftOpen className="size-4" />
                 )}
               </Button>
+
+              {/* Request Deployment Button */}
+              <Button
+                size="sm"
+                onClick={() => setIsDeployModalOpen(true)}
+                className="h-9 px-3.5 gap-1.5 brand-gradient text-white text-xs font-bold rounded-xl shadow-xs shrink-0"
+              >
+                <Rocket className="size-3.5" />
+                <span className="hidden sm:inline">
+                  {lang === "ar" ? "طلب تفعيل الوكيل" : "Deploy Agent"}
+                </span>
+              </Button>
             </div>
           }
         >
@@ -905,6 +920,12 @@ function Simulator() {
           </div>
         </AppShell>
       )}
+
+      <RequestDeploymentModal
+        open={isDeployModalOpen}
+        onOpenChange={setIsDeployModalOpen}
+        brand={activeBrand}
+      />
     </>
   );
 }
