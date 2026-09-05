@@ -129,7 +129,12 @@ export interface AdminStats {
 }
 
 export interface AdminOverviewData {
-  stats: AdminStats;
-  recent_leads: PlatformLead[];
-  recent_orders: ExtractedLead[];
+  stats?: AdminStats;
+  totalPlatformLeads?: number;
+  totalCustomBrands?: number;
+  totalCapturedOrders?: number;
+  activeSessionsCount?: number;
+  recentLeads?: PlatformLead[];
+  recent_leads?: PlatformLead[];
+  recent_orders?: ExtractedLead[];
 }
