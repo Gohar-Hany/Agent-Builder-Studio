@@ -634,6 +634,32 @@ function FormField({
   );
 }
 
+const legacyCategoryMap: Record<string, string> = {
+  Restaurant: "Restaurant, Cafe & Bakery",
+  Medical: "Medical, Dental & Clinic",
+  "E-commerce": "E-commerce & Retail Boutique",
+  "Real Estate": "Real Estate & Development",
+  Services: "Software & Technology Services",
+};
+
+function findMatchedCategory(cat: string | undefined) {
+  if (!cat) return undefined;
+  return COMMON_CATEGORIES.find(
+    (c) =>
+      c.key === cat ||
+      c.labelAr === cat ||
+      c.labelEn === cat ||
+      legacyCategoryMap[cat] === c.key,
+  );
+}
+
+function findMatchedRole(role: string | undefined) {
+  if (!role) return undefined;
+  return COMMON_ROLES.find(
+    (r) => r.key === role || r.labelAr === role || r.labelEn === role,
+  );
+}
+
 /* ========================================================================= */
 /* STEP 1: BRAND & IDENTITY                                                  */
 /* ========================================================================= */
@@ -649,19 +675,34 @@ function IdentityStep({
   const { t, lang } = useLanguage();
   const [isSuggestingBrand, setIsSuggestingBrand] = useState(false);
 
-  const matchedCategory = COMMON_CATEGORIES.find(
-    (c) =>
-      c.key === draft.category ||
-      c.labelAr === draft.category ||
-      c.labelEn === draft.category ||
-      (draft.category &&
-        (c.key.toLowerCase().includes(draft.category.toLowerCase()) ||
-          draft.category.toLowerCase().includes(c.key.toLowerCase()) ||
-          (draft.category === "Restaurant" && c.key.includes("Restaurant")) ||
-          (draft.category === "E-Commerce" && c.key.includes("E-commerce")) ||
-          (draft.category === "RealEstate" && c.key.includes("Real Estate")) ||
-          (draft.category === "Clinic" && c.key.includes("Medical")))),
-  );
+  const matchedCategory = findMatchedCategory(draft.category);
+  const matchedRole = findMatchedRole(draft.role);
+
+  const [isCustomCategory, setIsCustomCategory] = useState<boolean>(() => {
+    if (!draft.category) return false;
+    return !matchedCategory;
+  });
+
+  const [isCustomRole, setIsCustomRole] = useState<boolean>(() => {
+    if (!draft.role) return false;
+    return !matchedRole;
+  });
+
+  useEffect(() => {
+    if (!draft.category) {
+      setIsCustomCategory(false);
+    } else {
+      setIsCustomCategory(!findMatchedCategory(draft.category));
+    }
+  }, [draft.id]);
+
+  useEffect(() => {
+    if (!draft.role) {
+      setIsCustomRole(false);
+    } else {
+      setIsCustomRole(!findMatchedRole(draft.role));
+    }
+  }, [draft.id]);
 
   const suggestBrandIdentity = async () => {
     setIsSuggestingBrand(true);
@@ -735,13 +776,23 @@ function IdentityStep({
 
         <FormField label={lang === "ar" ? "مجال ونشاط العمل" : "Business Industry & Domain"}>
           <Select
-            value={matchedCategory ? matchedCategory.key : draft.category ? "other" : "other"}
+            value={
+              isCustomCategory
+                ? "other"
+                : matchedCategory
+                  ? matchedCategory.key
+                  : undefined
+            }
             onValueChange={(val) => {
               if (val === "other") {
-                if (matchedCategory) patch({ category: "" });
+                setIsCustomCategory(true);
+                patch({ category: "" });
               } else {
                 const found = COMMON_CATEGORIES.find((c) => c.key === val);
-                if (found) patch({ category: lang === "ar" ? found.labelAr : found.labelEn });
+                if (found) {
+                  setIsCustomCategory(false);
+                  patch({ category: lang === "ar" ? found.labelAr : found.labelEn });
+                }
               }
             }}
           >
@@ -763,8 +814,8 @@ function IdentityStep({
               </SelectItem>
             </SelectContent>
           </Select>
-          {/* Custom Industry Input if 'other' */}
-          {(!matchedCategory || draft.category === "") && (
+          {/* Custom Industry Input if 'other' is selected */}
+          {isCustomCategory && (
             <div className="pt-1.5 duration-200 animate-in fade-in slide-in-from-top-1">
               <Input
                 id="custom-category"
@@ -776,6 +827,7 @@ function IdentityStep({
                     : "Type custom industry (e.g. MarkTech Agency, Logistics...)"
                 }
                 className="h-10 text-sm"
+                autoFocus
               />
             </div>
           )}
@@ -784,20 +836,22 @@ function IdentityStep({
         <FormField label={t.builder.roleLabel}>
           <Select
             value={
-              COMMON_ROLES.find(
-                (r) => r.key === draft.role || r.labelAr === draft.role || r.labelEn === draft.role,
-              )?.key ?? (draft.role ? "other" : "")
+              isCustomRole
+                ? "other"
+                : matchedRole
+                  ? matchedRole.key
+                  : undefined
             }
             onValueChange={(val) => {
               if (val === "other") {
-                const isPreset = COMMON_ROLES.some(
-                  (r) =>
-                    r.key === draft.role || r.labelAr === draft.role || r.labelEn === draft.role,
-                );
-                if (isPreset) patch({ role: "" });
+                setIsCustomRole(true);
+                patch({ role: "" });
               } else {
                 const found = COMMON_ROLES.find((r) => r.key === val);
-                if (found) patch({ role: lang === "ar" ? found.labelAr : found.labelEn });
+                if (found) {
+                  setIsCustomRole(false);
+                  patch({ role: lang === "ar" ? found.labelAr : found.labelEn });
+                }
               }
             }}
           >
@@ -819,11 +873,8 @@ function IdentityStep({
               </SelectItem>
             </SelectContent>
           </Select>
-          {/* If 'other' is active or custom role typed, show custom input */}
-          {(!COMMON_ROLES.some(
-            (r) => r.key === draft.role || r.labelAr === draft.role || r.labelEn === draft.role,
-          ) ||
-            draft.role === "") && (
+          {/* If 'other' is selected, show custom role input */}
+          {isCustomRole && (
             <div className="pt-1.5 duration-200 animate-in fade-in slide-in-from-top-1">
               <Input
                 id="agent-role-custom"
@@ -835,6 +886,7 @@ function IdentityStep({
                     : "Type custom agent job title..."
                 }
                 className="h-10 text-sm"
+                autoFocus
               />
             </div>
           )}
@@ -1160,6 +1212,36 @@ function KnowledgeStep({
   const [isAiGeneratingItems, setIsAiGeneratingItems] = useState(false);
   const items = draft.menuItems ?? [];
 
+  const matchedSchedule = SCHEDULE_PRESETS.find(
+    (p) =>
+      p.valueAr === draft.contactInfo?.hours ||
+      p.valueEn === draft.contactInfo?.hours ||
+      p.labelAr === draft.contactInfo?.hours ||
+      p.labelEn === draft.contactInfo?.hours ||
+      p.key === draft.contactInfo?.hours,
+  );
+
+  const [isCustomHours, setIsCustomHours] = useState<boolean>(() => {
+    if (!draft.contactInfo?.hours) return false;
+    return !matchedSchedule;
+  });
+
+  useEffect(() => {
+    if (!draft.contactInfo?.hours) {
+      setIsCustomHours(false);
+    } else {
+      const matched = SCHEDULE_PRESETS.find(
+        (p) =>
+          p.valueAr === draft.contactInfo?.hours ||
+          p.valueEn === draft.contactInfo?.hours ||
+          p.labelAr === draft.contactInfo?.hours ||
+          p.labelEn === draft.contactInfo?.hours ||
+          p.key === draft.contactInfo?.hours,
+      );
+      setIsCustomHours(!matched);
+    }
+  }, [draft.id]);
+
   const addItem = () => {
     if (!name.trim() || !price) {
       toast.error(
@@ -1446,27 +1528,26 @@ function KnowledgeStep({
         <FormField label={lang === "ar" ? "مواعيد العمل والتوصيل" : "Working & Delivery Hours"}>
           <Select
             value={
-              SCHEDULE_PRESETS.find(
-                (p) =>
-                  p.valueAr === draft.contactInfo?.hours ||
-                  p.valueEn === draft.contactInfo?.hours ||
-                  p.labelAr === draft.contactInfo?.hours ||
-                  p.labelEn === draft.contactInfo?.hours ||
-                  p.key === draft.contactInfo?.hours,
-              )?.key ?? (draft.contactInfo?.hours ? "custom" : "")
+              isCustomHours
+                ? "custom"
+                : matchedSchedule
+                  ? matchedSchedule.key
+                  : undefined
             }
             onValueChange={(val) => {
               if (val === "custom") {
+                setIsCustomHours(true);
                 patch({
                   contactInfo: {
                     ...draft.contactInfo,
-                    hours: draft.contactInfo?.hours || "",
-                    workingHours: draft.contactInfo?.workingHours || "",
+                    hours: "",
+                    workingHours: "",
                   },
                 });
               } else {
                 const preset = SCHEDULE_PRESETS.find((s) => s.key === val);
                 if (preset) {
+                  setIsCustomHours(false);
                   const text = lang === "ar" ? preset.valueAr : preset.valueEn;
                   patch({
                     contactInfo: {
@@ -1500,15 +1581,7 @@ function KnowledgeStep({
               </SelectItem>
             </SelectContent>
           </Select>
-          {(!SCHEDULE_PRESETS.some(
-            (p) =>
-              p.valueAr === draft.contactInfo?.hours ||
-              p.valueEn === draft.contactInfo?.hours ||
-              p.labelAr === draft.contactInfo?.hours ||
-              p.labelEn === draft.contactInfo?.hours ||
-              p.key === draft.contactInfo?.hours,
-          ) ||
-            draft.contactInfo?.hours === "") && (
+          {isCustomHours && (
             <div className="pt-1.5 duration-200 animate-in fade-in slide-in-from-top-1">
               <Input
                 id="hours-custom"
@@ -1526,6 +1599,7 @@ function KnowledgeStep({
                   lang === "ar" ? "اكتب مواعيد العمل المخصصة..." : "Type custom working hours..."
                 }
                 className="h-10 text-sm"
+                autoFocus
               />
             </div>
           )}
