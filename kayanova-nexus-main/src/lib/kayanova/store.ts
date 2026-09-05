@@ -14,6 +14,7 @@ import {
   createContactApi,
   updateContactApi,
   deleteContactApi,
+  getSessionId,
 } from "./api";
 
 const MIGRATION_KEY = "kayanova.sandbox_migrated_v3_format";
@@ -196,6 +197,7 @@ export function useKayanova() {
               }
             }
 
+            const currentSid = getSessionId();
             const localBrands = readStorage<BrandProfile[]>(BRANDS_KEY, []).filter(
               (b) =>
                 !b.name.includes("Custom Agent Brand") &&
@@ -203,19 +205,28 @@ export function useKayanova() {
                 !deletedBrandIds.includes(b.id) &&
                 !isSampleBrand(b),
             );
+            const localBrandIds = new Set(localBrands.map((b) => b.id));
+
+            // Strictly filter backend brands: only accept brands created in THIS browser or strictly matching this session ID
             const validBackendBrands = bData.filter(
               (b) =>
                 !b.name.includes("Custom Agent Brand") &&
                 b.name.trim() !== "" &&
                 !deletedBrandIds.includes(b.id) &&
-                !isSampleBrand(b),
+                !isSampleBrand(b) &&
+                (localBrandIds.has(b.id) || (b.sessionId && b.sessionId === currentSid)),
             );
-            const mergedBrands = [...validBackendBrands];
 
-            // Retain any local brands not present on the backend and sync them
+            const mergedBrands = [...localBrands];
+            for (const vb of validBackendBrands) {
+              if (!mergedBrands.some((mb) => mb.id === vb.id)) {
+                mergedBrands.push(vb);
+              }
+            }
+
+            // Push any local brands to backend if missing
             for (const lb of localBrands) {
-              if (!mergedBrands.some((mb) => mb.id === lb.id)) {
-                mergedBrands.push(lb);
+              if (!validBackendBrands.some((vb) => vb.id === lb.id)) {
                 createBrandApi(lb).catch(() => {});
               }
             }
@@ -363,31 +374,36 @@ export function useKayanova() {
 
   const saveBrand = useCallback(
     async (brand: BrandProfile) => {
+      const brandWithSid: BrandProfile = {
+        ...brand,
+        sessionId: brand.sessionId || getSessionId(),
+      };
+
       // Remove from tombstone if re-created/saved
       const deleted = readStorage<string[]>(DELETED_BRANDS_KEY, []);
-      if (deleted.includes(brand.id)) {
+      if (deleted.includes(brandWithSid.id)) {
         writeStorage(
           DELETED_BRANDS_KEY,
-          deleted.filter((d) => d !== brand.id),
+          deleted.filter((d) => d !== brandWithSid.id),
         );
       }
 
       let isNew = false;
       setBrands((prev) => {
-        const idx = prev.findIndex((b) => b.id === brand.id);
+        const idx = prev.findIndex((b) => b.id === brandWithSid.id);
         isNew = idx === -1;
-        const next = isNew ? [brand, ...prev] : prev.map((b) => (b.id === brand.id ? brand : b));
+        const next = isNew ? [brandWithSid, ...prev] : prev.map((b) => (b.id === brandWithSid.id ? brandWithSid : b));
         writeStorage(BRANDS_KEY, next);
         return next;
       });
-      setActiveBrandId(brand.id);
+      setActiveBrandId(brandWithSid.id);
 
       // Persist to FastAPI Backend
       try {
         if (isNew) {
-          await createBrandApi(brand);
+          await createBrandApi(brandWithSid);
         } else {
-          await updateBrandApi(brand);
+          await updateBrandApi(brandWithSid);
         }
       } catch (err) {
         console.warn("Backend brand save error:", err);
