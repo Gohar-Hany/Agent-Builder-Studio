@@ -154,15 +154,6 @@ def init_db():
     if "session_id" not in c_cols:
         cursor.execute("ALTER TABLE contacts ADD COLUMN session_id TEXT DEFAULT '';")
 
-    # Mark existing demo sample brands if is_sample is 0
-    cursor.execute("UPDATE brands SET is_sample = 1 WHERE id IN ('brand-bon-vanilla', 'brand-pearl-dental', 'brand-urban-chic');")
-
-    # Seed initial data if brands table is empty
-    cursor.execute("SELECT COUNT(*) as cnt FROM brands;")
-    row = cursor.fetchone()
-    if row and row["cnt"] == 0:
-        seed_initial_data(conn)
-
     conn.commit()
     conn.close()
 

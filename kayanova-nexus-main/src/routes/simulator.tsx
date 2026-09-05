@@ -753,6 +753,35 @@ function Simulator() {
     </div>
   );
 
+  if (brands.length === 0) {
+    return (
+      <AppShell
+        title={t.simulator.title}
+        subtitle={lang === "ar" ? "محاكاة التحدث مع وكيلك الذكي" : "Test live AI conversations with your agent"}
+      >
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card p-12 text-center shadow-2xs my-8 max-w-2xl mx-auto">
+          <div className="flex size-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 mb-4">
+            <Bot className="size-8" />
+          </div>
+          <h3 className="text-lg font-bold text-foreground mb-2">
+            {lang === "ar" ? "لم يتم إنشاء أي وكيل ذكي بعد" : "No AI Agent Created Yet"}
+          </h3>
+          <p className="text-sm text-muted-foreground max-w-md mb-6 leading-relaxed">
+            {lang === "ar"
+              ? "قم بإنشاء وكيلك الذكي لنشاطك التجاري في دقيقة واحدة لتبدأ المحاكاة وتجربة المحادثة وتأكيد الطلبات معه فوراً."
+              : "Create an AI agent for your business in 1 minute to start simulating live chats and order testing."}
+          </p>
+          <Button asChild className="h-10 px-6 font-bold shadow-2xs">
+            <Link to="/builder">
+              <Bot className="size-4 ltr:mr-2 rtl:ml-2" />
+              {lang === "ar" ? "إنشاء وكيلك الآن" : "Create Agent Now"}
+            </Link>
+          </Button>
+        </div>
+      </AppShell>
+    );
+  }
+
   return (
     <>
       {/* ======================================================================= */}
@@ -779,18 +808,25 @@ function Simulator() {
           }
           actions={
             <div className="flex items-center gap-2 shrink-0">
-              <Select value={activeBrand?.id ?? ""} onValueChange={setActiveBrandId}>
-                <SelectTrigger className="h-9 w-36 sm:w-48 border-border bg-card text-xs font-semibold text-foreground">
-                  <SelectValue placeholder={t.dashboard.directoryTitle} />
-                </SelectTrigger>
-                <SelectContent className="border-border bg-card">
-                  {brands.map((b) => (
-                    <SelectItem key={b.id} value={b.id} className="text-foreground text-xs">
-                      {b.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {brands.length > 1 ? (
+                <Select value={activeBrand?.id ?? ""} onValueChange={setActiveBrandId}>
+                  <SelectTrigger className="h-9 w-36 sm:w-48 border-border bg-card text-xs font-semibold text-foreground">
+                    <SelectValue placeholder={t.dashboard.directoryTitle} />
+                  </SelectTrigger>
+                  <SelectContent className="border-border bg-card">
+                    {brands.map((b) => (
+                      <SelectItem key={b.id} value={b.id} className="text-foreground text-xs">
+                        {b.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : activeBrand ? (
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50/60 dark:border-emerald-900/40 dark:bg-emerald-950/20 text-xs font-bold text-emerald-800 dark:text-emerald-300">
+                  <Bot className="size-3.5 text-emerald-600 shrink-0" />
+                  <span>{activeBrand.name}</span>
+                </div>
+              ) : null}
 
               {/* LLM Model Switcher Dropdown */}
               <Select

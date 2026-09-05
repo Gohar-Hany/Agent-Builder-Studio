@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo, useState, useEffect } from "react";
 import {
   ArrowUpRight,
   Building2,
@@ -19,6 +19,7 @@ import {
   Printer,
   Search,
   ShoppingBag,
+  Sparkles,
   Store,
   Trash2,
   Truck,
@@ -58,16 +59,16 @@ import { useLanguage } from "@/lib/i18n/LanguageContext";
 export const Route = createFileRoute("/analytics")({
   head: () => ({
     meta: [
-      { title: "Dual CRM Operations & Lead Database — Kayanova" },
+      { title: "Agent Orders & CRM Hub — Kayanova" },
       {
         name: "description",
         content:
-          "Dual CRM System: Orders & Transactions Pipeline and Comprehensive Customer Leads & Contacts Database.",
+          "Private CRM System: Orders & Transactions Pipeline and Comprehensive Customer Leads & Contacts Database for your active AI agent.",
       },
-      { property: "og:title", content: "Dual CRM Operations — Kayanova" },
+      { property: "og:title", content: "Agent Orders & CRM Hub — Kayanova" },
       {
         property: "og:description",
-        content: "Multi-tenant dual CRM for sales orders and customer contacts directory.",
+        content: "Isolated CRM for sales orders and customer contacts directory.",
       },
     ],
   }),
@@ -102,6 +103,8 @@ function parseItemText(raw: string) {
 function DualCrmPage() {
   const {
     brands,
+    activeBrand,
+    setActiveBrandId,
     leads,
     contacts,
     updateLeadStatus,
@@ -114,7 +117,18 @@ function DualCrmPage() {
 
   const { t, lang, isRtl } = useLanguage();
   const [activeTab, setActiveTab] = useState<CrmTab>("orders");
-  const [brandFilter, setBrandFilter] = useState("all");
+
+  // Scoped strictly to the active agent or chosen agent (never "all")
+  const [brandFilter, setBrandFilter] = useState<string>(() => activeBrand?.id || brands[0]?.id || "");
+
+  useEffect(() => {
+    if (activeBrand?.id && (!brandFilter || !brands.some((b) => b.id === brandFilter))) {
+      setBrandFilter(activeBrand.id);
+    }
+  }, [activeBrand, brands, brandFilter]);
+
+  const currentBrandId = brandFilter || activeBrand?.id || brands[0]?.id || "";
+  const currentBrand = brands.find((b) => b.id === currentBrandId) || activeBrand || brands[0];
 
   // Orders Filter States
   const [orderStatus, setOrderStatus] = useState("all");
@@ -142,7 +156,7 @@ function DualCrmPage() {
     name: "",
     phone: "",
     email: "",
-    brandId: brands[0]?.id ?? "",
+    brandId: currentBrandId || brands[0]?.id || "",
     channel: "whatsapp",
     intent: "",
     stage: "New Lead",
@@ -150,15 +164,17 @@ function DualCrmPage() {
   });
 
   const brandName = (id: string) =>
-    brands.find((b) => b.id === id || b.name === id)?.name ?? id ?? "Global";
+    brands.find((b) => b.id === id || b.name === id)?.name ?? id ?? currentBrand?.name ?? "";
 
-  // Filtered Orders
+  // Filtered Orders strictly for current brand
   const filteredOrders = useMemo(() => {
+    if (!currentBrandId) return [];
     const q = orderQuery.trim().toLowerCase();
-    const activeBrandObj = brands.find((b) => b.id === brandFilter);
     return leads.filter((l) => {
-      if (brandFilter !== "all" && l.brandId !== brandFilter && l.brandId !== activeBrandObj?.name)
-        return false;
+      const matchesBrand =
+        l.brandId === currentBrandId ||
+        (currentBrand && (l.brandId === currentBrand.id || l.brandId === currentBrand.name));
+      if (!matchesBrand) return false;
       if (orderStatus !== "all" && l.status !== orderStatus) return false;
       if (!q) return true;
       return [l.customerName, l.customerPhone, l.deliveryAddress, ...(l.items ?? [])]
@@ -166,15 +182,17 @@ function DualCrmPage() {
         .toLowerCase()
         .includes(q);
     });
-  }, [leads, brandFilter, brands, orderStatus, orderQuery]);
+  }, [leads, currentBrandId, currentBrand, orderStatus, orderQuery]);
 
-  // Filtered Contacts
+  // Filtered Contacts strictly for current brand
   const filteredContacts = useMemo(() => {
+    if (!currentBrandId) return [];
     const q = contactQuery.trim().toLowerCase();
-    const activeBrandObj = brands.find((b) => b.id === brandFilter);
     return contacts.filter((c) => {
-      if (brandFilter !== "all" && c.brandId !== brandFilter && c.brandId !== activeBrandObj?.name)
-        return false;
+      const matchesBrand =
+        c.brandId === currentBrandId ||
+        (currentBrand && (c.brandId === currentBrand.id || c.brandId === currentBrand.name));
+      if (!matchesBrand) return false;
       if (contactStage !== "all" && c.stage !== contactStage) return false;
       if (contactChannel !== "all" && c.channel !== contactChannel) return false;
       if (!q) return true;
@@ -184,19 +202,19 @@ function DualCrmPage() {
         .toLowerCase()
         .includes(q);
     });
-  }, [contacts, brandFilter, brands, contactStage, contactChannel, contactQuery]);
+  }, [contacts, currentBrandId, currentBrand, contactStage, contactChannel, contactQuery]);
 
-  // Orders Stats
-  const revenue = leads.reduce((s, l) => s + (l.numericTotal ?? 0), 0);
-  const avgOrderValue = leads.length ? Math.round(revenue / leads.length) : 0;
-  const completedOrders = leads.filter((l) => l.status === "Completed").length;
-  const fulfillmentRatio = leads.length ? Math.round((completedOrders / leads.length) * 100) : 0;
+  // Orders Stats (Strictly for currentBrand!)
+  const revenue = filteredOrders.reduce((s, l) => s + (l.numericTotal ?? 0), 0);
+  const avgOrderValue = filteredOrders.length ? Math.round(revenue / filteredOrders.length) : 0;
+  const completedOrders = filteredOrders.filter((l) => l.status === "Completed").length;
+  const fulfillmentRatio = filteredOrders.length ? Math.round((completedOrders / filteredOrders.length) * 100) : 0;
 
-  // Contacts Stats
-  const totalContacts = contacts.length;
-  const convertedCount = contacts.filter((c) => c.stage === "Converted").length;
+  // Contacts Stats (Strictly for currentBrand!)
+  const totalContacts = filteredContacts.length;
+  const convertedCount = filteredContacts.filter((c) => c.stage === "Converted").length;
   const conversionRate = totalContacts ? Math.round((convertedCount / totalContacts) * 100) : 0;
-  const qualifiedCount = contacts.filter(
+  const qualifiedCount = filteredContacts.filter(
     (c) => c.stage === "Qualified" || c.stage === "Contacted",
   ).length;
 
@@ -314,10 +332,42 @@ function DualCrmPage() {
     toast.success("Customer lead added to database!");
   };
 
+  if (brands.length === 0) {
+    return (
+      <AppShell title={t.crm.title} subtitle={t.crm.subtitle}>
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card p-12 text-center shadow-2xs my-8 max-w-2xl mx-auto">
+          <div className="flex size-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 mb-4">
+            <ShoppingBag className="size-8" />
+          </div>
+          <h3 className="text-lg font-bold text-foreground mb-2">
+            {lang === "ar" ? "لا يوجد وكيل ذكي نشط حالياً" : "No Active AI Agent Found"}
+          </h3>
+          <p className="text-sm text-muted-foreground max-w-md mb-6 leading-relaxed">
+            {lang === "ar"
+              ? "قم بإنشاء وكيلك الذكي الأول لنشاطك التجاري لتبدأ المحادثات واستقبال طلبات المبيعات وإدارتها مباشرة هنا بشكل معزول وخاص بك."
+              : "Create your first AI agent to start capturing live customer conversations, orders, and sales leads directly into your private CRM."}
+          </p>
+          <Button asChild className="h-10 px-6 font-bold shadow-2xs">
+            <Link to="/builder">
+              <Plus className="size-4 ltr:mr-2 rtl:ml-2" />
+              {lang === "ar" ? "إنشاء وكيل ذكي الآن" : "Create AI Agent Now"}
+            </Link>
+          </Button>
+        </div>
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell
       title={t.crm.title}
-      subtitle={t.crm.subtitle}
+      subtitle={
+        currentBrand
+          ? lang === "ar"
+            ? `سجل مبيعات وعملاء: ${currentBrand.name}`
+            : `Sales & orders pipeline for: ${currentBrand.name}`
+          : t.crm.subtitle
+      }
       actions={
         <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           {activeTab === "orders" ? (
@@ -370,7 +420,7 @@ function DualCrmPage() {
                 activeTab === "orders" ? "bg-white/20 text-white" : "bg-secondary text-foreground",
               )}
             >
-              {leads.length}
+              {filteredOrders.length}
             </span>
           </button>
 
@@ -393,34 +443,47 @@ function DualCrmPage() {
                   : "bg-secondary text-foreground",
               )}
             >
-              {contacts.length}
+              {filteredContacts.length}
             </span>
           </button>
         </div>
 
-        {/* Global Brand Filter Dropdown */}
+        {/* Dedicated Agent Selector / Indicator */}
         <div className="flex items-center gap-2 w-full sm:w-auto justify-start sm:justify-end shrink-0">
-          <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap hidden md:inline">
-            {t.crm.filterByBrand}:
-          </span>
-          <Select value={brandFilter} onValueChange={setBrandFilter}>
-            <SelectTrigger className="h-9.5 w-full sm:w-64 border-border bg-card text-xs font-semibold text-foreground shadow-2xs">
-              <div className="flex items-center gap-2 truncate">
-                <Building2 className="size-3.5 text-primary shrink-0" />
-                <SelectValue placeholder={t.all} />
-              </div>
-            </SelectTrigger>
-            <SelectContent className="border-border bg-card">
-              <SelectItem value="all" className="text-xs font-semibold">
-                {lang === "ar" ? "جميع البراندات والوكلاء (الكل)" : "All Brands & Agents (All)"}
-              </SelectItem>
-              {brands.map((b) => (
-                <SelectItem key={b.id} value={b.id} className="text-xs">
-                  {b.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {brands.length > 1 ? (
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap hidden md:inline">
+                {t.crm.filterByBrand}:
+              </span>
+              <Select
+                value={currentBrandId}
+                onValueChange={(val) => {
+                  setBrandFilter(val);
+                  setActiveBrandId(val);
+                }}
+              >
+                <SelectTrigger className="h-9.5 w-full sm:w-60 border-border bg-card text-xs font-semibold text-foreground shadow-2xs">
+                  <div className="flex items-center gap-2 truncate">
+                    <Building2 className="size-3.5 text-primary shrink-0" />
+                    <SelectValue />
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="border-border bg-card">
+                  {brands.map((b) => (
+                    <SelectItem key={b.id} value={b.id} className="text-xs font-medium">
+                      {b.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50/60 dark:border-emerald-900/40 dark:bg-emerald-950/20 text-xs font-bold text-emerald-800 dark:text-emerald-300">
+              <Sparkles className="size-3.5 text-emerald-600 shrink-0" />
+              <span className="text-muted-foreground font-medium">{t.crm.filterByBrand}:</span>
+              <span className="text-foreground font-bold">{currentBrand?.name || "—"}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -463,7 +526,7 @@ function DualCrmPage() {
                   </div>
                 </div>
                 <p className="mt-2 text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-                  {leads.length}
+                  {filteredOrders.length}
                 </p>
                 <p className="mt-0.5 text-[11px] text-muted-foreground">
                   {completedOrders} {t.crm.statusCompleted}
@@ -545,7 +608,6 @@ function DualCrmPage() {
                     <th className="px-4 py-3">
                       {t.crm.customerName} & {t.crm.customerPhone}
                     </th>
-                    <th className="px-4 py-3">{t.dashboard.directoryTitle}</th>
                     <th className="px-4 py-3">{t.crm.orderedItems}</th>
                     <th className="px-4 py-3">{t.crm.orderTotal}</th>
                     <th className="px-4 py-3">
@@ -559,7 +621,7 @@ function DualCrmPage() {
                 <tbody className="divide-y divide-border">
                   {filteredOrders.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="px-4 py-16 text-center">
+                      <td colSpan={7} className="px-4 py-16 text-center">
                         <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-2xl bg-secondary text-muted-foreground/60">
                           <ShoppingBag className="size-6" />
                         </div>
@@ -579,11 +641,6 @@ function DualCrmPage() {
                           <p className="font-mono text-xs text-muted-foreground">
                             {l.customerPhone || "—"}
                           </p>
-                        </td>
-                        <td className="px-4 py-3">
-                          <Badge variant="secondary" className="font-medium text-xs">
-                            {brandName(l.brandId)}
-                          </Badge>
                         </td>
                         <td className="max-w-[280px] px-4 py-3">
                           {!l.items || l.items.length === 0 ? (
@@ -988,7 +1045,6 @@ function DualCrmPage() {
                 <thead className="bg-secondary/60 text-xs font-semibold uppercase text-muted-foreground border-b border-border">
                   <tr>
                     <th className="px-4 py-3.5">{t.crm.customerName} & {t.crm.customerPhone}</th>
-                    <th className="px-4 py-3.5">{t.dashboard.directoryTitle}</th>
                     <th className="px-4 py-3.5">{t.crm.filterChannel}</th>
                     <th className="px-4 py-3.5">{lang === "ar" ? "موضوع الاستفسار" : "Inquired Topic"}</th>
                     <th className="px-4 py-3.5">{t.crm.filterStage}</th>
@@ -1000,7 +1056,7 @@ function DualCrmPage() {
                 <tbody className="divide-y divide-border">
                   {filteredContacts.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="px-4 py-16 text-center">
+                      <td colSpan={7} className="px-4 py-16 text-center">
                         <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-2xl bg-secondary text-muted-foreground/60">
                           <Users className="size-6" />
                         </div>
@@ -1045,14 +1101,6 @@ function DualCrmPage() {
                           </div>
                         </td>
 
-                        {/* 2. Brand Directory */}
-                        <td className="px-4 py-3.5 whitespace-nowrap">
-                          <Badge variant="secondary" className="font-medium text-xs">
-                            {brandName(c.brandId)}
-                          </Badge>
-                        </td>
-
-                        {/* 3. Channel */}
                         <td className="px-4 py-3.5 whitespace-nowrap">
                           {c.channel === "whatsapp" && (
                             <span className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">

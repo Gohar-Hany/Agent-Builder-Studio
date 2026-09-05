@@ -297,7 +297,8 @@ def get_brands(
     if active_session:
         cursor.execute("SELECT * FROM brands WHERE session_id = ? ORDER BY created_at ASC", (active_session,))
     else:
-        cursor.execute("SELECT * FROM brands WHERE is_sample = 1 ORDER BY created_at ASC")
+        conn.close()
+        return {"brands": []}
 
     rows = cursor.fetchall()
     
@@ -544,10 +545,8 @@ def get_orders(
         else:
             cursor.execute("SELECT * FROM orders WHERE session_id = ? ORDER BY created_at DESC", (active_session,))
     else:
-        if brand_id and brand_id != "all":
-            cursor.execute("SELECT * FROM orders WHERE brand_id = ? ORDER BY created_at DESC", (brand_id,))
-        else:
-            cursor.execute("SELECT * FROM orders ORDER BY created_at DESC")
+        conn.close()
+        return {"orders": []}
 
     rows = cursor.fetchall()
     orders = [row_to_order_dict(r) for r in rows]
@@ -659,10 +658,8 @@ def get_contacts(
         else:
             cursor.execute("SELECT * FROM contacts WHERE session_id = ? ORDER BY created_at DESC", (active_session,))
     else:
-        if brand_id and brand_id != "all":
-            cursor.execute("SELECT * FROM contacts WHERE brand_id = ? ORDER BY created_at DESC", (brand_id,))
-        else:
-            cursor.execute("SELECT * FROM contacts ORDER BY created_at DESC")
+        conn.close()
+        return {"contacts": []}
 
     rows = cursor.fetchall()
     contacts = [row_to_contact_dict(r) for r in rows]
@@ -900,6 +897,21 @@ def delete_admin_lead(
     conn.commit()
     conn.close()
     return {"message": "Lead deleted"}
+
+@app.api_route("/api/admin/reset-database", methods=["GET", "POST"])
+def reset_database():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM menu_items;")
+    cursor.execute("DELETE FROM orders;")
+    cursor.execute("DELETE FROM contacts;")
+    cursor.execute("DELETE FROM chat_messages;")
+    cursor.execute("DELETE FROM brands;")
+    cursor.execute("DELETE FROM customers;")
+    cursor.execute("DELETE FROM platform_leads;")
+    conn.commit()
+    conn.close()
+    return {"status": "ok", "message": "All database tables formatted and wiped completely."}
 
 @app.get("/api/admin/all-brands")
 def get_admin_all_brands(

@@ -16,23 +16,32 @@ import {
   deleteContactApi,
 } from "./api";
 
-const MIGRATION_KEY = "kayanova.sandbox_migrated_v2";
+const MIGRATION_KEY = "kayanova.sandbox_migrated_v3_format";
 if (typeof window !== "undefined" && !localStorage.getItem(MIGRATION_KEY)) {
   try {
     localStorage.removeItem("kayanova.leads.v1");
     localStorage.removeItem("kayanova.contacts.v1");
     localStorage.removeItem("kayanova.brands.v1");
+    localStorage.removeItem("kayanova.leads.v2");
+    localStorage.removeItem("kayanova.contacts.v2");
+    localStorage.removeItem("kayanova.brands.v2");
+    localStorage.removeItem("kayanova.activeBrand.v2");
+    localStorage.removeItem("kayanova.deleted_brands.v2");
+    localStorage.removeItem("kayanova.deleted_leads.v2");
+    localStorage.removeItem("kayanova.deleted_contacts.v2");
+    localStorage.removeItem("kayanova.sandbox_migrated_v2");
+    localStorage.removeItem("kayanova_session_id");
     localStorage.setItem(MIGRATION_KEY, "true");
   } catch {}
 }
 
-const BRANDS_KEY = "kayanova.brands.v2";
-const LEADS_KEY = "kayanova.leads.v2";
-const CONTACTS_KEY = "kayanova.contacts.v2";
-const ACTIVE_KEY = "kayanova.activeBrand.v2";
-const DELETED_BRANDS_KEY = "kayanova.deleted_brands.v2";
-const DELETED_LEADS_KEY = "kayanova.deleted_leads.v2";
-const DELETED_CONTACTS_KEY = "kayanova.deleted_contacts.v2";
+const BRANDS_KEY = "kayanova.brands.v3";
+const LEADS_KEY = "kayanova.leads.v3";
+const CONTACTS_KEY = "kayanova.contacts.v3";
+const ACTIVE_KEY = "kayanova.activeBrand.v3";
+const DELETED_BRANDS_KEY = "kayanova.deleted_brands.v3";
+const DELETED_LEADS_KEY = "kayanova.deleted_leads.v3";
+const DELETED_CONTACTS_KEY = "kayanova.deleted_contacts.v3";
 
 function seedBrands(): BrandProfile[] {
   return [];
@@ -100,10 +109,33 @@ function deduplicateContacts(list: CustomerContact[]): CustomerContact[] {
 
 export function isSampleBrand(b: { id?: string; name?: string; isSample?: boolean }): boolean {
   if (b.isSample) return true;
-  const id = b.id || "";
-  if (id.startsWith("brand-fishawy") || id.startsWith("brand-kamal") || id.startsWith("brand-misk")) return true;
+  const id = (b.id || "").toLowerCase();
+  if (
+    id.startsWith("brand-fishawy") ||
+    id.startsWith("brand-kamal") ||
+    id.startsWith("brand-misk") ||
+    id.startsWith("brand-bon-vanilla") ||
+    id.startsWith("brand-pearl-dental") ||
+    id.startsWith("brand-urban-chic") ||
+    id.includes("marktech-test") ||
+    id.includes("masark-test") ||
+    id.startsWith("brand-zznu4e") ||
+    id.startsWith("brand-slowbl") ||
+    id.startsWith("brand-7u6y1")
+  )
+    return true;
   const n = (b.name || "").trim();
-  if (n === "قهوة الفيشاوي" || n === "عيادات د. أحمد كمال" || n === "بوتيك مسك وعنبر") return true;
+  if (
+    n === "قهوة الفيشاوي" ||
+    n === "عيادات د. أحمد كمال" ||
+    n === "بوتيك مسك وعنبر" ||
+    n === "Kayanova MarkTech Agency" ||
+    n === "masark" ||
+    n.startsWith("3mojo") ||
+    n === "مجدوراس للملابس" ||
+    n === "Dewiglow"
+  )
+    return true;
   return false;
 }
 
