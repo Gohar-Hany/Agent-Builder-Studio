@@ -113,7 +113,7 @@ function Simulator() {
           : lang === "ar"
             ? `ممكن توضحلي إيه أهم الخدمات والأسعار المتاحة لدى ${brandName}؟`
             : `Could you explain the services, products and pricing offered by ${brandName}?`,
-      chipCls: "border-violet-500/30 bg-violet-500/10 text-violet-300 hover:bg-violet-500/20 hover:border-violet-400/60",
+      chipCls: "border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100",
     },
     {
       icon: isRestaurant ? Truck : isMedical ? Calendar : Sparkles,
@@ -135,7 +135,7 @@ function Simulator() {
         : lang === "ar"
           ? `أنا مهتم بالخدمة وعايز أطلبها، اسمي كريم وتليفوني 01012345678، إيه الخطوات؟`
           : `I am interested in your services and would like to proceed. Name: Karim, Phone: 01012345678`,
-      chipCls: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 hover:border-emerald-400/60 glow-emerald",
+      chipCls: "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300",
     },
     {
       icon: MapPin,
@@ -144,7 +144,7 @@ function Simulator() {
         lang === "ar"
           ? `أين يقع مقر أو فروع ${brandName} وما هي مواعيد العمل الرسمية؟`
           : `Where are you located and what are your operating hours?`,
-      chipCls: "border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 hover:border-amber-400/60",
+      chipCls: "border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100",
     },
     {
       icon: Tag,
@@ -153,7 +153,7 @@ function Simulator() {
         lang === "ar"
           ? "هل في أي عروض أو خصومات أو استشارة أولية متوفرة اليوم؟"
           : "Are there any special offers, discounts, or initial consultations available?",
-      chipCls: "border-cyan-500/30 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400/60 glow-cyan",
+      chipCls: "border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100",
     },
   ];
 
@@ -177,8 +177,8 @@ function Simulator() {
         : lang === "ar"
           ? `حابب أطلب الخدمة وأتعاقد فوراً، اسمي كريم ورقمي 01098765432 والعنوان التجمع الخامس`
           : `I would like to order your service immediately. Name: Karim, Phone: 01098765432, New Cairo`,
-      cardCls: "border-emerald-500/30 bg-emerald-950/20 hover:border-emerald-500/60 hover:bg-emerald-950/40",
-      tagCls: "border border-emerald-500/40 bg-emerald-500/20 text-emerald-300",
+      cardCls: "border-emerald-200 bg-emerald-50/50 dark:border-emerald-800 dark:bg-emerald-950/20",
+      tagCls: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200",
     },
     {
       category: lang === "ar" ? "استفسار عن الأسعار والمواعيد" : "Pricing & Availability",
@@ -186,8 +186,8 @@ function Simulator() {
         lang === "ar"
           ? `ما هي مواعيد العمل لديكم وما هي خطة الأسعار المتاحة؟`
           : `What are your business hours and pricing plans?`,
-      cardCls: "border-amber-500/30 bg-amber-950/20 hover:border-amber-500/60 hover:bg-amber-950/40",
-      tagCls: "border border-amber-500/40 bg-amber-500/20 text-amber-300",
+      cardCls: "border-amber-400/30 bg-amber-50",
+      tagCls: "bg-amber-100 text-amber-700",
     },
     {
       category: lang === "ar" ? "استشارة مخصصة وحجز" : "Consultation & Booking",
@@ -195,8 +195,8 @@ function Simulator() {
         lang === "ar"
           ? `عايز استشارة بخصوص احتياجات مشروعي يوم الأحد القادم الساعة 5 مساءً باسم م. طارق`
           : `I want to schedule a consultation for next Sunday at 5 PM, name Tarek`,
-      cardCls: "border-violet-500/30 bg-violet-950/20 hover:border-violet-500/60 hover:bg-violet-950/40",
-      tagCls: "border border-violet-500/40 bg-violet-500/20 text-violet-300",
+      cardCls: "border-violet-400/30 bg-violet-50",
+      tagCls: "bg-violet-100 text-violet-700",
     },
     {
       category:
@@ -205,8 +205,8 @@ function Simulator() {
         lang === "ar"
           ? "هل بتبيعوا قطع غيار سيارات وبتعملوا صيانة محركات؟"
           : "Do you sell car spare parts and do engine maintenance?",
-      cardCls: "border-rose-500/30 bg-rose-950/20 hover:border-rose-500/60 hover:bg-rose-950/40",
-      tagCls: "border border-rose-500/40 bg-rose-500/20 text-rose-300",
+      cardCls: "border-rose-400/30 bg-rose-50",
+      tagCls: "bg-rose-100 text-rose-700",
     },
   ];
 
@@ -296,30 +296,30 @@ function Simulator() {
   const renderChatBox = (isFullscreen: boolean) => (
     <div
       className={cn(
-        "flex flex-col overflow-hidden rounded-2xl border border-white/10 glass-card shadow-2xl backdrop-blur-2xl transition-all",
+        "flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all",
         isFullscreen
-          ? "h-full w-full max-w-5xl rounded-none sm:rounded-3xl border-0 sm:border-2 border-emerald-500/50 shadow-2xl"
+          ? "h-full w-full max-w-5xl rounded-none sm:rounded-3xl border-0 sm:border-2 border-emerald-300 shadow-2xl dark:border-emerald-800"
           : "h-[calc(100dvh-220px)] min-h-[480px] lg:h-[calc(100vh-160px)] lg:min-h-[550px]",
       )}
     >
       {/* Chat Header */}
-      <div className="shrink-0 flex items-center justify-between gap-3 border-b border-white/10 bg-slate-900/80 backdrop-blur-xl px-3.5 py-2.5 sm:px-5 sm:py-3 min-w-0">
+      <div className="shrink-0 flex items-center justify-between gap-3 border-b border-border bg-secondary px-3.5 py-2.5 sm:px-5 sm:py-3 min-w-0">
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
           <div className="relative shrink-0">
             <BrandGlyph
               brand={activeBrand}
-              className="size-8 sm:size-10 rounded-xl ring-2 ring-emerald-500/40 shadow-lg shadow-emerald-950/40"
+              className="size-8 sm:size-10 rounded-xl ring-2 ring-emerald-300 dark:ring-emerald-700 shadow-2xs"
             />
-            <span className="absolute -bottom-0.5 -end-0.5 size-2.5 sm:size-3 rounded-full bg-emerald-400 ring-2 ring-slate-950 animate-pulse" />
+            <span className="absolute -bottom-0.5 -end-0.5 size-2.5 sm:size-3 rounded-full bg-emerald-500 ring-2 ring-background" />
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5 min-w-0">
               <h2 className="text-xs sm:text-sm md:text-base font-bold text-foreground truncate">
                 {activeBrand?.name ?? (lang === "ar" ? "الوكيل الذكي" : "AI Assistant")}
               </h2>
-              <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-emerald-300">
-                <span className="size-1 rounded-full bg-emerald-400 animate-ping" />
-                {lang === "ar" ? "متصل مباشر" : "Live • Online"}
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-600/30 bg-emerald-500/10 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold text-emerald-600">
+                <span className="size-1 rounded-full bg-emerald-500" />
+                {lang === "ar" ? "متصل" : "Online"}
               </span>
             </div>
             <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground truncate">
@@ -341,14 +341,14 @@ function Simulator() {
             size="sm"
             onClick={() => setTts((v) => !v)}
             className={cn(
-              "h-8 sm:h-9 px-2 sm:px-3 text-xs font-semibold gap-1.5 border-white/10 shadow-xs",
+              "h-8 sm:h-9 px-2 sm:px-3 text-xs font-semibold gap-1.5 border-border shadow-2xs",
               tts
-                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
-                : "bg-white/[0.04] text-muted-foreground hover:text-foreground hover:bg-white/[0.08]",
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-card text-muted-foreground hover:text-foreground",
             )}
             title={tts ? "Voice On" : "Voice Off"}
           >
-            {tts ? <Volume2 className="size-3.5 text-emerald-400" /> : <VolumeX className="size-3.5" />}
+            {tts ? <Volume2 className="size-3.5" /> : <VolumeX className="size-3.5" />}
             <span className="hidden md:inline">
               {tts
                 ? lang === "ar"
@@ -364,7 +364,7 @@ function Simulator() {
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8 sm:h-9 sm:w-9 border-white/10 bg-white/[0.04] text-muted-foreground hover:text-foreground hover:bg-white/[0.08] shadow-xs"
+            className="h-8 w-8 sm:h-9 sm:w-9 border-border bg-card text-muted-foreground hover:text-foreground shadow-2xs"
             onClick={() => {
               reset();
               toast.info(lang === "ar" ? "تمت إعادة ضبط المحادثة." : "Chat session reset.");
@@ -389,7 +389,7 @@ function Simulator() {
               variant="outline"
               size="sm"
               onClick={() => setIsFocusMode(true)}
-              className="h-8 sm:h-9 gap-1.5 px-2.5 sm:px-3 text-xs font-bold border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 hover:border-emerald-500/50 shadow-xs"
+              className="h-8 sm:h-9 gap-1.5 px-2.5 sm:px-3 text-xs font-bold border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-primary hover:text-white dark:border-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 shadow-2xs"
               title={lang === "ar" ? "تكبير وتركيز كامل الشاشة" : "Full Screen Focus Mode"}
             >
               <Maximize2 className="size-3.5" />
@@ -404,33 +404,33 @@ function Simulator() {
       {/* Messages Stream */}
       <div
         ref={scroller}
-        className="flex-1 min-h-0 overflow-y-auto bg-slate-950/60 backdrop-blur-md p-3 sm:p-5 space-y-3.5 sm:space-y-4"
+        className="flex-1 min-h-0 overflow-y-auto bg-background/60 p-2.5 sm:p-5 space-y-3.5 sm:space-y-4"
       >
         {messages.length === 0 ? (
-          <div className="flex min-h-full flex-col items-center justify-center py-4 sm:py-8 text-center my-auto">
-            <div className="relative mb-3 sm:mb-4">
-              <div className="flex size-14 sm:size-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-xl shadow-emerald-500/20 ring-1 ring-white/20">
-                <Bot className="size-7 sm:size-8 text-white" />
+          <div className="flex min-h-full flex-col items-center justify-center py-2 sm:py-6 text-center my-auto">
+            <div className="relative mb-2 sm:mb-3">
+              <div className="flex size-12 sm:size-16 items-center justify-center rounded-2xl brand-gradient shadow-md">
+                <Bot className="size-6 sm:size-8 text-white" />
               </div>
-              <span className="absolute -top-1 -end-1 flex size-3.5 sm:size-4 items-center justify-center rounded-full bg-emerald-400 shadow">
-                <span className="size-1.5 rounded-full bg-white" />
+              <span className="absolute -top-1 -end-1 flex size-3 sm:size-3.5 items-center justify-center rounded-full bg-emerald-500 shadow">
+                <span className="size-1 sm:size-1.5 rounded-full bg-white" />
               </span>
               <span
-                className="absolute inset-0 -m-2 animate-ping rounded-2xl bg-emerald-400/20"
-                style={{ animationDuration: "2.5s" }}
+                className="absolute inset-0 -m-1.5 animate-ping rounded-2xl bg-emerald-400/30"
+                style={{ animationDuration: "2s" }}
               />
             </div>
-            <h3 className="text-sm sm:text-base font-bold text-foreground">
+            <h3 className="text-xs sm:text-base font-bold text-foreground">
               {lang === "ar"
-                ? `مرحباً! ابدأ محادثة تجريبية مع ${activeBrand?.name ?? "الوكيل الذكي"}`
+                ? `مرحباً! ابدأ محادثة مع ${activeBrand?.name ?? "الوكيل الذكي"}`
                 : `Start a conversation with ${activeBrand?.name ?? "AI Assistant"}`}
             </h3>
             <p className="mt-1 max-w-xs text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
               {lang === "ar"
-                ? "اكتب استفسارك أو اختر سيناريو لتجربة استخراج وتأكيد الطلبات فورياً."
-                : "Type a prompt or choose a quick scenario to inspect live AI responses and order capture."}
+                ? "اكتب سؤالاً أو اختر سيناريو لتجربة الوكيل واستخراج الطلبات فورياً."
+                : "Type a question or select a scenario to test AI responses and live order extraction."}
             </p>
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 max-w-md">
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
               {quickSuggestions.map((q, idx) => {
                 const Ic = q.icon;
                 return (
@@ -439,11 +439,11 @@ function Simulator() {
                     onClick={() => void dispatch(q.prompt)}
                     disabled={pending}
                     className={cn(
-                      "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] sm:text-xs font-semibold transition-all hover:scale-[1.02] active:scale-95",
+                      "flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] sm:text-xs font-semibold transition-all hover:shadow-sm active:scale-95",
                       q.chipCls,
                     )}
                   >
-                    <Ic className="size-3.5" />
+                    <Ic className="size-3" />
                     {q.label}
                   </button>
                 );
@@ -462,24 +462,24 @@ function Simulator() {
             >
               <div
                 className={cn(
-                  "flex size-7 sm:size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold shadow-md",
+                  "flex size-7 sm:size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold shadow-sm",
                   m.role === "user"
-                    ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-emerald-950/40"
-                    : "border border-white/10 bg-slate-900 text-emerald-400",
+                    ? "brand-gradient text-primary-foreground"
+                    : "border-2 border-border bg-card",
                 )}
               >
                 {m.role === "user" ? (
                   <span className="text-[9px] sm:text-[10px]">{lang === "ar" ? "أنت" : "You"}</span>
                 ) : (
-                  <Bot className="size-3.5 sm:size-4 text-emerald-400" />
+                  <Bot className="size-3 sm:size-3.5 text-primary" />
                 )}
               </div>
               <div
                 className={cn(
-                  "rounded-2xl px-3.5 py-2.5 sm:px-4 sm:py-3 text-xs sm:text-sm leading-relaxed shadow-lg",
+                  "rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm leading-relaxed shadow-xs",
                   m.role === "user"
-                    ? "rounded-tr-sm bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-medium shadow-emerald-950/30"
-                    : "rounded-tl-sm border border-white/10 bg-slate-900/90 text-slate-100 backdrop-blur-md",
+                    ? "rounded-tr-sm brand-gradient text-primary-foreground font-medium"
+                    : "rounded-tl-sm border border-border bg-card text-foreground",
                 )}
               >
                 <FormattedMessage content={m.content} isUser={m.role === "user"} />
@@ -490,16 +490,16 @@ function Simulator() {
 
         {pending && (
           <div className="me-auto flex items-center gap-2 sm:gap-2.5">
-            <div className="flex size-7 sm:size-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-slate-900 shadow-md">
-              <Bot className="size-3.5 sm:size-4 text-emerald-400" />
+            <div className="flex size-7 sm:size-8 shrink-0 items-center justify-center rounded-full border-2 border-border bg-card">
+              <Bot className="size-3 sm:size-3.5 text-primary" />
             </div>
-            <div className="flex items-center gap-2 rounded-2xl rounded-tl-sm border border-white/10 bg-slate-900/90 px-3.5 py-2.5 shadow-md backdrop-blur-md">
+            <div className="flex items-center gap-2 rounded-2xl rounded-tl-sm border border-border bg-card px-3 py-2 sm:px-4 sm:py-2.5 shadow-xs">
               <span className="inline-flex gap-1.5">
-                <span className="size-1.5 animate-bounce rounded-full bg-emerald-400 [animation-delay:-0.3s]" />
-                <span className="size-1.5 animate-bounce rounded-full bg-emerald-400 [animation-delay:-0.15s]" />
-                <span className="size-1.5 animate-bounce rounded-full bg-emerald-400" />
+                <span className="size-1.5 animate-bounce rounded-full bg-primary [animation-delay:-0.3s]" />
+                <span className="size-1.5 animate-bounce rounded-full bg-primary [animation-delay:-0.15s]" />
+                <span className="size-1.5 animate-bounce rounded-full bg-primary" />
               </span>
-              <span className="text-xs font-semibold text-slate-400">
+              <span className="text-xs font-medium text-muted-foreground">
                 {t.simulator.typing}
               </span>
             </div>
@@ -509,8 +509,8 @@ function Simulator() {
 
       {/* Suggestion Chips - Only shown during active conversation */}
       {messages.length > 0 && (
-        <div className="shrink-0 flex items-center gap-2 overflow-x-auto border-t border-white/10 bg-slate-900/70 px-3.5 py-2.5 touch-scroll no-scrollbar backdrop-blur-md">
-          <span className="shrink-0 text-xs font-bold text-slate-400">
+        <div className="shrink-0 flex items-center gap-2 overflow-x-auto border-t border-border bg-secondary/60 px-3.5 py-2.5 touch-scroll no-scrollbar">
+          <span className="shrink-0 text-xs font-bold text-muted-foreground">
             {lang === "ar" ? "جرب:" : "Try:"}
           </span>
           {quickSuggestions.map((q, idx) => {
@@ -522,7 +522,7 @@ function Simulator() {
                 onClick={() => void dispatch(q.prompt)}
                 disabled={pending}
                 className={cn(
-                  "flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 min-h-[36px]",
+                  "flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition-all hover:shadow-sm active:scale-95 disabled:opacity-50 min-h-[36px]",
                   q.chipCls,
                 )}
               >
@@ -536,7 +536,7 @@ function Simulator() {
 
       {/* Input Form */}
       <form
-        className="shrink-0 flex items-center gap-2 border-t border-white/10 bg-slate-900/90 p-3 sm:p-4 backdrop-blur-xl"
+        className="shrink-0 flex items-center gap-2 border-t-2 border-border bg-card p-3 sm:p-3.5"
         onSubmit={(e) => {
           e.preventDefault();
           void dispatch(input);
@@ -547,10 +547,10 @@ function Simulator() {
           onClick={startListening}
           title={t.simulator.voiceInput}
           className={cn(
-            "flex size-11 sm:size-12 shrink-0 items-center justify-center rounded-xl border transition-all active:scale-95",
+            "flex size-11 sm:size-12 shrink-0 items-center justify-center rounded-xl border-2 transition-all active:scale-95",
             listening
-              ? "border-emerald-500 bg-emerald-500/20 text-emerald-400 animate-pulse glow-emerald"
-              : "border-white/10 bg-white/[0.04] text-slate-400 hover:border-emerald-500/50 hover:text-emerald-300",
+              ? "border-primary bg-primary text-primary-foreground animate-pulse"
+              : "border-border bg-card text-muted-foreground hover:border-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-300",
           )}
         >
           <Mic className="size-5" />
@@ -560,7 +560,7 @@ function Simulator() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={t.simulator.placeholder}
-          className="h-11 sm:h-12 flex-1 border-white/10 bg-slate-950/60 text-sm sm:text-base font-medium rounded-xl px-4 text-slate-100 placeholder:text-slate-500 focus:border-emerald-500/50"
+          className="h-11 sm:h-12 flex-1 border-border bg-background text-sm sm:text-base font-medium rounded-xl px-4"
           dir="auto"
         />
 
@@ -568,7 +568,7 @@ function Simulator() {
           type="submit"
           disabled={pending || !input.trim()}
           className={cn(
-            "flex h-11 sm:h-12 shrink-0 items-center justify-center gap-2 rounded-xl px-4 sm:px-6 text-xs sm:text-sm font-bold text-white transition-all bg-gradient-to-r from-emerald-500 to-teal-600 shadow-md shadow-emerald-950/40 hover:opacity-90 active:scale-95 min-w-[52px]",
+            "flex h-11 sm:h-12 shrink-0 items-center justify-center gap-2 rounded-xl px-4 sm:px-6 text-xs sm:text-sm font-bold text-primary-foreground transition-all brand-gradient shadow-xs hover:opacity-90 active:scale-95 min-w-[52px]",
             "disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none",
           )}
         >
@@ -583,10 +583,10 @@ function Simulator() {
   const renderInspectorBox = () => (
     <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-start-4 duration-300">
       {/* Live Extracted Order */}
-      <div className="overflow-hidden rounded-2xl border border-white/10 glass-card shadow-lg">
-        <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.03] px-4 py-3">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+        <div className="flex items-center justify-between border-b border-border bg-secondary px-4 py-3">
           <div className="flex items-center gap-2.5">
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300">
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-xl border border-emerald-300 bg-emerald-100 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
               <ShoppingBag className="size-4" />
             </div>
             <div>
@@ -599,7 +599,7 @@ function Simulator() {
             </div>
           </div>
           {lead ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-bold text-emerald-300 glow-emerald">
+            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-600/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600">
               <CheckCircle2 className="size-3" />
               {lang === "ar" ? "تم الاستخراج" : "Captured"}
             </span>
@@ -611,7 +611,7 @@ function Simulator() {
         <div className="p-4">
           {lead ? (
             <div className="space-y-3">
-              <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/30 p-3.5 space-y-2">
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3 space-y-2 dark:border-emerald-800 dark:bg-emerald-950/30">
                 <Row k={t.crm.customerName} v={lead.customerName} />
                 <Row k={t.crm.customerPhone} v={lead.customerPhone || "—"} />
                 <Row k={t.crm.orderType} v={lead.orderType ?? "Delivery"} />
@@ -623,11 +623,11 @@ function Simulator() {
                   <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                     {t.crm.orderedItems}
                   </p>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-1">
                     {(lead.items ?? []).map((item, idx) => (
                       <span
                         key={idx}
-                        className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-300"
+                        className="rounded-lg border border-emerald-200 bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
                       >
                         {item}
                       </span>
@@ -637,15 +637,15 @@ function Simulator() {
               )}
               <Link
                 to="/analytics"
-                className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-bold text-foreground transition-colors hover:border-emerald-500/40 hover:bg-white/[0.08]"
+                className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-border bg-secondary px-3 py-2 text-xs font-bold text-foreground transition-colors hover:border-emerald-500 hover:bg-secondary"
               >
                 <span>{lang === "ar" ? "عرض في سجل المبيعات" : "Open in Sales CRM"}</span>
-                <ExternalLink className="size-3.5 text-emerald-400" />
+                <ExternalLink className="size-3.5 text-primary" />
               </Link>
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-white/10 bg-white/[0.02] px-3 py-6 text-center">
-              <div className="mx-auto mb-3 flex size-10 items-center justify-center rounded-xl bg-white/[0.04] text-muted-foreground/60">
+            <div className="rounded-xl border border-dashed border-border bg-secondary/50 px-3 py-6 text-center">
+              <div className="mx-auto mb-3 flex size-10 items-center justify-center rounded-xl bg-secondary text-muted-foreground/50">
                 <ShoppingBag className="size-5" />
               </div>
               <p className="text-xs font-bold text-foreground">{t.simulator.noOrderExtracted}</p>
@@ -660,9 +660,9 @@ function Simulator() {
       </div>
 
       {/* Quick Test Scenarios */}
-      <div className="overflow-hidden rounded-2xl border border-white/10 glass-card shadow-lg">
-        <div className="flex items-center gap-2.5 border-b border-white/10 bg-white/[0.03] px-4 py-3">
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-400">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+        <div className="flex items-center gap-2.5 border-b border-border bg-secondary px-4 py-3">
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-xl border border-amber-400/30 bg-amber-500/10 text-amber-600">
             <Zap className="size-4" />
           </div>
           <div>
@@ -681,7 +681,7 @@ function Simulator() {
               onClick={() => void dispatch(s.prompt)}
               disabled={pending}
               className={cn(
-                "group rounded-xl border p-3 text-start text-xs transition-all duration-150 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50",
+                "group rounded-xl border-2 p-3 text-start text-xs transition-all duration-150 hover:shadow-sm active:scale-[0.99] disabled:opacity-50",
                 s.cardCls,
               )}
             >
@@ -689,7 +689,7 @@ function Simulator() {
                 <span className={cn("rounded-full px-2.5 py-0.5 text-[10px] font-bold", s.tagCls)}>
                   {s.category}
                 </span>
-                <span className="text-[10px] font-semibold text-emerald-400 opacity-0 transition-opacity group-hover:opacity-100">
+                <span className="text-[10px] font-semibold text-primary opacity-0 transition-opacity group-hover:opacity-100">
                   {lang === "ar" ? "تشغيل في الشات" : "Run in Chat"}
                 </span>
               </div>
@@ -702,9 +702,9 @@ function Simulator() {
       </div>
 
       {/* Agent Persona */}
-      <div className="overflow-hidden rounded-2xl border border-white/10 glass-card shadow-lg">
-        <div className="flex items-center gap-2.5 border-b border-white/10 bg-white/[0.03] px-4 py-3">
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-xl border border-violet-500/30 bg-violet-500/10 text-violet-400">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+        <div className="flex items-center gap-2.5 border-b border-border bg-secondary px-4 py-3">
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-xl border border-violet-400/30 bg-violet-500/10 text-violet-600">
             <Layers className="size-4" />
           </div>
           <div>
@@ -720,25 +720,25 @@ function Simulator() {
           {[
             {
               label: activeBrand?.role ?? "Advisor",
-              cls: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
+              cls: "border-emerald-200 bg-emerald-100 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
             },
             {
               label: activeBrand?.dialect ?? "Egyptian Arabic",
-              cls: "border-violet-500/30 bg-violet-500/10 text-violet-300",
+              cls: "border-violet-200 bg-violet-50 text-violet-700",
             },
             {
               label: activeBrand?.tone ?? "Friendly",
-              cls: "border-amber-500/30 bg-amber-500/10 text-amber-300",
+              cls: "border-amber-200 bg-amber-50 text-amber-700",
             },
             {
               label:
                 AVAILABLE_LLM_MODELS.find((m) => m.id === activeBrand?.llmModel)?.name ||
                 "Gemini 3.7 Flash",
-              cls: "border-cyan-500/30 bg-cyan-500/10 text-cyan-300 font-mono",
+              cls: "border-emerald-300 bg-emerald-100 text-emerald-800 font-mono dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
             },
             {
               label: `${activeBrand?.menuItems?.length ?? 0} ${lang === "ar" ? "عنصر في القائمة" : "Catalog items"}`,
-              cls: "border-white/10 bg-white/[0.04] text-slate-300",
+              cls: "border-emerald-200 bg-emerald-50 text-emerald-700",
             },
           ].map((b, i) => (
             <span
@@ -780,10 +780,10 @@ function Simulator() {
           actions={
             <div className="flex items-center gap-2 shrink-0">
               <Select value={activeBrand?.id ?? ""} onValueChange={setActiveBrandId}>
-                <SelectTrigger className="h-9 w-36 sm:w-48 border-white/10 bg-slate-900/80 text-xs font-semibold text-foreground shadow-xs">
+                <SelectTrigger className="h-9 w-36 sm:w-48 border-border bg-card text-xs font-semibold text-foreground">
                   <SelectValue placeholder={t.dashboard.directoryTitle} />
                 </SelectTrigger>
-                <SelectContent className="border-white/10 bg-slate-900/95 backdrop-blur-xl">
+                <SelectContent className="border-border bg-card">
                   {brands.map((b) => (
                     <SelectItem key={b.id} value={b.id} className="text-foreground text-xs">
                       {b.name}
@@ -807,18 +807,18 @@ function Simulator() {
                   }
                 }}
               >
-                <SelectTrigger className="h-9 w-32 sm:w-44 border-emerald-500/30 bg-emerald-500/10 text-xs font-bold text-emerald-300">
+                <SelectTrigger className="h-9 w-32 sm:w-44 border-emerald-300 bg-emerald-50 text-xs font-bold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
                   <div className="flex items-center gap-1.5 truncate">
-                    <Sparkles className="size-3.5 shrink-0 text-emerald-400" />
+                    <Sparkles className="size-3.5 shrink-0 text-primary" />
                     <SelectValue placeholder="Model" />
                   </div>
                 </SelectTrigger>
-                <SelectContent className="border-white/10 bg-slate-900/95 backdrop-blur-xl">
+                <SelectContent className="border-border bg-card">
                   {AVAILABLE_LLM_MODELS.map((m) => (
                     <SelectItem key={m.id} value={m.id} className="text-xs">
                       <div className="flex items-center justify-between gap-2 w-full">
                         <span className="font-semibold text-foreground">{m.name}</span>
-                        <span className="text-[10px] text-emerald-400 font-bold font-mono">
+                        <span className="text-[10px] text-primary font-bold font-mono">
                           {m.contextLength}
                         </span>
                       </div>
@@ -831,7 +831,7 @@ function Simulator() {
               <Button
                 variant="outline"
                 size="icon"
-                className="hidden lg:flex h-9 w-9 border-white/10 bg-white/[0.04] text-foreground/80 hover:text-foreground hover:bg-white/[0.08] shadow-xs shrink-0"
+                className="hidden lg:flex h-9 w-9 border-border bg-card text-foreground/80 hover:text-foreground shadow-2xs shrink-0"
                 onClick={() => setShowInspector((v) => !v)}
                 title={showInspector ? "Hide Inspector" : "Show Inspector"}
               >
@@ -846,7 +846,7 @@ function Simulator() {
               <Button
                 size="sm"
                 onClick={() => setIsDeployModalOpen(true)}
-                className="h-9 px-3.5 gap-1.5 brand-gradient text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-950/40 shrink-0"
+                className="h-9 px-3.5 gap-1.5 brand-gradient text-white text-xs font-bold rounded-xl shadow-xs shrink-0"
               >
                 <Rocket className="size-3.5" />
                 <span className="hidden sm:inline">
@@ -860,15 +860,15 @@ function Simulator() {
           {/* MOBILE VIEW: Segmented Switcher (Chat vs Inspector)                 */}
           {/* =================================================================== */}
           <div className="lg:hidden shrink-0 mb-2.5">
-            <div className="grid grid-cols-2 rounded-xl border border-white/10 glass-card p-1 shadow-xs">
+            <div className="grid grid-cols-2 rounded-xl border border-border bg-card p-1 shadow-2xs">
               <button
                 type="button"
                 onClick={() => setMobileTab("chat")}
                 className={cn(
                   "flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-bold transition-all",
                   mobileTab === "chat"
-                    ? "brand-gradient text-white shadow-xs"
-                    : "text-muted-foreground hover:bg-white/[0.05] hover:text-foreground",
+                    ? "brand-gradient text-primary-foreground shadow-2xs"
+                    : "text-muted-foreground hover:bg-secondary hover:text-foreground",
                 )}
               >
                 <MessageSquare className="size-3.5" />
@@ -881,8 +881,8 @@ function Simulator() {
                 className={cn(
                   "flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-bold transition-all",
                   mobileTab === "inspector"
-                    ? "brand-gradient text-white shadow-xs"
-                    : "text-muted-foreground hover:bg-white/[0.05] hover:text-foreground",
+                    ? "brand-gradient text-primary-foreground shadow-2xs"
+                    : "text-muted-foreground hover:bg-secondary hover:text-foreground",
                 )}
               >
                 <ShoppingBag className="size-3.5" />

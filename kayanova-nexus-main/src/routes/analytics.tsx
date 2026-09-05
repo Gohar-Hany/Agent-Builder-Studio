@@ -350,24 +350,24 @@ function DualCrmPage() {
       }
     >
       {/* Top Segmented Dual CRM Switcher Tabs & Brand Filters */}
-      <div className="mb-6 flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between w-full max-w-full">
+      <div className="mb-5 flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between w-full max-w-full">
         {/* Sleek Segmented Switcher */}
-        <div className="grid grid-cols-2 w-full sm:w-auto rounded-2xl border border-white/10 glass-card p-1.5 shadow-md shrink-0">
+        <div className="grid grid-cols-2 w-full sm:w-auto rounded-xl border border-border bg-card p-1 shadow-2xs shrink-0">
           <button
             onClick={() => setActiveTab("orders")}
             className={cn(
-              "flex items-center justify-center gap-2 rounded-xl px-3 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-bold transition-all",
+              "flex items-center justify-center gap-2 rounded-lg px-3 py-2 sm:px-5 sm:py-2 text-xs sm:text-sm font-semibold transition-all",
               activeTab === "orders"
-                ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-950/40"
-                : "text-muted-foreground hover:bg-white/[0.04] hover:text-foreground",
+                ? "brand-gradient text-primary-foreground shadow-2xs"
+                : "text-muted-foreground hover:bg-secondary hover:text-foreground",
             )}
           >
             <ShoppingBag className="size-3.5 sm:size-4 shrink-0" />
             <span>{t.crm.tabOrders}</span>
             <span
               className={cn(
-                "rounded-full px-2 py-0.5 text-[11px] font-mono font-bold",
-                activeTab === "orders" ? "bg-white/20 text-white" : "bg-white/[0.06] text-muted-foreground",
+                "rounded-full px-2 py-0.5 text-[11px] font-bold",
+                activeTab === "orders" ? "bg-white/20 text-white" : "bg-secondary text-foreground",
               )}
             >
               {leads.length}
@@ -377,20 +377,20 @@ function DualCrmPage() {
           <button
             onClick={() => setActiveTab("contacts")}
             className={cn(
-              "flex items-center justify-center gap-2 rounded-xl px-3 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-bold transition-all",
+              "flex items-center justify-center gap-2 rounded-lg px-3 py-2 sm:px-5 sm:py-2 text-xs sm:text-sm font-semibold transition-all",
               activeTab === "contacts"
-                ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-950/40"
-                : "text-muted-foreground hover:bg-white/[0.04] hover:text-foreground",
+                ? "brand-gradient text-primary-foreground shadow-2xs"
+                : "text-muted-foreground hover:bg-secondary hover:text-foreground",
             )}
           >
             <Users className="size-3.5 sm:size-4 shrink-0" />
             <span>{t.crm.tabContacts}</span>
             <span
               className={cn(
-                "rounded-full px-2 py-0.5 text-[11px] font-mono font-bold",
+                "rounded-full px-2 py-0.5 text-[11px] font-bold",
                 activeTab === "contacts"
                   ? "bg-white/20 text-white"
-                  : "bg-white/[0.06] text-muted-foreground",
+                  : "bg-secondary text-foreground",
               )}
             >
               {contacts.length}
@@ -404,13 +404,13 @@ function DualCrmPage() {
             {t.crm.filterByBrand}:
           </span>
           <Select value={brandFilter} onValueChange={setBrandFilter}>
-            <SelectTrigger className="h-10 w-full sm:w-64 border-white/10 bg-slate-900/80 text-xs font-semibold text-foreground shadow-xs">
+            <SelectTrigger className="h-9.5 w-full sm:w-64 border-border bg-card text-xs font-semibold text-foreground shadow-2xs">
               <div className="flex items-center gap-2 truncate">
-                <Building2 className="size-3.5 text-emerald-400 shrink-0" />
+                <Building2 className="size-3.5 text-primary shrink-0" />
                 <SelectValue placeholder={t.all} />
               </div>
             </SelectTrigger>
-            <SelectContent className="border-white/10 bg-slate-900/95 backdrop-blur-xl">
+            <SelectContent className="border-border bg-card">
               <SelectItem value="all" className="text-xs font-semibold">
                 {lang === "ar" ? "جميع البراندات والوكلاء (الكل)" : "All Brands & Agents (All)"}
               </SelectItem>
@@ -428,83 +428,87 @@ function DualCrmPage() {
       {/* VIEW 1: ORDERS & SALES PIPELINE                                           */}
       {/* ========================================================================= */}
       {activeTab === "orders" && (
-        <div className="space-y-5">
+        <div className="space-y-4 sm:space-y-5">
           {/* Orders Stat KPI Cards */}
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             {/* Revenue */}
-            <div className="group relative overflow-hidden rounded-2xl border border-white/10 glass-card p-4 sm:p-5 transition-all duration-300 hover:border-emerald-500/40 hover:shadow-xl hover:shadow-emerald-950/20">
-              <div className="flex items-center justify-between">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-400/90">
-                  {t.crm.totalRevenue}
-                </p>
-                <div className="flex size-9 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 shadow-xs">
-                  <ShoppingBag className="size-4" />
+            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+              <div className="border-b-2 border-emerald-200 bg-emerald-50/60 px-4 py-3 dark:border-emerald-800 dark:bg-emerald-950/20">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
+                    {t.crm.totalRevenue}
+                  </p>
+                  <div className="flex size-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                    <ShoppingBag className="size-4" />
+                  </div>
                 </div>
+                <p className="mt-2 text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+                  {egp(revenue, lang)}
+                </p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  {lang === "ar" ? "من طلبات الشات المباشر" : "From live catalog orders"}
+                </p>
               </div>
-              <p className="mt-3 text-xl font-bold font-mono tracking-tight text-foreground sm:text-2xl">
-                {egp(revenue, lang)}
-              </p>
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                {lang === "ar" ? "من طلبات الشات المباشر" : "From live catalog orders"}
-              </p>
-              <div className="pointer-events-none absolute -bottom-6 -end-6 size-20 rounded-full bg-emerald-500/10 blur-xl group-hover:bg-emerald-500/20 transition-all" />
             </div>
 
             {/* Total Orders */}
-            <div className="group relative overflow-hidden rounded-2xl border border-white/10 glass-card p-4 sm:p-5 transition-all duration-300 hover:border-cyan-500/40 hover:shadow-xl hover:shadow-cyan-950/20">
-              <div className="flex items-center justify-between">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-cyan-400/90">
-                  {t.crm.totalOrders}
-                </p>
-                <div className="flex size-9 items-center justify-center rounded-xl border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 shadow-xs">
-                  <ArrowUpRight className="size-4" />
+            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+              <div className="border-b-2 border-blue-500/20 bg-blue-500/5 px-4 py-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-blue-600/70">
+                    {t.crm.totalOrders}
+                  </p>
+                  <div className="flex size-8 items-center justify-center rounded-xl bg-blue-500/15 text-blue-600">
+                    <ArrowUpRight className="size-4" />
+                  </div>
                 </div>
+                <p className="mt-2 text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+                  {leads.length}
+                </p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  {completedOrders} {t.crm.statusCompleted}
+                </p>
               </div>
-              <p className="mt-3 text-xl font-bold font-mono tracking-tight text-foreground sm:text-2xl">
-                {leads.length}
-              </p>
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                {completedOrders} {t.crm.statusCompleted}
-              </p>
-              <div className="pointer-events-none absolute -bottom-6 -end-6 size-20 rounded-full bg-cyan-500/10 blur-xl group-hover:bg-cyan-500/20 transition-all" />
             </div>
 
             {/* Avg Order Value */}
-            <div className="group relative overflow-hidden rounded-2xl border border-white/10 glass-card p-4 sm:p-5 transition-all duration-300 hover:border-amber-500/40 hover:shadow-xl hover:shadow-amber-950/20">
-              <div className="flex items-center justify-between">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-amber-400/90">
-                  {t.crm.avgOrderValue}
-                </p>
-                <div className="flex size-9 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-400 shadow-xs">
-                  <CheckCircle2 className="size-4" />
+            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+              <div className="border-b-2 border-amber-500/20 bg-amber-500/5 px-4 py-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600/70">
+                    {t.crm.avgOrderValue}
+                  </p>
+                  <div className="flex size-8 items-center justify-center rounded-xl bg-amber-500/15 text-amber-600">
+                    <CheckCircle2 className="size-4" />
+                  </div>
                 </div>
+                <p className="mt-2 text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+                  {egp(avgOrderValue, lang)}
+                </p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  {lang === "ar" ? "لكل معاملة بيع" : "Per transaction"}
+                </p>
               </div>
-              <p className="mt-3 text-xl font-bold font-mono tracking-tight text-foreground sm:text-2xl">
-                {egp(avgOrderValue, lang)}
-              </p>
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                {lang === "ar" ? "لكل معاملة بيع" : "Per transaction"}
-              </p>
-              <div className="pointer-events-none absolute -bottom-6 -end-6 size-20 rounded-full bg-amber-500/10 blur-xl group-hover:bg-amber-500/20 transition-all" />
             </div>
 
             {/* Fulfillment Rate */}
-            <div className="group relative overflow-hidden rounded-2xl border border-white/10 glass-card p-4 sm:p-5 transition-all duration-300 hover:border-violet-500/40 hover:shadow-xl hover:shadow-violet-950/20">
-              <div className="flex items-center justify-between">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-violet-400/90">
-                  {t.crm.fulfillmentRate}
-                </p>
-                <div className="flex size-9 items-center justify-center rounded-xl border border-violet-500/30 bg-violet-500/10 text-violet-400 shadow-xs">
-                  <Clock className="size-4" />
+            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+              <div className="border-b-2 border-violet-500/20 bg-violet-500/5 px-4 py-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-violet-600/70">
+                    {t.crm.fulfillmentRate}
+                  </p>
+                  <div className="flex size-8 items-center justify-center rounded-xl bg-violet-500/15 text-violet-600">
+                    <Clock className="size-4" />
+                  </div>
                 </div>
+                <p className="mt-2 text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+                  {fulfillmentRatio}%
+                </p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  {lang === "ar" ? "كفاءة التسليم والتنفيذ" : "Completion efficiency"}
+                </p>
               </div>
-              <p className="mt-3 text-xl font-bold font-mono tracking-tight text-foreground sm:text-2xl">
-                {fulfillmentRatio}%
-              </p>
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                {lang === "ar" ? "كفاءة التسليم والتنفيذ" : "Completion efficiency"}
-              </p>
-              <div className="pointer-events-none absolute -bottom-6 -end-6 size-20 rounded-full bg-violet-500/10 blur-xl group-hover:bg-violet-500/20 transition-all" />
             </div>
           </div>
 
@@ -513,17 +517,17 @@ function DualCrmPage() {
             <div className="relative flex-1 w-full">
               <Search className="absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                className="border-white/10 bg-slate-900/80 ps-9 text-xs sm:text-sm h-10 rounded-xl text-slate-100 placeholder:text-slate-500"
+                className="bg-card ps-9 text-xs sm:text-sm h-9"
                 placeholder={t.crm.searchOrders}
                 value={orderQuery}
                 onChange={(e) => setOrderQuery(e.target.value)}
               />
             </div>
             <Select value={orderStatus} onValueChange={setOrderStatus}>
-              <SelectTrigger className="w-full sm:w-48 border-white/10 bg-slate-900/80 text-xs sm:text-sm h-10 rounded-xl text-foreground">
+              <SelectTrigger className="w-full sm:w-48 bg-card text-xs sm:text-sm h-9">
                 <SelectValue placeholder={t.crm.filterStatus} />
               </SelectTrigger>
-              <SelectContent className="border-white/10 bg-slate-900/95 backdrop-blur-xl">
+              <SelectContent>
                 <SelectItem value="all">{t.all}</SelectItem>
                 <SelectItem value="New">{t.crm.statusNew}</SelectItem>
                 <SelectItem value="In Progress">{t.crm.statusInProgress}</SelectItem>
@@ -533,7 +537,7 @@ function DualCrmPage() {
           </div>
 
           {/* DESKTOP ORDERS TABLE */}
-          <div className="hidden md:block overflow-hidden rounded-2xl border border-white/10 glass-card shadow-lg">
+          <div className="hidden md:block surface overflow-hidden rounded-xl border border-border">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[900px] text-start text-sm">
                 <thead className="bg-secondary/60 text-xs font-semibold uppercase text-muted-foreground">
@@ -853,81 +857,85 @@ function DualCrmPage() {
       {/* VIEW 2: CUSTOMER LEADS & CONTACTS DATABASE                                */}
       {/* ========================================================================= */}
       {activeTab === "contacts" && (
-        <div className="space-y-5">
+        <div className="space-y-4 sm:space-y-5">
           {/* Contacts Stat KPI Cards */}
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             {/* Total Leads */}
-            <div className="group relative overflow-hidden rounded-2xl border border-white/10 glass-card p-4 sm:p-5 transition-all duration-300 hover:border-emerald-500/40 hover:shadow-xl hover:shadow-emerald-950/20">
-              <div className="flex items-center justify-between">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-400/90">
-                  {t.crm.totalLeads}
-                </p>
-                <div className="flex size-9 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 shadow-xs">
-                  <Users className="size-4" />
+            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+              <div className="border-b-2 border-emerald-200 bg-emerald-50/60 px-4 py-3 dark:border-emerald-800 dark:bg-emerald-950/20">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
+                    {t.crm.totalLeads}
+                  </p>
+                  <div className="flex size-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                    <Users className="size-4" />
+                  </div>
                 </div>
+                <p className="mt-2 text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+                  {totalContacts}
+                </p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  {lang === "ar" ? "قاعدة بيانات جهات الاتصال" : "Customer directory"}
+                </p>
               </div>
-              <p className="mt-3 text-xl font-bold font-mono tracking-tight text-foreground sm:text-2xl">
-                {totalContacts}
-              </p>
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                {lang === "ar" ? "قاعدة بيانات جهات الاتصال" : "Customer directory"}
-              </p>
-              <div className="pointer-events-none absolute -bottom-6 -end-6 size-20 rounded-full bg-emerald-500/10 blur-xl group-hover:bg-emerald-500/20 transition-all" />
             </div>
 
             {/* Converted to Orders */}
-            <div className="group relative overflow-hidden rounded-2xl border border-white/10 glass-card p-4 sm:p-5 transition-all duration-300 hover:border-teal-500/40 hover:shadow-xl hover:shadow-teal-950/20">
-              <div className="flex items-center justify-between">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-teal-400/90">
-                  {t.crm.convertedLeads}
-                </p>
-                <div className="flex size-9 items-center justify-center rounded-xl border border-teal-500/30 bg-teal-500/10 text-teal-400 shadow-xs">
-                  <UserCheck className="size-4" />
+            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+              <div className="border-b-2 border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600/70">
+                    {t.crm.convertedLeads}
+                  </p>
+                  <div className="flex size-8 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600">
+                    <UserCheck className="size-4" />
+                  </div>
                 </div>
+                <p className="mt-2 text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+                  {convertedCount}
+                </p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  {conversionRate}% {t.crm.conversionRate}
+                </p>
               </div>
-              <p className="mt-3 text-xl font-bold font-mono tracking-tight text-foreground sm:text-2xl">
-                {convertedCount}
-              </p>
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                {conversionRate}% {t.crm.conversionRate}
-              </p>
-              <div className="pointer-events-none absolute -bottom-6 -end-6 size-20 rounded-full bg-teal-500/10 blur-xl group-hover:bg-teal-500/20 transition-all" />
             </div>
 
             {/* Qualified Pipeline Leads */}
-            <div className="group relative overflow-hidden rounded-2xl border border-white/10 glass-card p-4 sm:p-5 transition-all duration-300 hover:border-cyan-500/40 hover:shadow-xl hover:shadow-cyan-950/20">
-              <div className="flex items-center justify-between">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-cyan-400/90">
-                  {t.crm.qualifiedLeads}
-                </p>
-                <div className="flex size-9 items-center justify-center rounded-xl border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 shadow-xs">
-                  <MessageCircle className="size-4" />
+            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+              <div className="border-b-2 border-blue-500/20 bg-blue-500/5 px-4 py-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-blue-600/70">
+                    {t.crm.qualifiedLeads}
+                  </p>
+                  <div className="flex size-8 items-center justify-center rounded-xl bg-blue-500/15 text-blue-600">
+                    <MessageCircle className="size-4" />
+                  </div>
                 </div>
+                <p className="mt-2 text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+                  {qualifiedCount}
+                </p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  {lang === "ar" ? "مؤهلين وجاهزين للمتابعة" : "Qualified & contacted"}
+                </p>
               </div>
-              <p className="mt-3 text-xl font-bold font-mono tracking-tight text-foreground sm:text-2xl">
-                {qualifiedCount}
-              </p>
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                {lang === "ar" ? "مؤهلين وجاهزين للمتابعة" : "Qualified & contacted"}
-              </p>
-              <div className="pointer-events-none absolute -bottom-6 -end-6 size-20 rounded-full bg-cyan-500/10 blur-xl group-hover:bg-cyan-500/20 transition-all" />
             </div>
 
             {/* Active Channels */}
-            <div className="group relative overflow-hidden rounded-2xl border border-white/10 glass-card p-4 sm:p-5 transition-all duration-300 hover:border-violet-500/40 hover:shadow-xl hover:shadow-violet-950/20">
-              <div className="flex items-center justify-between">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-violet-400/90">
-                  {t.crm.filterChannel}
-                </p>
-                <div className="flex size-9 items-center justify-center rounded-xl border border-violet-500/30 bg-violet-500/10 text-violet-400 shadow-xs">
-                  <Globe className="size-4" />
+            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+              <div className="border-b-2 border-violet-500/20 bg-violet-500/5 px-4 py-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-violet-600/70">
+                    {t.crm.filterChannel}
+                  </p>
+                  <div className="flex size-8 items-center justify-center rounded-xl bg-violet-500/15 text-violet-600">
+                    <Globe className="size-4" />
+                  </div>
                 </div>
+                <p className="mt-2 text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+                  {lang === "ar" ? "3 قنوات تواصل" : "3 Channels"}
+                </p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">WhatsApp, Instagram, Web</p>
               </div>
-              <p className="mt-3 text-xl font-bold font-mono tracking-tight text-foreground sm:text-2xl">
-                {lang === "ar" ? "3 قنوات تواصل" : "3 Channels"}
-              </p>
-              <p className="mt-1 text-[11px] text-muted-foreground">WhatsApp, Instagram, Web</p>
-              <div className="pointer-events-none absolute -bottom-6 -end-6 size-20 rounded-full bg-violet-500/10 blur-xl group-hover:bg-violet-500/20 transition-all" />
             </div>
           </div>
 
@@ -936,7 +944,7 @@ function DualCrmPage() {
             <div className="relative flex-1 w-full">
               <Search className="absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                className="border-white/10 bg-slate-900/80 ps-9 text-xs sm:text-sm h-10 rounded-xl text-slate-100 placeholder:text-slate-500"
+                className="bg-card ps-9 text-xs sm:text-sm h-9"
                 placeholder={t.crm.searchContacts}
                 value={contactQuery}
                 onChange={(e) => setContactQuery(e.target.value)}
@@ -945,10 +953,10 @@ function DualCrmPage() {
 
             <div className="grid grid-cols-2 sm:flex items-center gap-2">
               <Select value={contactStage} onValueChange={setContactStage}>
-                <SelectTrigger className="w-full sm:w-40 border-white/10 bg-slate-900/80 text-xs sm:text-sm h-10 rounded-xl text-foreground">
+                <SelectTrigger className="w-full sm:w-40 bg-card text-xs sm:text-sm h-9">
                   <SelectValue placeholder={t.crm.filterStage} />
                 </SelectTrigger>
-                <SelectContent className="border-white/10 bg-slate-900/95 backdrop-blur-xl">
+                <SelectContent>
                   <SelectItem value="all">{t.all}</SelectItem>
                   <SelectItem value="New Lead">{t.crm.stageNew}</SelectItem>
                   <SelectItem value="Contacted">{t.crm.stageContacted}</SelectItem>
@@ -959,10 +967,10 @@ function DualCrmPage() {
               </Select>
 
               <Select value={contactChannel} onValueChange={setContactChannel}>
-                <SelectTrigger className="w-full sm:w-36 border-white/10 bg-slate-900/80 text-xs sm:text-sm h-10 rounded-xl text-foreground">
+                <SelectTrigger className="w-full sm:w-36 bg-card text-xs sm:text-sm h-9">
                   <SelectValue placeholder={t.crm.filterChannel} />
                 </SelectTrigger>
-                <SelectContent className="border-white/10 bg-slate-900/95 backdrop-blur-xl">
+                <SelectContent>
                   <SelectItem value="all">{t.all}</SelectItem>
                   <SelectItem value="whatsapp">WhatsApp</SelectItem>
                   <SelectItem value="instagram">Instagram</SelectItem>
@@ -974,7 +982,7 @@ function DualCrmPage() {
           </div>
 
           {/* DESKTOP CONTACTS TABLE */}
-          <div className="hidden md:block overflow-hidden rounded-2xl border border-white/10 glass-card shadow-lg">
+          <div className="hidden md:block surface overflow-hidden rounded-xl border border-border">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[860px] text-start text-sm">
                 <thead className="bg-secondary/60 text-xs font-semibold uppercase text-muted-foreground border-b border-border">
