@@ -262,18 +262,18 @@ function Builder() {
               }
             }}
           >
-            <SelectTrigger className="h-9 bg-card border-2 border-emerald-300 hover:border-emerald-500 text-xs sm:text-sm w-[135px] sm:w-[170px] font-bold truncate shadow-2xs shrink-0">
+            <SelectTrigger className="h-9 bg-slate-900/80 border border-emerald-500/30 text-emerald-300 text-xs sm:text-sm w-[135px] sm:w-[170px] font-bold truncate shadow-xs shrink-0">
               <SelectValue placeholder={lang === "ar" ? "اختر وكيلاً..." : "Select Agent..."} />
             </SelectTrigger>
-            <SelectContent className="bg-card border-border shadow-xl z-50 min-w-[200px]">
+            <SelectContent className="bg-slate-900/95 border-white/10 shadow-2xl backdrop-blur-xl z-50 min-w-[200px]">
               <SelectItem
                 value="new"
-                className="text-xs sm:text-sm font-bold text-primary focus:bg-accent focus:text-foreground"
+                className="text-xs sm:text-sm font-bold text-emerald-400 focus:bg-emerald-500/20 focus:text-emerald-300"
               >
                 + {lang === "ar" ? "إنشاء وكيل جديد" : "Create New Agent"}
               </SelectItem>
               {brands.map((b) => (
-                <SelectItem key={b.id} value={b.id} className="text-xs sm:text-sm font-semibold">
+                <SelectItem key={b.id} value={b.id} className="text-xs sm:text-sm font-semibold text-foreground">
                   {b.name}
                 </SelectItem>
               ))}
@@ -284,7 +284,7 @@ function Builder() {
             <Button
               variant="ghost"
               size="sm"
-              className="h-9 text-xs sm:text-sm text-destructive hover:bg-rose-100 dark:hover:bg-rose-950 hover:text-destructive gap-1 px-2 shrink-0"
+              className="h-9 text-xs sm:text-sm text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 gap-1 px-2 shrink-0"
               onClick={() => setIsDeletingDraft(true)}
               title={lang === "ar" ? "حذف الوكيل الحالي" : "Delete Current Agent"}
             >
@@ -296,12 +296,12 @@ function Builder() {
           <Button
             variant="secondary"
             size="sm"
-            className="h-9 text-xs sm:text-sm gap-1.5 px-2.5 sm:px-3 shadow-2xs shrink-0 font-semibold"
+            className="h-9 text-xs sm:text-sm gap-1.5 px-2.5 sm:px-3 shadow-xs shrink-0 font-semibold border border-white/10 bg-white/[0.04] text-slate-200 hover:bg-white/[0.08]"
             onClick={autoFill}
             disabled={isAutoFilling}
             title={t.builder.autoFillBtn}
           >
-            <Sparkles className="size-3.5 text-primary" />
+            <Sparkles className="size-3.5 text-emerald-400" />
             <span className="hidden md:inline">
               {isAutoFilling
                 ? lang === "ar"
@@ -322,7 +322,7 @@ function Builder() {
 
           <Button
             size="sm"
-            className="h-9 text-xs sm:text-sm gap-1.5 px-3 sm:px-4 brand-gradient text-primary-foreground shadow-xs shrink-0 font-bold"
+            className="h-9 text-xs sm:text-sm gap-1.5 px-3 sm:px-4 brand-gradient text-white shadow-md shadow-emerald-950/40 shrink-0 font-bold"
             onClick={save}
             title={lang === "ar" ? "حفظ الوكيل" : "Save Agent"}
           >
@@ -334,10 +334,10 @@ function Builder() {
     >
       {/* Delete Agent Modal in Builder */}
       {isDeletingDraft && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4 animate-in fade-in duration-150">
+          <div className="w-full max-w-md rounded-2xl border border-white/10 glass-card p-6 shadow-2xl space-y-4">
             <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 shrink-0">
+              <div className="flex size-10 items-center justify-center rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 shrink-0">
                 <Trash2 className="size-5" />
               </div>
               <div>
@@ -356,7 +356,7 @@ function Builder() {
                 variant="outline"
                 size="sm"
                 onClick={() => setIsDeletingDraft(false)}
-                className="h-9 text-xs sm:text-sm"
+                className="h-9 text-xs sm:text-sm border-white/10 bg-white/[0.04]"
               >
                 {lang === "ar" ? "إلغاء" : "Cancel"}
               </Button>
@@ -378,9 +378,9 @@ function Builder() {
         {/* Progress track */}
         <div className="relative flex items-start">
           {/* Connecting line */}
-          <div className="absolute top-5 sm:top-6 inset-x-0 h-px bg-border" />
+          <div className="absolute top-5 sm:top-6 inset-x-0 h-px bg-white/10" />
           <div
-            className="absolute top-5 sm:top-6 start-0 h-px bg-gradient-to-r from-emerald-600 to-emerald-300 transition-all duration-500"
+            className="absolute top-5 sm:top-6 start-0 h-px bg-gradient-to-r from-emerald-500 to-teal-400 shadow-[0_0_10px_rgba(16,185,129,0.5)] transition-all duration-500"
             style={{ width: `${(currentStepIdx / (STEPS.length - 1)) * 100}%` }}
           />
 
@@ -397,12 +397,12 @@ function Builder() {
                 {/* Circle */}
                 <span
                   className={cn(
-                    "flex size-10 sm:size-12 items-center justify-center rounded-full border-2 transition-all duration-200 shadow-sm",
+                    "flex size-10 sm:size-12 items-center justify-center rounded-full border transition-all duration-200 shadow-md",
                     isActive
-                      ? "brand-gradient border-transparent text-white shadow-md scale-110"
+                      ? "brand-gradient border-transparent text-white shadow-lg shadow-emerald-950/50 scale-110 glow-emerald ring-2 ring-emerald-400/30"
                       : isPassed
-                        ? "bg-emerald-100 border-emerald-600 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
-                        : "bg-card border-border text-muted-foreground group-hover:border-emerald-400 group-hover:text-primary",
+                        ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300"
+                        : "glass-card border-white/10 text-muted-foreground group-hover:border-emerald-500/50 group-hover:text-emerald-300",
                   )}
                 >
                   {isPassed ? (
@@ -539,17 +539,18 @@ function Section({
 }) {
   const colorMap = {
     primary:
-      "text-emerald-800 bg-emerald-100 border-emerald-200 dark:text-emerald-300 dark:bg-emerald-950 dark:border-emerald-800",
-    blue: "text-blue-800 bg-blue-100 border-blue-200 dark:text-blue-300 dark:bg-blue-950 dark:border-blue-800",
+      "text-emerald-400 bg-emerald-500/10 border-emerald-500/25 shadow-[0_0_15px_-3px_rgba(16,185,129,0.3)]",
+    blue:
+      "text-cyan-400 bg-cyan-500/10 border-cyan-500/25 shadow-[0_0_15px_-3px_rgba(6,182,212,0.3)]",
     amber:
-      "text-amber-800 bg-amber-100 border-amber-200 dark:text-amber-300 dark:bg-amber-950 dark:border-amber-800",
+      "text-amber-400 bg-amber-500/10 border-amber-500/25 shadow-[0_0_15px_-3px_rgba(245,158,11,0.3)]",
     violet:
-      "text-purple-800 bg-purple-100 border-purple-200 dark:text-purple-300 dark:bg-purple-950 dark:border-purple-800",
+      "text-violet-400 bg-violet-500/10 border-violet-500/25 shadow-[0_0_15px_-3px_rgba(139,92,246,0.3)]",
   };
   return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-      {/* Section header with gradient accent */}
-      <div className="flex items-start gap-3.5 border-b border-border bg-secondary px-5 py-4">
+    <section className="overflow-hidden rounded-3xl border border-white/10 bg-card/75 backdrop-blur-xl shadow-lg relative group">
+      {/* Section header with glass accent */}
+      <div className="flex items-start gap-3.5 border-b border-white/10 bg-white/[0.02] px-5 py-4">
         {SectionIcon && (
           <div
             className={`flex size-9 shrink-0 items-center justify-center rounded-xl border ${colorMap[accentColor]}`}
@@ -558,9 +559,9 @@ function Section({
           </div>
         )}
         <div className="min-w-0">
-          <h2 className="text-sm sm:text-base font-bold tracking-tight text-foreground">{title}</h2>
+          <h2 className="text-sm sm:text-base font-black tracking-tight text-white">{title}</h2>
           {subtitle ? (
-            <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">{subtitle}</p>
+            <p className="mt-0.5 text-xs text-slate-400 font-medium line-clamp-2">{subtitle}</p>
           ) : null}
         </div>
       </div>
@@ -583,10 +584,10 @@ function Pill({
       type="button"
       onClick={onClick}
       className={cn(
-        "rounded-xl px-3.5 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold transition-all duration-150 border",
+        "rounded-xl px-3.5 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-bold transition-all duration-200 border",
         active
-          ? "bg-primary text-primary-foreground border-primary shadow-sm"
-          : "bg-card text-muted-foreground border-border hover:border-emerald-400 hover:text-foreground hover:bg-accent hover:text-foreground",
+          ? "brand-gradient text-white border-transparent shadow-[0_0_15px_-3px_rgba(16,185,129,0.4)] ring-1 ring-white/20 scale-[1.02]"
+          : "bg-white/[0.03] text-slate-300 border-white/10 hover:border-primary/50 hover:bg-white/[0.06] hover:text-white",
       )}
     >
       {children}
@@ -614,13 +615,13 @@ function AiActionButton({
       disabled={disabled || isLoading}
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold transition-all duration-150",
-        "border border-emerald-300 bg-emerald-100 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 shadow-2xs",
-        "hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-xs active:scale-95",
-        "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-emerald-100 dark:hover:bg-emerald-900 disabled:hover:text-primary",
+        "border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 shadow-[0_0_15px_-3px_rgba(16,185,129,0.25)]",
+        "hover:brand-gradient hover:text-white hover:border-transparent active:scale-95",
+        "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-emerald-500/10 disabled:hover:text-emerald-300",
         "whitespace-nowrap shrink-0 cursor-pointer",
       )}
     >
-      <Sparkles className={cn("size-3.5 shrink-0", isLoading && "animate-spin")} />
+      <Sparkles className={cn("size-3.5 shrink-0 text-emerald-400", isLoading && "animate-spin")} />
       <span>{isLoading ? loadingLabel || label : label}</span>
     </button>
   );

@@ -96,7 +96,7 @@ export function AppShell({
 
   return (
     <div
-      className="min-h-screen bg-background text-foreground overflow-x-hidden w-full max-w-full"
+      className="min-h-screen bg-background text-foreground overflow-x-hidden w-full max-w-full ambient-mesh relative selection:bg-emerald-500/30 selection:text-white"
       dir={dir}
     >
       {/* ========================================================================= */}
@@ -104,8 +104,8 @@ export function AppShell({
       {/* ========================================================================= */}
       <aside
         className={cn(
-          "fixed inset-y-0 start-0 z-30 hidden flex-col border-e border-border bg-sidebar transition-all duration-300 lg:flex",
-          "shadow-[1px_0_0_0_var(--color-border),4px_0_24px_rgba(4,11,24,0.06)]",
+          "fixed inset-y-0 start-0 z-30 hidden flex-col border-e border-white/10 bg-sidebar/90 backdrop-blur-2xl transition-all duration-300 lg:flex",
+          "shadow-[1px_0_0_0_rgba(255,255,255,0.06),4px_0_32px_rgba(0,0,0,0.5)]",
           collapsed ? "w-18 px-2 py-5 items-center" : "w-64 px-4 py-6",
         )}
       >
@@ -118,21 +118,29 @@ export function AppShell({
         >
           <Link
             to="/"
-            className="flex items-center gap-3 transition-opacity hover:opacity-90"
+            className="flex items-center gap-3 transition-opacity hover:opacity-90 group"
             title={t.appName}
           >
-            <img
-              src="/logo.png"
-              alt="Kayanova Logo"
-              className={cn(
-                "rounded-xl object-contain shadow-xs transition-all",
-                collapsed ? "size-9" : "size-10",
-              )}
-            />
+            <div className="relative">
+              <img
+                src="/logo.png"
+                alt="Kayanova Logo"
+                className={cn(
+                  "rounded-xl object-contain ring-1 ring-primary/40 shadow-[0_0_20px_-3px_rgba(16,185,129,0.35)] transition-all group-hover:ring-primary",
+                  collapsed ? "size-9" : "size-10",
+                )}
+              />
+              <span className="absolute -bottom-1 -end-1 size-2.5 rounded-full bg-emerald-400 ring-2 ring-sidebar animate-pulse" />
+            </div>
             {!collapsed && (
               <div>
-                <p className="text-sm font-bold tracking-tight text-foreground">{t.brandName}</p>
-                <p className="text-xs font-medium text-muted-foreground">{t.brandStudio}</p>
+                <p className="text-sm font-black tracking-tight text-white flex items-center gap-1.5">
+                  <span>{t.brandName}</span>
+                  <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono">
+                    AI 2.5
+                  </span>
+                </p>
+                <p className="text-[11px] font-semibold text-slate-400">{t.brandStudio}</p>
               </div>
             )}
           </Link>
@@ -143,7 +151,7 @@ export function AppShell({
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}
-              className="size-7 text-muted-foreground hover:text-foreground shrink-0"
+              className="size-7 text-slate-400 hover:text-white hover:bg-white/5 shrink-0 rounded-lg"
               title={t.nav?.collapseSidebar ?? "Collapse"}
             >
               <PanelLeftClose className="size-4" />
@@ -155,13 +163,13 @@ export function AppShell({
         {!collapsed && (
           <button
             onClick={() => setOpen(true)}
-            className="mt-4 flex w-full items-center justify-between gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground shadow-2xs transition-colors hover:border-primary/40 hover:text-foreground hover:bg-accent/40"
+            className="mt-4 flex w-full items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs font-medium text-slate-400 shadow-2xs transition-all hover:border-primary/50 hover:text-white hover:bg-white/[0.06]"
           >
             <span className="flex items-center gap-2">
-              <Search className="size-3.5" />
+              <Search className="size-3.5 text-primary" />
               <span>{t.searchPlaceholder}</span>
             </span>
-            <kbd className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+            <kbd className="rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold text-slate-400">
               ⌘K
             </kbd>
           </button>
@@ -182,10 +190,10 @@ export function AppShell({
                 to={item.to}
                 title={collapsed ? item.label : undefined}
                 className={cn(
-                  "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-semibold transition-all duration-150",
+                  "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-semibold transition-all duration-150 relative",
                   active
-                    ? "brand-gradient text-white shadow-xs font-bold"
-                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                    ? "brand-gradient text-white font-bold shadow-[0_0_20px_-3px_rgba(16,185,129,0.35)] ring-1 ring-white/20"
+                    : "text-slate-400 hover:bg-white/[0.05] hover:text-white",
                   collapsed && "justify-center px-2",
                 )}
               >
@@ -194,7 +202,7 @@ export function AppShell({
                     "size-4 shrink-0 transition-colors",
                     active
                       ? "text-white"
-                      : "text-muted-foreground group-hover:text-foreground",
+                      : "text-slate-400 group-hover:text-primary",
                   )}
                 />
                 {!collapsed && <span className="truncate">{item.label}</span>}
@@ -208,36 +216,37 @@ export function AppShell({
           {/* AI Runtime Status Box */}
           {collapsed ? (
             <div
-              className="flex size-10 items-center justify-center rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-300 mx-auto"
+              className="flex size-10 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-950/40 text-emerald-400 shadow-[0_0_15px_-3px_rgba(16,185,129,0.25)] mx-auto"
               title={lang === "ar" ? "مساحة تجريبية خاصة ومعزولة" : "Private Sandbox"}
             >
               <Lock className="size-4" />
             </div>
           ) : (
-            <div className="rounded-2xl border border-border bg-card p-3 shadow-xs space-y-2">
+            <div className="rounded-2xl border border-white/10 bg-card/60 backdrop-blur-md p-3.5 shadow-md space-y-2.5">
               <div className="flex items-center gap-2">
-                <div className="flex size-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                <div className="flex size-7 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-xs">
                   <Lock className="size-3.5" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-foreground">
-                    {lang === "ar" ? "بيئة تجريبية معزولة" : "Client Sandbox"}
+                  <p className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span>{lang === "ar" ? "بيئة تجريبية معزولة" : "Client Sandbox"}</span>
+                    <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   </p>
-                  <p className="text-[10px] text-emerald-800 dark:text-emerald-300 font-semibold">
+                  <p className="text-[10px] text-emerald-400/90 font-medium">
                     {lang === "ar" ? "بياناتك مشفرة ومحمية" : "Isolated & Private"}
                   </p>
                 </div>
               </div>
-              <p className="text-[10px] font-medium text-muted-foreground leading-relaxed">
+              <p className="text-[10px] font-medium text-slate-400 leading-relaxed">
                 {lang === "ar"
                   ? "نماذجك وأوردراتك التجريبية خاصة بجلستك فقط ولا تظهر لباقي الزوار."
                   : "Your draft agents and test orders are isolated and visible only to your session."}
               </p>
 
-              <div className="pt-1.5 border-t border-border/60">
+              <div className="pt-2 border-t border-white/10">
                 <Link
                   to="/admin"
-                  className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-muted-foreground hover:text-primary transition-colors py-0.5"
+                  className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-slate-400 hover:text-primary transition-colors py-0.5"
                 >
                   <ShieldCheck className="size-3" />
                   <span>{lang === "ar" ? "لوحة الإدارة (Admin)" : "Master Admin"}</span>
@@ -257,16 +266,16 @@ export function AppShell({
           collapsed ? "lg:ps-18" : "lg:ps-64",
         )}
       >
-        <header className="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur-md shadow-[0_1px_0_0_var(--color-border),0_2px_8px_rgba(4,11,24,0.06)] w-full max-w-full overflow-x-hidden">
+        <header className="sticky top-0 z-20 border-b border-white/10 bg-background/80 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.4)] w-full max-w-full overflow-x-hidden">
           {/* Top Bar on Mobile */}
-          <div className="flex items-center justify-between border-b border-border/50 px-4 py-2.5 lg:hidden">
+          <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5 lg:hidden">
             <Link to="/" className="flex items-center gap-2.5">
               <img
                 src="/logo.png"
                 alt="Kayanova Logo"
-                className="size-7 rounded-lg object-contain"
+                className="size-7 rounded-lg object-contain ring-1 ring-primary/30"
               />
-              <span className="text-sm font-bold tracking-tight text-foreground">
+              <span className="text-sm font-bold tracking-tight text-white">
                 {t.brandName}
               </span>
             </Link>
@@ -275,7 +284,7 @@ export function AppShell({
                 variant="outline"
                 size="sm"
                 onClick={toggleLang}
-                className="h-8 gap-1 border-border px-2 text-xs font-semibold"
+                className="h-8 gap-1 border-white/10 bg-white/5 px-2 text-xs font-semibold text-slate-300"
               >
                 <Globe className="size-3.5 text-primary" />
                 <span>{lang === "ar" ? "EN" : "عربي"}</span>
@@ -291,18 +300,18 @@ export function AppShell({
                 variant="ghost"
                 size="icon"
                 onClick={toggleSidebar}
-                className="hidden lg:flex h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-secondary shrink-0"
+                className="hidden lg:flex h-9 w-9 text-slate-400 hover:text-white hover:bg-white/5 shrink-0 rounded-xl"
                 title={collapsed ? t.nav.expandSidebar : t.nav.collapseSidebar}
               >
                 <PanelLeft className={cn("size-4 text-primary", isRtl && "scale-x-[-1]")} />
               </Button>
 
               <div className="min-w-0">
-                <h1 className="text-base font-bold tracking-tight sm:text-xl text-foreground truncate leading-tight">
+                <h1 className="text-base font-black tracking-tight sm:text-xl text-white truncate leading-tight">
                   {title}
                 </h1>
                 {subtitle ? (
-                  <p className="mt-0.5 text-[11px] sm:text-xs font-medium text-muted-foreground line-clamp-1">
+                  <p className="mt-0.5 text-[11px] sm:text-xs font-medium text-slate-400 line-clamp-1">
                     {subtitle}
                   </p>
                 ) : null}
@@ -312,8 +321,8 @@ export function AppShell({
             {/* Structured Executive Toolbar */}
             <div className="flex items-center gap-2 sm:gap-2.5 py-0.5 xl:py-0 w-full xl:w-auto justify-start xl:justify-end shrink-0 max-w-full">
               {/* Private Sandbox Badge */}
-              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 border border-emerald-300 text-emerald-800 dark:bg-emerald-950/60 dark:border-emerald-800 dark:text-emerald-300">
-                <Lock className="size-3 text-emerald-700 dark:text-emerald-300" />
+              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 shadow-[0_0_15px_-4px_rgba(16,185,129,0.3)]">
+                <Lock className="size-3 text-emerald-400" />
                 <span>{lang === "ar" ? "بيئة تجريبية معزولة" : "Isolated Sandbox"}</span>
               </div>
 
@@ -322,13 +331,13 @@ export function AppShell({
                 variant="outline"
                 size="sm"
                 onClick={toggleLang}
-                className="hidden lg:flex h-9 gap-1.5 border-border bg-card px-2.5 sm:px-3 text-xs font-bold text-foreground hover:bg-secondary hover:text-foreground shadow-2xs shrink-0"
+                className="hidden lg:flex h-9 gap-1.5 border-white/10 bg-white/5 px-3 text-xs font-bold text-slate-300 hover:bg-white/10 hover:text-white shadow-2xs shrink-0 rounded-xl"
                 title={lang === "ar" ? "Switch to English" : "التبديل إلى العربية"}
               >
                 <Globe className="size-3.5 text-primary" />
                 <span>{lang === "ar" ? "English" : "العربية"}</span>
               </Button>
-              <div className="hidden lg:block h-5 w-px bg-border/70 shrink-0" />
+              <div className="hidden lg:block h-5 w-px bg-white/10 shrink-0" />
               {actions}
             </div>
           </div>
@@ -405,11 +414,11 @@ export function BrandGlyph({
   return (
     <div
       className={cn(
-        "flex size-10 sm:size-12 items-center justify-center rounded-2xl brand-gradient text-white shadow-sm",
+        "relative flex size-10 sm:size-12 items-center justify-center rounded-2xl brand-gradient text-white shadow-[0_0_25px_-4px_rgba(16,185,129,0.45)] ring-1 ring-white/25 shrink-0 transition-transform duration-200 group-hover:scale-105",
         className,
       )}
     >
-      <IconComponent className="size-5 sm:size-6" />
+      <IconComponent className="size-5 sm:size-6 drop-shadow-sm" />
     </div>
   );
 }
