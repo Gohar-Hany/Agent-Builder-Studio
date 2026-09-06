@@ -4,14 +4,18 @@ import {
   Bot,
   Briefcase,
   Building2,
+  ChevronLeft,
+  ChevronRight,
   Coffee,
   Globe,
   LayoutDashboard,
   Lock,
+  Menu,
   MessagesSquare,
   PanelLeft,
   PanelLeftClose,
   PanelLeftOpen,
+  Plus,
   Search,
   ShieldCheck,
   Shirt,
@@ -19,6 +23,7 @@ import {
   Stethoscope,
   Table2,
   Wrench,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -30,8 +35,11 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { useKayanova } from "@/lib/kayanova/store";
 
 export function AppShell({
   title,
@@ -45,7 +53,9 @@ export function AppShell({
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { lang, dir, isRtl, t, setLang, toggleLang } = useLanguage();
+  const { activeBrand } = useKayanova();
   const [collapsed, setCollapsed] = useState<boolean>(false);
 
   useEffect(() => {
@@ -246,55 +256,72 @@ export function AppShell({
         )}
       >
         <header className="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur-md shadow-[0_1px_0_0_var(--color-border),0_2px_8px_rgba(4,11,24,0.06)] w-full max-w-full overflow-x-hidden">
-          {/* Top Bar on Mobile */}
-          <div className="flex items-center justify-between border-b border-border/50 px-4 py-2.5 lg:hidden">
-            <Link to="/" className="flex items-center gap-2.5">
-              <img
-                src="/logo.png"
-                alt="Kayanova Logo"
-                className="size-7 rounded-lg object-contain"
-              />
-              <span className="text-sm font-bold tracking-tight text-foreground">
-                {t.brandName}
-              </span>
-            </Link>
-            <div className="flex items-center p-0.5 rounded-lg border border-border bg-card shrink-0" dir="ltr">
-              <button
-                type="button"
-                onClick={() => setLang("ar")}
-                className={cn(
-                  "px-2 py-1 rounded-md text-[11px] font-bold transition-all",
-                  lang === "ar"
-                    ? "brand-gradient text-white shadow-xs"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
+          {/* Mobile Top Bar (Single Clean 54px Row with Hamburger Menu) */}
+          <div className="flex items-center justify-between px-3.5 py-2.5 lg:hidden">
+            <div className="flex items-center gap-2.5">
+              {/* Hamburger Menu Trigger */}
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setMobileMenuOpen(true)}
+                className="size-9 rounded-xl border-border/80 bg-card hover:bg-secondary active:scale-95 shrink-0 shadow-2xs"
+                aria-label="Open Navigation Menu"
               >
-                عربي
-              </button>
-              <button
-                type="button"
-                onClick={() => setLang("en")}
-                className={cn(
-                  "px-2 py-1 rounded-md text-[11px] font-bold transition-all",
-                  lang === "en"
-                    ? "brand-gradient text-white shadow-xs"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                EN
-              </button>
+                <Menu className="size-5 text-foreground" />
+              </Button>
+
+              <Link to="/" className="flex items-center gap-2">
+                <img
+                  src="/logo.png"
+                  alt="Kayanova Logo"
+                  className="size-7 rounded-lg object-contain shadow-2xs"
+                />
+                <span className="text-sm font-black tracking-tight text-foreground">
+                  {t.brandName}
+                </span>
+              </Link>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {/* Language Switcher */}
+              <div className="flex items-center p-0.5 rounded-lg border border-border bg-card shrink-0" dir="ltr">
+                <button
+                  type="button"
+                  onClick={() => setLang("ar")}
+                  className={cn(
+                    "px-2 py-1 rounded-md text-[11px] font-bold transition-all",
+                    lang === "ar"
+                      ? "brand-gradient text-white shadow-xs"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  عربي
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLang("en")}
+                  className={cn(
+                    "px-2 py-1 rounded-md text-[11px] font-bold transition-all",
+                    lang === "en"
+                      ? "brand-gradient text-white shadow-xs"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  EN
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Main Header Title & Actions */}
-          <div className="flex flex-col gap-2 px-3 py-2.5 sm:px-4 sm:py-3.5 xl:flex-row xl:items-center xl:justify-between md:px-8 max-w-full">
+          {/* Desktop Executive Header Title & Actions (Desktop Only) */}
+          <div className="hidden lg:flex flex-col gap-2 px-4 py-3.5 xl:flex-row xl:items-center xl:justify-between md:px-8 max-w-full">
             <div className="flex items-center gap-3 min-w-0">
               {/* Desktop Toggle Button in Header if Collapsed */}
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={toggleSidebar}
-                className="hidden lg:flex h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-secondary shrink-0"
+                className="flex h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-secondary shrink-0"
                 title={collapsed ? t.nav.expandSidebar : t.nav.collapseSidebar}
               >
                 <PanelLeft className={cn("size-4 text-primary", isRtl && "scale-x-[-1]")} />
@@ -322,7 +349,7 @@ export function AppShell({
 
               {/* Language Switcher in Top Bar (Desktop/Tablet) - Clear Segmented Control */}
               <div
-                className="hidden lg:flex items-center p-0.5 rounded-xl border border-border bg-card shadow-2xs shrink-0"
+                className="flex items-center p-0.5 rounded-xl border border-border bg-card shadow-2xs shrink-0"
                 dir="ltr"
               >
                 <button
@@ -353,38 +380,201 @@ export function AppShell({
                   <span>English</span>
                 </button>
               </div>
-              <div className="hidden lg:block h-5 w-px bg-border/70 shrink-0" />
+              <div className="block h-5 w-px bg-border/70 shrink-0" />
               {actions}
             </div>
           </div>
-
-          {/* Mobile/Tablet Header Navigation Strip with 44px Touch Targets */}
-          <nav className="flex gap-2 overflow-x-auto border-t border-border bg-secondary/30 px-3 py-2 lg:hidden touch-scroll no-scrollbar">
-            {NAV.map((item) => {
-              const active = pathname === item.to;
-              return (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  className={cn(
-                    "flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-xs sm:text-sm font-bold transition-all min-h-[42px] shrink-0 active:scale-95",
-                    active
-                      ? "brand-gradient text-white shadow-xs"
-                      : "border border-border/80 bg-card text-foreground hover:bg-accent",
-                  )}
-                >
-                  <item.icon className="size-4 shrink-0" />
-                  <span>{item.shortLabel}</span>
-                </Link>
-              );
-            })}
-          </nav>
         </header>
 
-        <main className="flex-1 px-3 py-4 sm:px-6 sm:py-5 md:px-8 md:py-6 w-full max-w-full overflow-x-hidden">
+        <main className="flex-1 px-3.5 py-3 sm:px-6 sm:py-5 md:px-8 md:py-6 w-full max-w-full overflow-x-hidden">
+          {/* Mobile Compact In-Page Title Header */}
+          <div className="mb-4 pb-2.5 border-b border-border/40 lg:hidden">
+            <div className="flex items-center justify-between gap-2">
+              <h1 className="text-base font-bold text-foreground truncate">
+                {title}
+              </h1>
+              {activeBrand && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-500/20 shrink-0">
+                  <span className="size-1.5 rounded-full bg-emerald-500" />
+                  <span className="truncate max-w-[110px]">{activeBrand.name}</span>
+                </span>
+              )}
+            </div>
+            {subtitle && (
+              <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">
+                {subtitle}
+              </p>
+            )}
+            {actions && (
+              <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                {actions}
+              </div>
+            )}
+          </div>
+
           {children}
         </main>
       </div>
+
+      {/* ========================================================================= */}
+      {/* MOBILE HAMBURGER NAVIGATION DRAWER (SHEET)                                */}
+      {/* ========================================================================= */}
+      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+        <SheetContent
+          side={isRtl ? "right" : "left"}
+          className="w-[85vw] max-w-[340px] p-0 flex flex-col bg-card border-border shadow-2xl z-50 overflow-hidden"
+        >
+          {/* Drawer Header */}
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border/80 bg-secondary/30">
+            <Link
+              to="/"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-3 transition-opacity hover:opacity-90"
+            >
+              <img
+                src="/logo.png"
+                alt="Kayanova Logo"
+                className="size-9 rounded-xl object-contain shadow-xs"
+              />
+              <div>
+                <p className="text-sm font-black tracking-tight text-foreground">{t.brandName}</p>
+                <p className="text-[11px] font-semibold text-muted-foreground">{t.brandStudio}</p>
+              </div>
+            </Link>
+          </div>
+
+          {/* Drawer Body - Scrollable */}
+          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-5">
+            {/* Active Agent Banner in Drawer */}
+            {activeBrand && (
+              <div className="p-3.5 rounded-2xl border border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
+                    {lang === "ar" ? "الوكيل النشط" : "Active Agent"}
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
+                    <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    {lang === "ar" ? "متصل وجاهز" : "Live"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <div className="flex size-8 items-center justify-center rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-xs">
+                    {activeBrand.name.charAt(0)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold text-foreground truncate">{activeBrand.name}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">{activeBrand.category}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Main Navigation Links */}
+            <div className="space-y-1.5">
+              <p className="px-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                {lang === "ar" ? "أقسام الاستوديو الرئيسية" : "Studio Hubs"}
+              </p>
+              {NAV.map((item) => {
+                const active = pathname === item.to;
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={cn(
+                      "flex items-center justify-between rounded-xl px-3.5 py-3 text-sm font-bold transition-all active:scale-[0.98]",
+                      active
+                        ? "brand-gradient text-white shadow-sm"
+                        : "text-foreground hover:bg-secondary/70 hover:text-foreground",
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <item.icon className={cn("size-4.5", active ? "text-white" : "text-primary")} />
+                      <span>{item.label}</span>
+                    </div>
+                    {isRtl ? (
+                      <ChevronLeft className={cn("size-4 opacity-70", active && "text-white")} />
+                    ) : (
+                      <ChevronRight className={cn("size-4 opacity-70", active && "text-white")} />
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Quick Action Button */}
+            <div className="pt-2">
+              <Button
+                asChild
+                className="w-full h-11 brand-gradient text-white font-bold rounded-xl shadow-sm text-xs gap-2"
+              >
+                <Link
+                  to="/builder"
+                  search={{ step: "identity" }}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Plus className="size-4" />
+                  <span>{lang === "ar" ? "إنشاء وكيل ذكي جديد" : "Create New Agent"}</span>
+                </Link>
+              </Button>
+            </div>
+
+            {/* Admin Portal Direct Link */}
+            <div className="pt-2 border-t border-border/60">
+              <Link
+                to="/admin"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between rounded-xl px-3.5 py-2.5 text-xs font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground transition-all"
+              >
+                <div className="flex items-center gap-2.5">
+                  <ShieldCheck className="size-4 text-emerald-600" />
+                  <span>{lang === "ar" ? "لوحة الإدارة التنفيذية" : "Master Operations"}</span>
+                </div>
+                <Badge variant="outline" className="text-[10px] font-mono">Admin</Badge>
+              </Link>
+            </div>
+          </div>
+
+          {/* Drawer Footer */}
+          <div className="p-4 border-t border-border/80 bg-secondary/20 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-muted-foreground">
+                {lang === "ar" ? "اللغة" : "Language"}
+              </span>
+              <div className="flex items-center p-0.5 rounded-lg border border-border bg-card shrink-0" dir="ltr">
+                <button
+                  type="button"
+                  onClick={() => setLang("ar")}
+                  className={cn(
+                    "px-2.5 py-1 rounded-md text-xs font-bold transition-all",
+                    lang === "ar" ? "brand-gradient text-white shadow-xs" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  عربي
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLang("en")}
+                  className={cn(
+                    "px-2.5 py-1 rounded-md text-xs font-bold transition-all",
+                    lang === "en" ? "brand-gradient text-white shadow-xs" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  EN
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between text-[11px] text-muted-foreground/80 pt-1">
+              <span>{lang === "ar" ? "منظومة وكلاء كيانوفا" : "Kayanova Studio v3.2"}</span>
+              <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
+                <span className="size-1.5 rounded-full bg-emerald-500" />
+                {lang === "ar" ? "جاهز 100%" : "Operational"}
+              </span>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
 
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput placeholder={t.searchCommand} />

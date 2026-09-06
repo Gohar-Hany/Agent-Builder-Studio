@@ -115,7 +115,7 @@ function Dashboard() {
             </Select>
           )}
 
-          <Button size="sm" variant="outline" className="h-9 gap-1.5 text-xs font-bold" asChild>
+          <Button size="sm" variant="outline" className="hidden sm:inline-flex h-9 gap-1.5 text-xs font-bold" asChild>
             <Link to="/builder" search={{ step: "identity" }}>
               <Plus className="size-3.5" />
               <span>{lang === "ar" ? "إنشاء وكيل جديد" : "New Agent"}</span>
@@ -129,7 +129,7 @@ function Dashboard() {
         {/* TOP HERO: ACTIVE AGENT STATUS BAR OR EXECUTIVE WELCOME BANNER          */}
         {/* ===================================================================== */}
         {activeBrand ? (
-          <div className="overflow-hidden rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-xs">
+          <div className="overflow-hidden rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-xs">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="relative shrink-0">
@@ -184,46 +184,46 @@ function Dashboard() {
             </div>
 
             {/* Quick Metrics for Active Agent */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-border">
-              <div className="rounded-xl bg-secondary/50 p-3.5">
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
-                  {lang === "ar" ? "أصناف الكتالوج / الخدمات" : "Catalog Items"}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 mt-4 sm:mt-6 pt-4 sm:pt-5 border-t border-border">
+              <div className="rounded-xl bg-secondary/50 p-2.5 sm:p-3.5">
+                <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wide truncate">
+                  {lang === "ar" ? "أصناف الكتالوج" : "Catalog Items"}
                 </p>
-                <p className="text-xl font-bold text-foreground mt-1">
+                <p className="text-lg sm:text-xl font-bold text-foreground mt-1">
                   {catalogCount}
                 </p>
               </div>
 
-              <div className="rounded-xl bg-secondary/50 p-3.5">
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
+              <div className="rounded-xl bg-secondary/50 p-2.5 sm:p-3.5">
+                <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wide truncate">
                   {lang === "ar" ? "الطلبات المستخرجة" : "Captured Orders"}
                 </p>
-                <p className="text-xl font-bold text-foreground mt-1">
+                <p className="text-lg sm:text-xl font-bold text-foreground mt-1">
                   {agentOrdersCount}
                 </p>
               </div>
 
-              <div className="rounded-xl bg-secondary/50 p-3.5">
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
-                  {lang === "ar" ? "إجمالي مبيعات الوكيل" : "Total Captured Sales"}
+              <div className="rounded-xl bg-secondary/50 p-2.5 sm:p-3.5">
+                <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wide truncate">
+                  {lang === "ar" ? "مبيعات الوكيل" : "Captured Sales"}
                 </p>
-                <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+                <p className="text-base sm:text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 truncate">
                   {egp(agentRevenue, lang)}
                 </p>
               </div>
 
-              <div className="rounded-xl bg-secondary/50 p-3.5">
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
-                  {lang === "ar" ? "محرك الذكاء الاصطناعي" : "AI Core Engine"}
+              <div className="rounded-xl bg-secondary/50 p-2.5 sm:p-3.5">
+                <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wide truncate">
+                  {lang === "ar" ? "محرك الذكاء" : "AI Core"}
                 </p>
-                <p className="text-sm font-bold font-mono text-foreground mt-1 truncate">
+                <p className="text-xs sm:text-sm font-bold font-mono text-foreground mt-1 truncate">
                   Gemini 3.7 Flash
                 </p>
               </div>
             </div>
           </div>
         ) : (
-          <div className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs">
+          <div className="rounded-2xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs">
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5">
               <div className="space-y-1.5 max-w-2xl">
                 <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-50/80 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 dark:bg-emerald-950/40 dark:border-emerald-800/60 dark:text-emerald-300">
@@ -255,7 +255,7 @@ function Dashboard() {
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-5 pt-4 border-t border-border/60 text-xs text-muted-foreground font-medium">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mt-5 pt-4 border-t border-border/60 text-xs text-muted-foreground font-medium">
               <span className="flex items-center gap-1.5">
                 <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
                 {lang === "ar" ? "استجابة فورية خلال ثوانٍ" : "Sub-second response"}
