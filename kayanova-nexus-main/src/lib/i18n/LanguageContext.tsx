@@ -28,19 +28,8 @@ export function LanguageProvider({
   children: React.ReactNode;
   initialLang?: Language;
 }) {
-  const [lang, setLangState] = useState<Language>(() => {
-    if (typeof window !== "undefined") {
-      const match = document.cookie.match(/(?:^|;\s*)kayanova_language=(ar|en)(?:;|$)/);
-      if (match && match[1]) {
-        return match[1] as Language;
-      }
-      const saved = localStorage.getItem(LANG_STORAGE_KEY) as Language;
-      if (saved === "en" || saved === "ar") {
-        return saved;
-      }
-    }
-    return initialLang;
-  });
+  // Initialize with initialLang to guarantee 100% hydration match with SSR
+  const [lang, setLangState] = useState<Language>(initialLang);
   const [, startTransition] = useTransition();
 
   const updateDocumentAttributes = useCallback((currentLang: Language) => {
@@ -53,23 +42,20 @@ export function LanguageProvider({
     }
   }, []);
 
-  // Sync saved language from localStorage safely after hydration
+  // Sync saved language from localStorage safely after hydration completes
   useEffect(() => {
     if (typeof window !== "undefined") {
       const match = document.cookie.match(/(?:^|;\s*)kayanova_language=(ar|en)(?:;|$)/);
-      if (match && match[1] && match[1] !== lang) {
-        setLangState(match[1] as Language);
-        updateDocumentAttributes(match[1] as Language);
-      } else {
-        const saved = localStorage.getItem(LANG_STORAGE_KEY) as Language;
-        if ((saved === "en" || saved === "ar") && saved !== lang) {
-          setLangState(saved);
-          updateDocumentAttributes(saved);
-          document.cookie = `kayanova_language=${saved}; path=/; max-age=31536000; SameSite=Lax`;
-        }
+      const cookieLang = match?.[1] as Language | undefined;
+      const saved = localStorage.getItem(LANG_STORAGE_KEY) as Language | null;
+      const targetLang = cookieLang || (saved === "en" || saved === "ar" ? saved : null);
+      if (targetLang && targetLang !== lang) {
+        setLangState(targetLang);
+        updateDocumentAttributes(targetLang);
+        document.cookie = `kayanova_language=${targetLang}; path=/; max-age=31536000; SameSite=Lax`;
       }
     }
-  }, [lang, updateDocumentAttributes]);
+  }, []);
 
   const setLang = useCallback(
     (newLang: Language) => {

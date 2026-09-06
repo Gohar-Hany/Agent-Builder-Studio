@@ -63,7 +63,7 @@ export function AppShell({
       const saved = localStorage.getItem("kayanova_sidebar_collapsed");
       if (saved !== null) {
         setCollapsed(saved === "true");
-      } else if (window.innerWidth < 1200) {
+      } else if (window.innerWidth >= 1024 && window.innerWidth < 1200) {
         setCollapsed(true);
       }
     }
@@ -259,16 +259,15 @@ export function AppShell({
           {/* Mobile Top Bar (Single Clean 54px Row with Hamburger Menu) */}
           <div className="flex items-center justify-between px-3.5 py-2.5 lg:hidden">
             <div className="flex items-center gap-2.5">
-              {/* Hamburger Menu Trigger */}
-              <Button
-                variant="outline"
-                size="icon"
+              {/* Hamburger Menu Trigger - 0ms Touch Latency */}
+              <button
+                type="button"
                 onClick={() => setMobileMenuOpen(true)}
-                className="size-9 rounded-xl border-border/80 bg-card hover:bg-secondary active:scale-95 shrink-0 shadow-2xs"
+                className="flex size-9 items-center justify-center rounded-xl border border-border/80 bg-card hover:bg-secondary active:scale-90 shrink-0 shadow-2xs touch-manipulation cursor-pointer select-none transition-transform"
                 aria-label="Open Navigation Menu"
               >
                 <Menu className="size-5 text-foreground" />
-              </Button>
+              </button>
 
               <Link to="/" className="flex items-center gap-2">
                 <img
