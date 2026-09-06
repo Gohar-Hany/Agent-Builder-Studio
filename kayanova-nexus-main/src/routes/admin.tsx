@@ -255,22 +255,16 @@ function AdminOperationsPortal() {
   };
 
   const handleDeleteLead = async (leadId: string) => {
-    if (!confirm("Are you sure you want to permanently delete this deployment lead?")) {
-      return;
-    }
     try {
       setLeads((prev) => prev.filter((l) => l.id !== leadId));
       await deleteAdminLeadApi(leadId, adminKey);
-      toast.success("Lead permanently removed");
+      toast.success("Lead permanently removed from pipeline");
     } catch {
       toast.error("Failed to delete lead");
     }
   };
 
   const handleDeleteOrder = async (orderId: string) => {
-    if (!confirm("Are you sure you want to permanently delete this order?")) {
-      return;
-    }
     try {
       setOrders((prev) => prev.filter((o) => o.id !== orderId));
       await deleteOrderApi(orderId);
@@ -281,13 +275,10 @@ function AdminOperationsPortal() {
   };
 
   const handleDeleteBrand = async (brandId: string) => {
-    if (!confirm("Are you sure you want to delete this business agent?")) {
-      return;
-    }
     try {
       setBrands((prev) => prev.filter((b) => b.id !== brandId));
       await deleteBrandApi(brandId);
-      toast.success("Agent removed");
+      toast.success("Agent removed from catalog");
     } catch {
       toast.error("Failed to delete agent");
     }
