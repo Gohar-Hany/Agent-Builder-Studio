@@ -57,6 +57,8 @@ import {
   purgeAdminTestDataApi,
   verifyAdminKeyApi,
   createPlatformLeadApi,
+  deleteOrderApi,
+  deleteBrandApi,
 } from "@/lib/kayanova/api";
 import type {
   AdminOverviewData,
@@ -216,17 +218,7 @@ function AdminOperationsPortal() {
         fetchAdminAllOrdersApi(key).catch(() => []),
       ]);
 
-      let localLeads: PlatformLead[] = [];
-      if (typeof window !== "undefined") {
-        try {
-          localLeads = JSON.parse(
-            localStorage.getItem("kayanova_platform_leads_v3") || "[]",
-          );
-        } catch {}
-      }
-
-      const finalLeads =
-        lData && lData.length > 0 ? lData : localLeads;
+      const finalLeads = lData || [];
       const finalBrands = bData || [];
       const finalOrders = oData || [];
 
@@ -263,15 +255,41 @@ function AdminOperationsPortal() {
   };
 
   const handleDeleteLead = async (leadId: string) => {
-    if (!confirm("Are you sure you want to delete this deployment lead record?")) {
+    if (!confirm("Are you sure you want to permanently delete this deployment lead?")) {
       return;
     }
     try {
-      await deleteAdminLeadApi(leadId, adminKey);
       setLeads((prev) => prev.filter((l) => l.id !== leadId));
-      toast.success("Lead removed successfully");
+      await deleteAdminLeadApi(leadId, adminKey);
+      toast.success("Lead permanently removed");
     } catch {
       toast.error("Failed to delete lead");
+    }
+  };
+
+  const handleDeleteOrder = async (orderId: string) => {
+    if (!confirm("Are you sure you want to permanently delete this order?")) {
+      return;
+    }
+    try {
+      setOrders((prev) => prev.filter((o) => o.id !== orderId));
+      await deleteOrderApi(orderId);
+      toast.success("Order record permanently removed");
+    } catch {
+      toast.error("Failed to delete order");
+    }
+  };
+
+  const handleDeleteBrand = async (brandId: string) => {
+    if (!confirm("Are you sure you want to delete this business agent?")) {
+      return;
+    }
+    try {
+      setBrands((prev) => prev.filter((b) => b.id !== brandId));
+      await deleteBrandApi(brandId);
+      toast.success("Agent removed");
+    } catch {
+      toast.error("Failed to delete agent");
     }
   };
 
@@ -1428,8 +1446,19 @@ function AdminOperationsPortal() {
                             {b.category} • {b.dialect || "Standard Dialect"}
                           </p>
                         </div>
-                        <div className="size-8 rounded-xl brand-gradient text-white flex items-center justify-center shrink-0">
-                          <Bot className="size-4" />
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteBrand(b.id)}
+                            className="size-8 rounded-lg text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                            title="Delete Agent"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </Button>
+                          <div className="size-8 rounded-xl brand-gradient text-white flex items-center justify-center shrink-0">
+                            <Bot className="size-4" />
+                          </div>
                         </div>
                       </div>
 
@@ -1480,13 +1509,14 @@ function AdminOperationsPortal() {
                           <th className="p-3.5">Total (EGP)</th>
                           <th className="p-3.5">Status</th>
                           <th className="p-3.5">Timestamp</th>
+                          <th className="p-3.5 text-right">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-border">
                         {orders.length === 0 ? (
                           <tr>
                             <td
-                              colSpan={7}
+                              colSpan={8}
                               className="p-8 text-center text-muted-foreground"
                             >
                               No CRM orders captured yet. Simulator conversations with order intents will appear here.
@@ -1533,6 +1563,17 @@ function AdminOperationsPortal() {
                                       },
                                     )
                                   : "—"}
+                              </td>
+                              <td className="p-3.5 text-right">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleDeleteOrder(o.id)}
+                                  className="size-8 text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg"
+                                  title="Delete Order"
+                                >
+                                  <Trash2 className="size-3.5" />
+                                </Button>
                               </td>
                             </tr>
                           ))

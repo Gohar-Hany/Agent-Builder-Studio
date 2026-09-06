@@ -328,21 +328,61 @@ export async function fetchAdminOverviewApi(adminKey: string): Promise<AdminOver
   };
 }
 
+// ─── Permanent Deletion Tracking (Guarantees zero resurrection on refresh) ───
+
+const DELETED_LEADS_KEY = "kayanova_deleted_lead_ids_v2";
+const DELETED_ORDERS_KEY = "kayanova_deleted_order_ids_v2";
+const DELETED_BRANDS_KEY = "kayanova_deleted_brand_ids_v2";
+
+function getDeletedSet(storageKey: string): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = localStorage.getItem(storageKey);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    return new Set(Array.isArray(arr) ? arr : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function addToDeletedSet(storageKey: string, id: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    const set = getDeletedSet(storageKey);
+    set.add(id);
+    localStorage.setItem(storageKey, JSON.stringify(Array.from(set)));
+  } catch {}
+}
+
 export async function fetchAdminLeadsApi(_adminKey: string): Promise<PlatformLead[]> {
   if (typeof window !== "undefined") {
     try {
+      const deletedSet = getDeletedSet(DELETED_LEADS_KEY);
       const raw = localStorage.getItem("kayanova_platform_leads_v3");
-      if (raw) {
+      let allLeads: PlatformLead[] = [];
+
+      if (raw !== null) {
         const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) {
+          allLeads = parsed;
+        }
+      } else {
+        allLeads = DEFAULT_DEMO_LEADS;
+        localStorage.setItem("kayanova_platform_leads_v3", JSON.stringify(allLeads));
       }
-      localStorage.setItem("kayanova_platform_leads_v3", JSON.stringify(DEFAULT_DEMO_LEADS));
-      return DEFAULT_DEMO_LEADS;
+
+      // Filter out any permanently deleted lead
+      const surviving = allLeads.filter((l) => !deletedSet.has(l.id));
+      if (surviving.length !== allLeads.length) {
+        localStorage.setItem("kayanova_platform_leads_v3", JSON.stringify(surviving));
+      }
+      return surviving;
     } catch {
-      return DEFAULT_DEMO_LEADS;
+      return [];
     }
   }
-  return DEFAULT_DEMO_LEADS;
+  return [];
 }
 
 export async function updateAdminLeadStatusApi(
@@ -365,43 +405,87 @@ export async function deleteAdminLeadApi(
   leadId: string,
   _adminKey: string,
 ): Promise<{ message: string }> {
+  // 1. Permanently blacklist this lead ID so it NEVER reappears
+  addToDeletedSet(DELETED_LEADS_KEY, leadId);
+
+  // 2. Remove from local platform leads store
   if (typeof window !== "undefined") {
     try {
       const raw = localStorage.getItem("kayanova_platform_leads_v3");
-      const list: PlatformLead[] = raw ? JSON.parse(raw) : DEFAULT_DEMO_LEADS;
-      const filtered = list.filter((l) => l.id !== leadId);
-      localStorage.setItem("kayanova_platform_leads_v3", JSON.stringify(filtered));
+      if (raw) {
+        const list: PlatformLead[] = JSON.parse(raw);
+        const filtered = list.filter((l) => l.id !== leadId);
+        localStorage.setItem("kayanova_platform_leads_v3", JSON.stringify(filtered));
+      }
     } catch {}
   }
-  return { message: "Lead removed" };
+
+  // 3. Also delete corresponding order record if created
+  try {
+    await deleteOrderApi(leadId);
+  } catch {}
+
+  return { message: "Lead permanently removed" };
 }
 
 export async function fetchAdminAllBrandsApi(_adminKey: string): Promise<BrandProfile[]> {
+  const deletedSet = getDeletedSet(DELETED_BRANDS_KEY);
+  let brands: BrandProfile[] = [];
   try {
-    const brands = await fetchBrandsApi();
-    if (brands && brands.length > 0) return brands;
+    const remote = await fetchBrandsApi();
+    if (remote && Array.isArray(remote)) {
+      brands = remote;
+    }
   } catch {}
+
   if (typeof window !== "undefined") {
     try {
       const raw = localStorage.getItem("kayanova_brands_v3");
-      if (raw) return JSON.parse(raw);
+      if (raw) {
+        const local = JSON.parse(raw);
+        if (Array.isArray(local)) {
+          const existingIds = new Set(brands.map((b) => b.id));
+          for (const b of local) {
+            if (!existingIds.has(b.id)) {
+              brands.push(b);
+            }
+          }
+        }
+      }
     } catch {}
   }
-  return [];
+
+  return brands.filter((b) => !deletedSet.has(b.id));
 }
 
 export async function fetchAdminAllOrdersApi(_adminKey: string): Promise<ExtractedLead[]> {
+  const deletedSet = getDeletedSet(DELETED_ORDERS_KEY);
+  let orders: ExtractedLead[] = [];
   try {
-    const orders = await fetchOrdersApi();
-    if (orders && orders.length > 0) return orders;
+    const remote = await fetchOrdersApi();
+    if (remote && Array.isArray(remote)) {
+      orders = remote;
+    }
   } catch {}
+
   if (typeof window !== "undefined") {
     try {
       const raw = localStorage.getItem("kayanova_leads_v3");
-      if (raw) return JSON.parse(raw);
+      if (raw) {
+        const local = JSON.parse(raw);
+        if (Array.isArray(local)) {
+          const existingIds = new Set(orders.map((o) => o.id));
+          for (const item of local) {
+            if (!existingIds.has(item.id)) {
+              orders.push(item);
+            }
+          }
+        }
+      }
     } catch {}
   }
-  return [];
+
+  return orders.filter((o) => !deletedSet.has(o.id));
 }
 
 export async function purgeAdminTestDataApi(
@@ -410,6 +494,18 @@ export async function purgeAdminTestDataApi(
   let purgedCount = 0;
   if (typeof window !== "undefined") {
     try {
+      // Mark all current and demo leads as deleted
+      const raw = localStorage.getItem("kayanova_platform_leads_v3");
+      if (raw) {
+        const list: PlatformLead[] = JSON.parse(raw);
+        for (const l of list) {
+          addToDeletedSet(DELETED_LEADS_KEY, l.id);
+        }
+      }
+      for (const d of DEFAULT_DEMO_LEADS) {
+        addToDeletedSet(DELETED_LEADS_KEY, d.id);
+      }
+      localStorage.setItem("kayanova_platform_leads_v3", "[]");
       localStorage.removeItem("kayanova_leads_v3");
       localStorage.removeItem("kayanova_contacts_v3");
       purgedCount = 1;
