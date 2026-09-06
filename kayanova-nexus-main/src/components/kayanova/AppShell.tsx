@@ -45,7 +45,7 @@ export function AppShell({
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
-  const { lang, dir, isRtl, t, toggleLang } = useLanguage();
+  const { lang, dir, isRtl, t, setLang, toggleLang } = useLanguage();
   const [collapsed, setCollapsed] = useState<boolean>(false);
 
   useEffect(() => {
@@ -258,16 +258,31 @@ export function AppShell({
                 {t.brandName}
               </span>
             </Link>
-            <div className="flex items-center gap-1.5">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={toggleLang}
-                className="h-8 gap-1 border-border px-2 text-xs font-semibold"
+            <div className="flex items-center p-0.5 rounded-lg border border-border bg-card shrink-0" dir="ltr">
+              <button
+                type="button"
+                onClick={() => setLang("ar")}
+                className={cn(
+                  "px-2 py-1 rounded-md text-[11px] font-bold transition-all",
+                  lang === "ar"
+                    ? "brand-gradient text-white shadow-xs"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
               >
-                <Globe className="size-3.5 text-primary" />
-                <span>{lang === "ar" ? "EN" : "عربي"}</span>
-              </Button>
+                عربي
+              </button>
+              <button
+                type="button"
+                onClick={() => setLang("en")}
+                className={cn(
+                  "px-2 py-1 rounded-md text-[11px] font-bold transition-all",
+                  lang === "en"
+                    ? "brand-gradient text-white shadow-xs"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                EN
+              </button>
             </div>
           </div>
 
@@ -305,17 +320,39 @@ export function AppShell({
                 <span>{lang === "ar" ? "بيئة تجريبية معزولة" : "Isolated Sandbox"}</span>
               </div>
 
-              {/* Language Switcher in Top Bar (Desktop/Tablet) */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={toggleLang}
-                className="hidden lg:flex h-9 gap-1.5 border-border bg-card px-2.5 sm:px-3 text-xs font-bold text-foreground hover:bg-secondary hover:text-foreground shadow-2xs shrink-0"
-                title={lang === "ar" ? "Switch to English" : "التبديل إلى العربية"}
+              {/* Language Switcher in Top Bar (Desktop/Tablet) - Clear Segmented Control */}
+              <div
+                className="hidden lg:flex items-center p-0.5 rounded-xl border border-border bg-card shadow-2xs shrink-0"
+                dir="ltr"
               >
-                <Globe className="size-3.5 text-primary" />
-                <span>{lang === "ar" ? "English" : "العربية"}</span>
-              </Button>
+                <button
+                  type="button"
+                  onClick={() => setLang("ar")}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
+                    lang === "ar"
+                      ? "brand-gradient text-white shadow-xs"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/60",
+                  )}
+                  title="تفعيل اللغة العربية"
+                >
+                  <Globe className="size-3.5" />
+                  <span>العربية</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLang("en")}
+                  className={cn(
+                    "flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
+                    lang === "en"
+                      ? "brand-gradient text-white shadow-xs"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/60",
+                  )}
+                  title="Switch to English"
+                >
+                  <span>English</span>
+                </button>
+              </div>
               <div className="hidden lg:block h-5 w-px bg-border/70 shrink-0" />
               {actions}
             </div>

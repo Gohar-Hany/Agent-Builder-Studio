@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
+import { getInitialLanguage } from "@/lib/i18n/getInitialLang";
 
 function NotFoundComponent() {
   return (
@@ -71,6 +72,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  loader: async () => {
+    const initialLang = await getInitialLanguage();
+    return { initialLang };
+  },
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -139,8 +144,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const data = Route.useLoaderData();
+  const lang = data?.initialLang ?? "ar";
+  const dir = lang === "ar" ? "rtl" : "ltr";
+
   return (
-    <html lang="ar" dir="rtl">
+    <html lang={lang} dir={dir}>
       <head>
         <HeadContent />
       </head>
@@ -154,10 +163,12 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const data = Route.useLoaderData();
+  const initialLang = data?.initialLang ?? "ar";
 
   return (
     <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
+      <LanguageProvider initialLang={initialLang}>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
         <Toaster />
