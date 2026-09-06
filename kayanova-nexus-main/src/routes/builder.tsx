@@ -16,6 +16,7 @@ import {
   MessageSquare,
   PackageCheck,
   Plus,
+  RefreshCw,
   Rocket,
   Save,
   Send,
@@ -63,10 +64,11 @@ import { useLanguage } from "@/lib/i18n/LanguageContext";
 type StepKey = "identity" | "knowledge" | "behavior" | "preview";
 
 export const Route = createFileRoute("/builder")({
-  validateSearch: (search: Record<string, unknown>): { step: StepKey } => {
+  validateSearch: (search: Record<string, unknown>): { step: StepKey; brandId?: string } => {
     const valid: StepKey[] = ["identity", "knowledge", "behavior", "preview"];
     const step = String(search["step"] ?? "identity") as StepKey;
-    return { step: valid.includes(step) ? step : "identity" };
+    const brandId = search["brandId"] ? String(search["brandId"]) : undefined;
+    return { step: valid.includes(step) ? step : "identity", brandId };
   },
   head: () => ({
     meta: [
@@ -87,14 +89,114 @@ export const Route = createFileRoute("/builder")({
 });
 
 function Builder() {
-  const { step } = Route.useSearch();
+  const { step, brandId: searchBrandId } = Route.useSearch();
   const navigate = useNavigate({ from: "/builder" });
   const { brands, activeBrand, saveBrand, deleteBrand, setActiveBrandId } = useKayanova();
   const { t, lang, isRtl } = useLanguage();
-  const [draft, setDraft] = useState<BrandProfile>(() => blankBrand());
+
+  const [draft, setDraft] = useState<BrandProfile>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const savedDraftRaw = localStorage.getItem("kayanova_builder_draft");
+        if (savedDraftRaw) {
+          const parsed = JSON.parse(savedDraftRaw);
+          if (parsed && typeof parsed === "object" && parsed.id) {
+            return parsed;
+          }
+        }
+      } catch {}
+    }
+    return blankBrand();
+  });
+
+  const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "idle">("saved");
   const [isAutoFilling, setIsAutoFilling] = useState(false);
   const [isDeletingDraft, setIsDeletingDraft] = useState(false);
-  const loaded = useRef(false);
+  const isMounted = useRef(false);
+
+  // Sync initial brand from store: if user already has an active agent or saved draft, load it immediately!
+  useEffect(() => {
+    if (isMounted.current) return;
+    isMounted.current = true;
+
+    let targetBrand: BrandProfile | null = null;
+
+    if (searchBrandId) {
+      targetBrand = brands.find((b) => b.id === searchBrandId) || null;
+    }
+
+    if (!targetBrand && activeBrand && !activeBrand.isSample && activeBrand.name.trim() !== "") {
+      targetBrand = activeBrand;
+    }
+
+    if (!targetBrand && typeof window !== "undefined") {
+      try {
+        const savedDraftRaw = localStorage.getItem("kayanova_builder_draft");
+        if (savedDraftRaw) {
+          const parsed = JSON.parse(savedDraftRaw);
+          if (
+            parsed &&
+            typeof parsed === "object" &&
+            (parsed.name?.trim() || parsed.category || (parsed.menuItems && parsed.menuItems.length > 0))
+          ) {
+            targetBrand = parsed;
+          }
+        }
+      } catch {}
+    }
+
+    if (!targetBrand) {
+      const userBrands = brands.filter((b) => !b.isSample && b.name.trim() !== "");
+      if (userBrands.length > 0) {
+        targetBrand = userBrands[0]!;
+      }
+    }
+
+    if (targetBrand) {
+      setDraft(targetBrand);
+      setActiveBrandId(targetBrand.id);
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("kayanova_builder_draft", JSON.stringify(targetBrand));
+        } catch {}
+      }
+    }
+  }, [brands, activeBrand, searchBrandId, setActiveBrandId]);
+
+  // Also switch if search param brandId explicitly changes
+  useEffect(() => {
+    if (searchBrandId && searchBrandId !== draft.id) {
+      const found = brands.find((b) => b.id === searchBrandId);
+      if (found) {
+        setDraft(found);
+        setActiveBrandId(found.id);
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.setItem("kayanova_builder_draft", JSON.stringify(found));
+          } catch {}
+        }
+      }
+    }
+  }, [searchBrandId, brands, draft.id, setActiveBrandId]);
+
+  // Real-time Auto-save: persists every edit/keystroke so nothing is ever lost
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("kayanova_builder_draft", JSON.stringify(draft));
+      } catch {}
+    }
+
+    // Debounced sync with store so simulator and other views have immediate access
+    if (draft.name.trim()) {
+      setSaveStatus("saving");
+      const timer = setTimeout(() => {
+        void saveBrand(draft);
+        setSaveStatus("saved");
+      }, 700);
+      return () => clearTimeout(timer);
+    }
+  }, [draft, saveBrand]);
 
   const isSavedBrand = brands.some((b) => b.id === draft.id);
 
@@ -125,9 +227,6 @@ function Builder() {
     },
   ] as const;
 
-  // Keep draft initialized as a fresh blank brand by default
-  // When the user explicitly picks an agent from the switcher, it loads that agent.
-
   const patch = (p: Partial<BrandProfile>) => setDraft((d) => ({ ...d, ...p }));
   const goto = (s: StepKey) => void navigate({ search: { step: s } });
   const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
@@ -136,19 +235,38 @@ function Builder() {
   const prevStep = currentStepIdx > 0 ? STEPS[currentStepIdx - 1]?.key : null;
   const nextStep = currentStepIdx < STEPS.length - 1 ? STEPS[currentStepIdx + 1]?.key : null;
 
-  const save = () => {
-    if (!draft.name.trim()) {
-      toast.error(lang === "ar" ? "اسم العلامة التجارية مطلوب" : "Brand name is required");
-      goto("identity");
-      return;
+  // Reliable Save Draft Handler: guarantees persistent save with clear user feedback
+  const save = async (notify: boolean = true) => {
+    setSaveStatus("saving");
+    const targetName =
+      draft.name.trim() ||
+      (lang === "ar" ? "مسودة وكيل أعمال" : "Draft Business Agent");
+
+    const updatedDraft: BrandProfile = {
+      ...draft,
+      name: targetName,
+      updatedAt: new Date().toISOString(),
+    };
+
+    setDraft(updatedDraft);
+
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("kayanova_builder_draft", JSON.stringify(updatedDraft));
+      } catch {}
     }
-    saveBrand(draft);
-    setActiveBrandId(draft.id);
-    toast.success(
-      lang === "ar"
-        ? `تم حفظ وتفعيل الوكيل "${draft.name}" بنجاح!`
-        : `${draft.name} saved & deployed to live backend`,
-    );
+
+    await saveBrand(updatedDraft);
+    setActiveBrandId(updatedDraft.id);
+    setSaveStatus("saved");
+
+    if (notify) {
+      toast.success(
+        lang === "ar"
+          ? `تم حفظ مسودة الوكيل "${targetName}" بنجاح!`
+          : `Draft for "${targetName}" saved successfully!`,
+      );
+    }
   };
 
   const handleDeleteCurrentAgent = async () => {
@@ -156,6 +274,9 @@ function Builder() {
     const name = draft.name;
     await deleteBrand(draft.id);
     setIsDeletingDraft(false);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("kayanova_builder_draft");
+    }
     setDraft(blankBrand());
     goto("identity");
     toast.success(
@@ -238,12 +359,17 @@ function Builder() {
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* Agent Switcher Dropdown (with embedded + Create New Agent action) */}
           <Select
-            value={brands.some((b) => b.id === draft.id) ? draft.id : "new"}
+            value={draft.id}
             onValueChange={(val) => {
-              if (val === "new") {
+              if (val === "new_action") {
                 const blank = blankBrand();
                 setDraft(blank);
                 setActiveBrandId("");
+                if (typeof window !== "undefined") {
+                  try {
+                    localStorage.setItem("kayanova_builder_draft", JSON.stringify(blank));
+                  } catch {}
+                }
                 goto("identity");
                 toast.success(
                   lang === "ar" ? "تم فتح مساحة عمل لوكيل جديد" : "Blank workspace ready",
@@ -253,6 +379,11 @@ function Builder() {
                 if (found) {
                   setDraft(found);
                   setActiveBrandId(found.id);
+                  if (typeof window !== "undefined") {
+                    try {
+                      localStorage.setItem("kayanova_builder_draft", JSON.stringify(found));
+                    } catch {}
+                  }
                   toast.success(
                     lang === "ar"
                       ? `تم تحميل الوكيل "${found.name}"`
@@ -267,11 +398,16 @@ function Builder() {
             </SelectTrigger>
             <SelectContent className="bg-card border-border shadow-xl z-50 min-w-[200px]">
               <SelectItem
-                value="new"
+                value="new_action"
                 className="text-xs sm:text-sm font-bold text-primary focus:bg-accent focus:text-foreground"
               >
                 + {lang === "ar" ? "إنشاء وكيل جديد" : "Create New Agent"}
               </SelectItem>
+              {!brands.some((b) => b.id === draft.id) && (
+                <SelectItem value={draft.id} className="text-xs sm:text-sm font-semibold text-emerald-600">
+                  {draft.name.trim() ? draft.name : (lang === "ar" ? "مسودة جديدة" : "New Draft")}
+                </SelectItem>
+              )}
               {brands.map((b) => (
                 <SelectItem key={b.id} value={b.id} className="text-xs sm:text-sm font-semibold">
                   {b.name}
@@ -323,7 +459,7 @@ function Builder() {
           <Button
             size="sm"
             className="h-9 text-xs sm:text-sm gap-1.5 px-3 sm:px-4 brand-gradient text-primary-foreground shadow-xs shrink-0 font-bold"
-            onClick={save}
+            onClick={() => void save(true)}
             title={lang === "ar" ? "حفظ الوكيل" : "Save Agent"}
           >
             <Save className="size-3.5" />
@@ -452,9 +588,9 @@ function Builder() {
         {step === "preview" ? (
           <PreviewStep
             draft={draft}
-            onSave={save}
+            onSave={() => void save(true)}
             onRequestDeploy={() => {
-              save();
+              void save(false);
               setIsDeployModalOpen(true);
             }}
           />
@@ -462,7 +598,7 @@ function Builder() {
 
         {/* Step Bottom Navigation - Sticky & Touch-Optimized */}
         <div className="sticky bottom-0 z-10 flex flex-wrap items-center justify-between gap-3 mt-8 p-3 sm:p-4 rounded-2xl border-2 border-border bg-card/95 backdrop-blur-md shadow-md">
-          <div>
+          <div className="flex items-center gap-3">
             {prevStep ? (
               <Button
                 variant="outline"
@@ -474,6 +610,25 @@ function Builder() {
                 <span>{t.builder.prevStep}</span>
               </Button>
             ) : null}
+
+            {/* Auto-save status indicator */}
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium px-1">
+              {saveStatus === "saving" ? (
+                <>
+                  <RefreshCw className="size-3.5 animate-spin text-amber-500" />
+                  <span className="text-amber-600 dark:text-amber-400">
+                    {lang === "ar" ? "جاري الحفظ..." : "Saving..."}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="size-3.5 text-emerald-600" />
+                  <span className="text-emerald-700 dark:text-emerald-400">
+                    {lang === "ar" ? "محفوظ تلقائياً" : "Auto-saved"}
+                  </span>
+                </>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center gap-2.5 ms-auto">
@@ -482,7 +637,7 @@ function Builder() {
               variant="outline"
               size="default"
               className="h-11 gap-1.5 text-xs sm:text-sm px-4 border-2 border-emerald-300 text-emerald-800 dark:border-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900 font-bold rounded-xl active:scale-95 min-h-[44px]"
-              onClick={save}
+              onClick={() => void save(true)}
               title={lang === "ar" ? "حفظ التغييرات" : "Save Changes"}
             >
               <Save className="size-4" />
@@ -503,7 +658,7 @@ function Builder() {
                 size="default"
                 className="h-11 gap-2 text-xs sm:text-sm px-5 sm:px-6 brand-gradient text-primary-foreground shadow-md font-bold rounded-xl active:scale-95 min-h-[44px]"
                 onClick={() => {
-                  save();
+                  void save(false);
                   setIsDeployModalOpen(true);
                 }}
               >
