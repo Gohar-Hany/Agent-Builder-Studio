@@ -425,7 +425,7 @@ export function AppShell({
           className="w-[85vw] max-w-[340px] p-0 flex flex-col bg-card border-border shadow-2xl z-50 overflow-hidden"
         >
           {/* Drawer Header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-border/80 bg-secondary/30">
+          <div className="flex items-center justify-between ps-5 pe-12 py-4 border-b border-border/80 bg-secondary/30">
             <Link
               to="/"
               onClick={() => setMobileMenuOpen(false)}
